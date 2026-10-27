@@ -11,6 +11,14 @@
             <p class="text-sm font-semibold text-emerald-700">BengkelOS</p>
             <h1 class="mt-3 text-2xl font-bold">Fondasi aplikasi siap dikembangkan</h1>
             <p class="mt-3 leading-relaxed text-slate-600">Kerangka awal aplikasi telah terpasang. Fitur bengkel akan dikembangkan secara bertahap.</p>
+            <nav class="mt-6 flex flex-wrap gap-5" aria-label="Akun">
+                @auth
+                    <a class="auth-link" href="{{ route('dashboard') }}">Akun Anda</a>
+                @else
+                    <a class="auth-link" href="{{ route('login') }}">Masuk</a>
+                    <a class="auth-link" href="{{ route('register') }}">Buat akun</a>
+                @endauth
+            </nav>
             <div class="mt-6" x-data="{ open: false }">
                 <button type="button" class="min-h-11 rounded-lg bg-emerald-700 px-4 py-2 font-medium text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700" @click="open = !open" :aria-expanded="open" aria-controls="project-info">Tentang BengkelOS</button>
                 <p id="project-info" x-cloak x-show="open" class="mt-4 leading-relaxed text-slate-600">Aplikasi pengelolaan bengkel motor yang sederhana dan nyaman digunakan dari HP.</p>
