@@ -1,7 +1,9 @@
 # BengkelOS — Manual Testing / Pengujian Mandiri
 
-> Reviewed / Ditinjau: 2026-10-28  
-> Baseline: `main` after / setelah PR #1, tag `f02-authentication-v1`  
+> Reviewed / Ditinjau: 2026-10-28
+>
+> Baseline: `main` after / setelah PR #1, tag `f02-authentication-v1`
+>
 > Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
 
 ## 1. Current stage / Tahap sekarang
