@@ -8,6 +8,12 @@
 
 PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PHPUnit 12.
 
+## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
+
+**EN:** F02 — Authentication is merged into `main`; F03 — Workshop Tenant has not started. Laptop verification and real reset-email delivery are still unconfirmed. After pulling, follow the [manual testing checklist](docs/MANUAL_TESTING.md), which distinguishes completed cloud checks from outstanding local checks and provides a results template.
+
+**ID:** F02 — Authentication sudah masuk `main`; F03 — Workshop Tenant belum dimulai. Verifikasi laptop dan pengiriman email reset nyata masih belum dikonfirmasi. Setelah pull, ikuti [checklist pengujian mandiri](docs/MANUAL_TESTING.md), yang mencatat hasil tes cloud, pemeriksaan lokal yang masih perlu dilakukan, dan template hasil.
+
 ## F01 status / Status F01
 
 **EN:** Laravel 13.38.0 is installed. Herd serves the verified BengkelOS home page at http://bengkel-saas.test with HTTP 200 via Nginx. IIS (W3SVC) was stopped temporarily to resolve the port conflict; the original F01 checks (2 PHPUnit tests, Pint, Composer validation/audit, and frontend build) passed. The three standard Laravel migrations are included. The PostgreSQL connection and all three migrations were verified successfully. F01 is complete.
@@ -86,3 +92,4 @@ npm run build
 - [Architecture / Arsitektur](docs/ARCHITECTURE.md)
 - [Database](docs/DATABASE.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Manual testing / Pengujian mandiri](docs/MANUAL_TESTING.md)
