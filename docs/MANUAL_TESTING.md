@@ -2,7 +2,7 @@
 
 > Reviewed / Ditinjau: 2026-10-31
 >
-> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 instructions apply to the F03 change. / Instruksi F03 berlaku untuk perubahan F03.
+> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 tag: `f03-workshop-tenant-v1`; F04 instructions apply to the F04 change. / Instruksi F04 berlaku untuk perubahan F04.
 >
 > Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
 
@@ -13,8 +13,9 @@
 | F01 — Laravel bootstrap | Selesai / Complete; tag `f01-bootstrap-v1` |
 | F02 — Authentication | Sudah di-merge ke `main` / Merged into `main`; tag `f02-authentication-v1` |
 | F02 — Laptop + real email verification / Verifikasi laptop + email nyata | Belum dikonfirmasi / Not confirmed |
-| F03 — Workshop Tenant | Model/schema dan definisi relasi tersedia dalam perubahan F03 / Model/schema and relationship definitions implemented in the F03 change |
-| F04–F08 | Belum diimplementasikan / Not implemented |
+| F03 — Workshop Tenant | Sudah di-merge; tag `f03-workshop-tenant-v1` / Merged; tagged |
+| F04 — Membership + Roles | Tersedia dalam perubahan F04 / Implemented in the F04 change |
+| F05–F08 | Belum diimplementasikan / Not implemented |
 
 **ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Registrasi belum membuat workshop, role, atau trial. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Dokumen ini bukan instruksi melanjutkan F03.
 
@@ -57,7 +58,7 @@ composer install
 npm.cmd ci
 ```
 
-- [ ] `main` sudah diperbarui dan kedua tag terlihat. / `main` is updated and both milestone tags are visible.
+- [ ] `main` sudah diperbarui dan tag F01/F02/F03 terlihat. / `main` is updated and the F01/F02/F03 milestone tags are visible.
 - [ ] PHP 8.4+ tersedia. Jika tidak terdeteksi, ikuti petunjuk PATH Herd di [README](../README.md#local-setup--persiapan-lokal). / PHP 8.4+ is available; use the README Herd PATH instructions if necessary.
 - [ ] `.env` lokal masih ada; pertahankan `APP_KEY` dan kredensial yang sudah digunakan. Jangan menimpa `.env` dengan `.env.example` atau membuat ulang key yang sudah ada. / Preserve the existing `.env`, `APP_KEY`, and credentials; do not overwrite them or regenerate an existing application key.
 - [ ] PostgreSQL lokal berjalan dan `DB_*` menunjuk database aplikasi lokal. / Local PostgreSQL is running and `DB_*` targets the local application database.
@@ -141,11 +142,21 @@ php vendor/bin/pint --test
 npm.cmd run build
 ```
 
-- [ ] Suite dan pemeriksaan di atas lolos. Baseline F02: 41 tes / 241 assertion; F03: 51 tes / 275 assertion. / Checks pass; F02 baseline: 41 tests / 241 assertions; F03: 51 tests / 275 assertions.
+- [ ] Suite dan pemeriksaan di atas lolos. Baseline F02: 41 tes / 241 assertion; F03: 51 tes / 275 assertion; F04: 72 tes / 354 assertion. / Checks pass; F02: 41 tests / 241 assertions; F03: 51 tests / 275 assertions; F04: 72 tests / 354 assertions.
 
-**ID:** Untuk memeriksa F03 saja pada database tes yang sudah diverifikasi di atas, jalankan `php artisan test --filter=WorkshopTest` (10 tes). Ini memeriksa penyimpanan workshop, constraint, default, definisi relasi, dan rollback schema. Query/attach relasi nyata menunggu tabel membership F04; pengujian isolasi tenant melalui HTTP menyusul F06. Jangan menyimpulkan isolasi tenant sudah selesai dari tes schema ini.
+**ID:** Untuk memeriksa F03 saja pada database tes yang sudah diverifikasi di atas, jalankan `php artisan test --filter=WorkshopTest` (10 tes). Ini memeriksa penyimpanan workshop, constraint, default, definisi relasi, dan rollback schema. F04 menambahkan query/attach relasi nyata beserta tes membership; pengujian isolasi tenant melalui HTTP menyusul F06. Jangan menyimpulkan isolasi tenant sudah selesai dari tes schema ini.
 
-**EN:** On the verified testing database, run `php artisan test --filter=WorkshopTest` for the 10 F03 checks. They cover persistence, constraints, defaults, relationship definitions, and schema rollback. Actual relationship queries/attach require the F04 membership table; HTTP tenant-isolation tests belong to F06. Schema tests do not prove complete tenant isolation.
+**EN:** On the verified testing database, run `php artisan test --filter=WorkshopTest` for the 10 F03 checks. They cover persistence, constraints, defaults, relationship definitions, and schema rollback. F04 adds actual relationship queries/attach and membership tests; HTTP tenant-isolation tests belong to F06. Schema tests do not prove complete tenant isolation.
+
+### F04 laptop follow-up / Pemeriksaan laptop F04
+
+**ID:** Bila versi yang ditarik sudah memuat F04, jalankan `php artisan migrate` lalu `php artisan migrate:status`. Pastikan `2026_10_31_000001_create_workshop_user_table` dan `2026_10_31_000002_add_is_super_admin_to_users_table` berstatus Ran. User/workshop lama harus tetap tersedia; registrasi tidak otomatis memberi membership atau admin. Belum ada menu anggota/role, jadi tidak ada alur UI baru yang perlu dicari. Jangan mengubah flag admin atau memberikan role lewat input publik untuk mencoba fitur ini.
+
+**EN:** After updating to a version containing F04, run `php artisan migrate` and `php artisan migrate:status`; both new F04 migrations should show Ran. Existing users/workshops remain available; registration must not assign membership/admin. There is no member/role menu yet. Do not use public input to attempt admin or role assignment.
+
+- [ ] Kedua migration F04 berjalan dan akun lama tetap bisa login. / Both F04 migrations ran and existing accounts still log in.
+- [ ] Pada database tes terpisah yang diverifikasi di bagian 6, `php artisan test --filter=WorkshopMembershipTest` lolos (21 tes); suite penuh F04: 72 tes / 354 assertion. / On the verified dedicated test database, membership tests pass (21 tests); full F04 suite: 72 tests / 354 assertions.
+- [ ] Hasil laptop dicatat, bukan diasumsikan lolos karena tes cloud sudah berhasil. / Laptop results are recorded rather than inferred from cloud tests.
 
 ## 7. Record results / Catat hasil
 
@@ -165,6 +176,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
 | Kendala yang perlu diperbaiki / Issues | Belum dilaporkan / Not reported |
 
-**ID:** Task roadmap setelah F03 adalah **F04 — Membership + Roles**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
+**ID:** Task roadmap setelah F04 adalah **F05 — Plans + Subscription + Trial**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** After F03, the next task is **F04 — Membership + Roles**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.
+**EN:** After F04, the next task is **F05 — Plans + Subscription + Trial**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.

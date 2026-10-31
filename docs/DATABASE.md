@@ -148,9 +148,9 @@ Workshop is the primary SaaS tenant.
 
 **ID — Implementasi F03:** `workshops.id` memakai BIGINT auto-increment. `name` dan `slug` wajib berupa string (255); `slug` memiliki index unik global, sedangkan nama boleh sama. `phone` berupa string (255) opsional, `address` teks opsional, dan `timezone` string (64) wajib dengan default `Asia/Jakarta` pada model dan database. Timestamps standar disertakan. Slug diisi eksplisit; tidak ada pembuatan slug otomatis atau pemberian akses berdasarkan slug.
 
-**EN:** Laravel remains configured to UTC. The isolated PostgreSQL 17 test session reports `Etc/UTC`; deployment sessions should also use UTC (verify with `SHOW timezone`). The workshop timezone is display/business-date metadata; date conversion is not implemented by this schema. Validate IANA timezone input when workshop write endpoints are introduced. Relationship definitions use `workshop_user`; the pivot, role fields, and actual membership persistence arrive in F04.
+**EN:** Laravel remains configured to UTC. The isolated PostgreSQL 17 test session reports `Etc/UTC`; deployment sessions should also use UTC (verify with `SHOW timezone`). The workshop timezone is display/business-date metadata; date conversion is not implemented by this schema. Validate IANA timezone input when workshop write endpoints are introduced. Relationship definitions use `workshop_user`; F04 implements the pivot and role persistence described below.
 
-**ID:** Laravel tetap dikonfigurasi UTC. Session PostgreSQL 17 khusus tes melaporkan `Etc/UTC`; session deployment juga sebaiknya memakai UTC (periksa melalui `SHOW timezone`). Timezone workshop merupakan metadata tampilan/tanggal bisnis; schema ini belum mengimplementasikan konversi waktu. Validasi input timezone IANA dilakukan saat endpoint penulisan workshop ditambahkan. Definisi relasi memakai `workshop_user`; pivot, field role, dan penyimpanan membership sebenarnya menyusul di F04.
+**ID:** Laravel tetap dikonfigurasi UTC. Session PostgreSQL 17 khusus tes melaporkan `Etc/UTC`; session deployment juga sebaiknya memakai UTC (periksa melalui `SHOW timezone`). Timezone workshop merupakan metadata tampilan/tanggal bisnis; schema ini belum mengimplementasikan konversi waktu. Validasi input timezone IANA dilakukan saat endpoint penulisan workshop ditambahkan. Definisi relasi memakai `workshop_user`; F04 mengimplementasikan pivot dan penyimpanan role yang dijelaskan di bawah.
 
 ## 10. Workshop Membership
 
@@ -175,6 +175,15 @@ Constraint:
     UNIQUE(workshop_id, user_id)
 
 `super_admin` is platform-level, not an ordinary workshop role.
+
+**EN — F04 implementation:** `workshop_user` is implemented with a required PostgreSQL role check (`owner`, `cashier`, `mechanic`), no role default, foreign keys that restrict user/workshop deletion, the unique pair above, and an index on `user_id` for reverse membership lookups. The `WorkshopMembership` pivot casts roles to `WorkshopRole`; membership checks always query the database. Roles have no implicit hierarchy or cross-workshop inheritance.
+
+**ID — Implementasi F04:** `workshop_user` memiliki pemeriksaan role wajib di PostgreSQL (`owner`, `cashier`, `mechanic`), tanpa default role, foreign key yang membatasi penghapusan user/workshop, pasangan unik di atas, dan index `user_id` untuk pencarian membership dari user. Pivot `WorkshopMembership` melakukan cast ke `WorkshopRole`; pemeriksaan membership selalu membaca database. Role tidak memiliki hierarki implisit atau pewarisan lintas workshop.
+
+**EN:** Platform administration is stored separately as `users.is_super_admin`, required boolean default false. Existing users remain non-admin. It is excluded from user mass assignment; public registration does not accept it or assign memberships. No seeded admin or implicit membership bypass is introduced. F04 supplies the data model and check helpers; future HTTP features still need server-side policies and tenant/resource checks.
+
+**ID:** Administrasi platform disimpan terpisah sebagai `users.is_super_admin`, boolean wajib dengan default false. User lama tetap non-admin. Field ini tidak termasuk mass assignment user; registrasi publik tidak menerimanya atau memberikan membership. Tidak ada seed admin atau bypass membership implisit. F04 menyediakan model data dan helper pemeriksaan; fitur HTTP selanjutnya tetap memerlukan policy server serta pemeriksaan tenant/resource.
+
 
 ## 11. Active Workshop
 

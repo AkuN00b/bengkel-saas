@@ -17,12 +17,13 @@ class Workshop extends Model
     protected $attributes = ['timezone' => 'Asia/Jakarta'];
 
     /**
-     * Membership storage is introduced in F04; this relation grants no access.
+     * Members and their workshop-specific roles.
      *
      * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'workshop_user')->withTimestamps();
+        return $this->belongsToMany(User::class, 'workshop_user')
+            ->using(WorkshopMembership::class)->withPivot(['id', 'role'])->withTimestamps();
     }
 }
