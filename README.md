@@ -10,9 +10,9 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 
 ## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
 
-**EN:** F02 — Authentication is merged into `main`; F03 — Workshop Tenant has not started. Laptop verification and real reset-email delivery are still unconfirmed. After pulling, follow the [manual testing checklist](docs/MANUAL_TESTING.md), which distinguishes completed cloud checks from outstanding local checks and provides a results template.
+**EN:** F02 — Authentication is merged into `main`. This change implements F03 — Workshop Tenant; F04 — Membership + Roles remains the next task. Laptop verification and real reset-email delivery are still unconfirmed and have been explicitly deferred by the user. After pulling the relevant version, follow the [manual testing checklist](docs/MANUAL_TESTING.md).
 
-**ID:** F02 — Authentication sudah masuk `main`; F03 — Workshop Tenant belum dimulai. Verifikasi laptop dan pengiriman email reset nyata masih belum dikonfirmasi. Setelah pull, ikuti [checklist pengujian mandiri](docs/MANUAL_TESTING.md), yang mencatat hasil tes cloud, pemeriksaan lokal yang masih perlu dilakukan, dan template hasil.
+**ID:** F02 — Authentication sudah masuk `main`. Perubahan ini mengimplementasikan F03 — Workshop Tenant; F04 — Membership + Roles tetap task berikutnya. Verifikasi laptop dan pengiriman email reset nyata masih belum dikonfirmasi dan ditunda atas instruksi user. Setelah pull versi terkait, ikuti [checklist pengujian mandiri](docs/MANUAL_TESTING.md).
 
 ## F01 status / Status F01
 
@@ -41,6 +41,20 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 **EN:** On an isolated PostgreSQL 17 testing database with PHP 8.4, the suite passes 41 tests / 241 assertions. Pint and the production frontend build pass. Browser checks at desktop and mobile sizes pass registration, logout, login, invalid-credential feedback, and forgot-password submission without JavaScript errors or horizontal overflow. Authentication feature tests cover validation, CSRF, session rotation/logout, throttling, guest restrictions, escaped output, reset-link host safety, invalid/expired/cross-account/reused tokens, and password-reset behavior. Docker was used only as a temporary verification runtime; it is not a project requirement.
 
 **ID:** Pada database PostgreSQL 17 khusus tes dengan PHP 8.4, suite lolos 41 test / 241 assertion. Pint dan build frontend production lolos. Pemeriksaan browser desktop dan HP lolos untuk registrasi, logout, login, pesan kredensial salah, serta pengiriman form lupa kata sandi tanpa error JavaScript atau halaman melebar. Feature test autentikasi mencakup validasi, CSRF, rotasi session/logout, throttling, pembatasan tamu, output yang di-escape, keamanan host tautan reset, token salah/kedaluwarsa/lintas akun/digunakan ulang, serta perilaku reset kata sandi. Docker hanya dipakai sebagai runtime verifikasi sementara; bukan persyaratan proyek.
+
+## F03 — Workshop Tenant
+
+**EN:** Adds the `workshops` table, `Workshop` model, factory, and bidirectional many-to-many relationship definitions through `workshop_user`. Fields: BIGINT ID, name, globally unique slug, nullable phone/address, timezone (default `Asia/Jakarta`), and timestamps. Workshop names may repeat. Slugs must be supplied explicitly; they are identifiers, not authorization proof. No user/workshop ownership column is added.
+
+**ID:** Menambah tabel `workshops`, model `Workshop`, factory, dan definisi relasi banyak-ke-banyak dua arah melalui `workshop_user`. Field: ID BIGINT, nama, slug unik global, telepon/alamat opsional, timezone (default `Asia/Jakarta`), dan timestamps. Nama workshop boleh sama. Slug harus diisi eksplisit; slug merupakan identifier, bukan bukti otorisasi. Tidak ada kolom kepemilikan user/workshop yang ditambahkan.
+
+**EN:** The membership table, role handling, and relationship persistence tests belong to F04. Do not query/attach the prepared relations before that table exists. Registration still creates only a user. There are no workshop HTTP endpoints or UI, automatic provisioning, active-workshop resolution, or tenant-isolation middleware in F03. Those remain later tasks; data isolation is not yet a completed foundation capability.
+
+**ID:** Tabel membership, penanganan role, dan tes penyimpanan relasi merupakan F04. Jangan query/attach relasi yang disiapkan sebelum tabel tersebut tersedia. Registrasi masih hanya membuat user. F03 belum menyediakan endpoint/UI workshop, provisioning otomatis, penentuan workshop aktif, atau middleware isolasi tenant. Semuanya tetap task berikutnya; isolasi data belum merupakan kemampuan foundation yang selesai.
+
+**EN:** Apply the new migration with `php artisan migrate` after updating to this version. Existing migrations are unchanged. PHP 8.4 / PostgreSQL 17 validation: 51 tests / 275 assertions pass, including F02 regression tests and 10 workshop tests; Pint passes. The migration is checked for rollback/reapplication without deleting users. No frontend or package changes.
+
+**ID:** Jalankan migration baru melalui `php artisan migrate` setelah memperbarui ke versi ini. Migration lama tidak diubah. Validasi PHP 8.4 / PostgreSQL 17: 51 tes / 275 assertion lolos, termasuk regresi F02 dan 10 tes workshop; Pint lolos. Migration diperiksa untuk rollback/penerapan ulang tanpa menghapus user. Tidak ada perubahan frontend atau paket.
 
 ## Local setup / Persiapan lokal
 

@@ -144,6 +144,14 @@ Conceptual fields:
 
 Workshop is the primary SaaS tenant.
 
+**EN — F03 implementation:** `workshops.id` uses BIGINT auto-increment. `name` and `slug` are required strings (255); `slug` has a global unique index, while names may repeat. `phone` is a nullable string (255), `address` nullable text, and `timezone` a required string (64) defaulting to `Asia/Jakarta` in both model and database. Standard timestamps are included. Slugs are explicitly supplied; no automatic slug or access grant is inferred from them.
+
+**ID — Implementasi F03:** `workshops.id` memakai BIGINT auto-increment. `name` dan `slug` wajib berupa string (255); `slug` memiliki index unik global, sedangkan nama boleh sama. `phone` berupa string (255) opsional, `address` teks opsional, dan `timezone` string (64) wajib dengan default `Asia/Jakarta` pada model dan database. Timestamps standar disertakan. Slug diisi eksplisit; tidak ada pembuatan slug otomatis atau pemberian akses berdasarkan slug.
+
+**EN:** Laravel remains configured to UTC. The isolated PostgreSQL 17 test session reports `Etc/UTC`; deployment sessions should also use UTC (verify with `SHOW timezone`). The workshop timezone is display/business-date metadata; date conversion is not implemented by this schema. Validate IANA timezone input when workshop write endpoints are introduced. Relationship definitions use `workshop_user`; the pivot, role fields, and actual membership persistence arrive in F04.
+
+**ID:** Laravel tetap dikonfigurasi UTC. Session PostgreSQL 17 khusus tes melaporkan `Etc/UTC`; session deployment juga sebaiknya memakai UTC (periksa melalui `SHOW timezone`). Timezone workshop merupakan metadata tampilan/tanggal bisnis; schema ini belum mengimplementasikan konversi waktu. Validasi input timezone IANA dilakukan saat endpoint penulisan workshop ditambahkan. Definisi relasi memakai `workshop_user`; pivot, field role, dan penyimpanan membership sebenarnya menyusul di F04.
+
 ## 10. Workshop Membership
 
 Preferred initial table:
