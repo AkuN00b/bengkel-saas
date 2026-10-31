@@ -31,6 +31,7 @@ class RegistrationTest extends TestCase
         $this->post('/register', $this->registration([
             'email' => ' OWNER@EXAMPLE.COM ',
             'role' => 'super_admin',
+            'is_super_admin' => true,
             'email_verified_at' => now(),
             'workshop_id' => 999,
         ]))->assertRedirect(route('dashboard'));
@@ -40,6 +41,8 @@ class RegistrationTest extends TestCase
         $this->assertNull($user->email_verified_at);
         $this->assertNull($user->getAttribute('role'));
         $this->assertNull($user->getAttribute('workshop_id'));
+        $this->assertFalse($user->isSuperAdmin());
+        $this->assertDatabaseCount('workshop_user', 0);
         $this->assertTrue(Hash::check('secure-password-123', $user->password));
         $this->assertAuthenticatedAs($user);
         $this->assertNotSame($sessionId, session()->getId());

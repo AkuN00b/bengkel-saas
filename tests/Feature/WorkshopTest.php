@@ -78,7 +78,6 @@ class WorkshopTest extends TestCase
         $user = User::factory()->create();
         $workshop = Workshop::factory()->create();
 
-        // F03 defines the relation contract; F04 adds the pivot and integration tests.
         $this->assertSame('workshop_user', $user->workshops()->getTable());
         $this->assertSame('workshop_user', $workshop->users()->getTable());
         $this->assertSame('user_id', $user->workshops()->getForeignPivotKeyName());
@@ -87,7 +86,7 @@ class WorkshopTest extends TestCase
         $this->assertSame('user_id', $workshop->users()->getRelatedPivotKeyName());
         $this->assertFalse(Schema::hasColumn('users', 'workshop_id'));
         $this->assertFalse(Schema::hasColumn('workshops', 'user_id'));
-        $this->assertFalse(Schema::hasTable('workshop_user'));
+        $this->assertTrue(Schema::hasTable('workshop_user'));
     }
 
     public function test_workshops_have_no_http_management_endpoint_yet(): void
@@ -101,12 +100,16 @@ class WorkshopTest extends TestCase
     public function test_migration_can_be_rolled_back_and_reapplied_without_touching_users(): void
     {
         $user = User::factory()->create();
+        // Roll dependent migrations back before the workshop table.
+        $membershipMigration = require database_path('migrations/2026_10_31_000001_create_workshop_user_table.php');
+        $membershipMigration->down();
         $migration = require database_path('migrations/2026_10_31_000000_create_workshops_table.php');
         $migration->down();
         $this->assertFalse(Schema::hasTable('workshops'));
         $this->assertDatabaseHas('users', ['id' => $user->id]);
 
         $migration->up();
+        $membershipMigration->up();
         $this->assertTrue(Schema::hasTable('workshops'));
         $this->assertTrue(Workshop::factory()->create()->exists);
     }
