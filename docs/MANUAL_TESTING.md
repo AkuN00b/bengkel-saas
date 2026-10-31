@@ -1,8 +1,8 @@
 # BengkelOS — Manual Testing / Pengujian Mandiri
 
-> Reviewed / Ditinjau: 2026-10-28
+> Reviewed / Ditinjau: 2026-10-31
 >
-> Baseline: `main` after / setelah PR #1, tag `f02-authentication-v1`
+> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 instructions apply to the F03 change. / Instruksi F03 berlaku untuk perubahan F03.
 >
 > Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
 
@@ -13,12 +13,16 @@
 | F01 — Laravel bootstrap | Selesai / Complete; tag `f01-bootstrap-v1` |
 | F02 — Authentication | Sudah di-merge ke `main` / Merged into `main`; tag `f02-authentication-v1` |
 | F02 — Laptop + real email verification / Verifikasi laptop + email nyata | Belum dikonfirmasi / Not confirmed |
-| F03 — Workshop Tenant | Belum dimulai / Not started; next roadmap task / task roadmap berikutnya |
+| F03 — Workshop Tenant | Model/schema dan definisi relasi tersedia dalam perubahan F03 / Model/schema and relationship definitions implemented in the F03 change |
 | F04–F08 | Belum diimplementasikan / Not implemented |
 
 **ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Registrasi belum membuat workshop, role, atau trial. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Dokumen ini bukan instruksi melanjutkan F03.
 
 **EN:** F02 provides account registration, login/remember-me, logout, forgot/reset password, and a protected `/dashboard` account page. Registration does not yet create workshops, roles, or trials. Phase 1 — Foundation is still in progress. This checklist does not authorize F03 implementation.
+
+**ID — Pembaruan 31 Oktober:** User mengizinkan F03 dilanjutkan meskipun pengujian mandiri F02 belum sempat dilakukan. Status laptop dan SMTP tetap belum dikonfirmasi; kelanjutan implementasi bukan bukti bahwa pemeriksaan tersebut lolos.
+
+**EN — October 31 update:** The user authorized F03 despite deferring F02 manual testing. Laptop/SMTP checks remain unconfirmed; continuing development does not establish that they pass.
 
 ## 2. Evidence already available / Yang sudah diverifikasi
 
@@ -66,9 +70,9 @@ php artisan migrate
 npm.cmd run build
 ```
 
-**ID:** F02 tidak menambah migration; bila tiga migration standar F01 sudah berjalan, tidak ada migration baru. Jangan jalankan `migrate:fresh` atau `migrate:refresh` pada database aplikasi yang berisi data. Gunakan Herd lalu buka `http://bengkel-saas.test`; jika memakai `php artisan serve`, sesuaikan `APP_URL` dengan alamat server tersebut.
+**ID:** F02 tidak menambah migration. Jika versi yang ditarik sudah menyertakan F03, ada satu migration baru: `2026_10_31_000000_create_workshops_table`. Jalankan `php artisan migrate` biasa, lalu `php artisan migrate:status` dan pastikan migration itu berstatus Ran. Belum ada menu workshop; ini memang baru fondasi database. Jangan jalankan `migrate:fresh` atau `migrate:refresh` pada database aplikasi yang berisi data. Gunakan Herd lalu buka `http://bengkel-saas.test`; jika memakai `php artisan serve`, sesuaikan `APP_URL` dengan alamat server tersebut.
 
-**EN:** F02 adds no migrations; an up-to-date F01 database has nothing new to migrate. Never run `migrate:fresh` or `migrate:refresh` against application data. Open the Herd URL, or match `APP_URL` to the server address when using `php artisan serve`.
+**EN:** F02 adds no migrations. A version containing F03 adds `2026_10_31_000000_create_workshops_table`; apply it with ordinary `php artisan migrate`, then check for Ran in `migrate:status`. There is no workshop menu yet: this is the database foundation. Never run `migrate:fresh` or `migrate:refresh` against application data. Open the Herd URL, or match `APP_URL` to the server address when using `php artisan serve`.
 
 - [ ] Perintah di atas berhasil, halaman `/` memiliki CSS, dan tidak ada error 500 atau Vite manifest hilang. / Commands succeed; `/` has styling without HTTP 500 or a missing Vite manifest.
 
@@ -137,7 +141,11 @@ php vendor/bin/pint --test
 npm.cmd run build
 ```
 
-- [ ] Suite dan pemeriksaan di atas lolos. Baseline F02: 41 tes / 241 assertion. / Checks pass; F02 baseline is 41 tests / 241 assertions.
+- [ ] Suite dan pemeriksaan di atas lolos. Baseline F02: 41 tes / 241 assertion; F03: 51 tes / 275 assertion. / Checks pass; F02 baseline: 41 tests / 241 assertions; F03: 51 tests / 275 assertions.
+
+**ID:** Untuk memeriksa F03 saja pada database tes yang sudah diverifikasi di atas, jalankan `php artisan test --filter=WorkshopTest` (10 tes). Ini memeriksa penyimpanan workshop, constraint, default, definisi relasi, dan rollback schema. Query/attach relasi nyata menunggu tabel membership F04; pengujian isolasi tenant melalui HTTP menyusul F06. Jangan menyimpulkan isolasi tenant sudah selesai dari tes schema ini.
+
+**EN:** On the verified testing database, run `php artisan test --filter=WorkshopTest` for the 10 F03 checks. They cover persistence, constraints, defaults, relationship definitions, and schema rollback. Actual relationship queries/attach require the F04 membership table; HTTP tenant-isolation tests belong to F06. Schema tests do not prove complete tenant isolation.
 
 ## 7. Record results / Catat hasil
 
@@ -157,6 +165,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
 | Kendala yang perlu diperbaiki / Issues | Belum dilaporkan / Not reported |
 
-**ID:** Setelah hasil laptop dikonfirmasi, task roadmap berikutnya adalah **F03 — Workshop Tenant**. F03 dan tahap lain tetap memerlukan instruksi tersendiri. Dua tag milestone menyimpan versi kode; keduanya bukan backup database atau `.env`.
+**ID:** Task roadmap setelah F03 adalah **F04 — Membership + Roles**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** After confirming laptop results, the next roadmap task is **F03 — Workshop Tenant**. Further implementation requires a separate instruction. The two milestone tags preserve code versions, not database or `.env` backups.
+**EN:** After F03, the next task is **F04 — Membership + Roles**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.
