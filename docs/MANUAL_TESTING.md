@@ -6,6 +6,66 @@
 >
 > Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
 
+## 0. Start here after F05 merge / Mulai dari sini setelah merge F05
+
+**ID:** Ini urutan praktis yang masih perlu Anda lakukan sendiri. Semua kotak tetap kosong sampai benar-benar dicoba di laptop. Detail dan penanganan kondisi khusus ada pada bagian berikutnya. Tag milestone F05: `f05-trial-provisioning-v1`; tag hanya menyimpan versi kode, bukan database atau `.env`.
+
+**EN:** Follow this practical order for the outstanding laptop checks. Leave boxes unchecked until personally verified; later sections provide details. F05 milestone tag: `f05-trial-provisioning-v1`. Tags preserve code, not the database or `.env`.
+
+### A. Update and start / Perbarui dan jalankan
+
+**ID:** Dari root repo, periksa perubahan lokal dahulu; simpan pekerjaan lokal sebelum switch/pull. Jangan menimpa `.env` atau membuat ulang `APP_KEY` yang sudah digunakan. Setelah merge dan tag tersedia, jalankan:
+
+**EN:** From the repo root, inspect and preserve local changes before switching/pulling. Preserve the existing `.env` and application key. After the merge/tag are available, run:
+
+```powershell
+git status --short --branch
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+git show --no-patch --oneline f05-trial-provisioning-v1
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+- [ ] Semua perintah berhasil dan dua migration F05 berstatus Ran; buka aplikasi melalui Herd dengan `APP_URL` yang sesuai. / Commands succeed, both F05 migrations show Ran, and the app opens via Herd with the correct `APP_URL`.
+- [ ] Halaman memiliki CSS, tanpa error 500. Tidak perlu seed ulang atau `migrate:fresh`. / Styling loads without HTTP 500; no reseeding or destructive migration reset is needed.
+
+### B. New owner trial / Trial owner baru
+
+- [ ] Logout lalu buka `/register`: field **Nama bengkel** tersedia. Nama bengkel kosong, password pendek, dan konfirmasi tidak cocok harus ditolak. / Verify the workshop-name field and validation while logged out.
+- [ ] Daftarkan **akun uji baru**, gunakan email yang Anda kuasai dan nama bengkel yang mudah dikenali. Harus masuk ke `/dashboard` dan nama pengguna tampil. / Register a new test account; the account page opens and displays the user name.
+- [ ] Bila memeriksa backend melalui pgAdmin atau pembaca database lokal, cocokkan data di tabel berikut tanpa mengubahnya. Ini belum terlihat di dashboard F05. / Optionally inspect these local tables read-only; F05 does not yet display this information on the dashboard.
+
+| Tabel / Table | Filter dan hasil yang diharapkan / Filter and expected result |
+| --- | --- |
+| `users` | Cari email akun uji baru; satu user, `is_super_admin=false`. / Find the new test email; one non-admin user. |
+| `workshop_user` | Filter `user_id` dari user tadi; satu membership `role=owner`, catat `workshop_id`. / One owner membership for that user. |
+| `workshops` | Cari ID dari membership; nama sesuai form. / The matching workshop name equals the submitted name. |
+| `subscriptions` + `plans` | Filter `workshop_id` tadi; satu subscription `trialing`, plan berkode `trial` dengan harga 0; `trial_ends_at` dan `ends_at` sama, tepat 14 hari setelah `starts_at` (UTC). / One free trial, with matching deadlines 14 days after its UTC start. |
+
+- [ ] Logout, coba login salah lalu benar; logout lagi dan akses langsung `/dashboard` harus meminta login. / Check incorrect/correct login and protected access after logout.
+- [ ] Akun lama tetap bisa login. Akun lama tidak otomatis memperoleh bengkel/trial; jangan menganggap itu kegagalan upgrade. / Existing accounts still log in; no retroactive workshop/trial is expected.
+- [ ] Periksa form pada ukuran HP; tidak melebar horizontal dan tombol nyaman ditekan. / Check mobile form layout and usable buttons.
+
+**ID:** Jika belum nyaman membaca database, jangan menebak hasil backend sebagai lolos. Tandai belum diperiksa; tes otomatis bagian 6 membuktikan provisioning/rollback secara terpisah. Jangan mengubah waktu server, status subscription, role, atau data aplikasi untuk mensimulasikan kegagalan. Tidak perlu menunggu 14 hari; tes batas waktu sudah otomatis. Menu billing, pembayaran, pemilihan workshop, dan enforcement trial belum termasuk F05.
+
+**EN:** If database inspection is unfamiliar, leave backend checks unverified; section 6 covers automated provisioning/rollback tests. Do not alter server time, subscription status, roles, or application data to simulate failures. Boundary tests avoid waiting 14 days. Billing, payments, workshop selection, and trial access enforcement are not part of F05.
+
+### C. Real reset email — still pending / Email reset nyata — masih tertunda
+
+- [ ] Ikuti **bagian 5**: konfigurasi SMTP, email benar-benar sampai, tautan memakai `APP_URL` laptop, reset berhasil, password lama gagal dan baru berhasil. / Follow section 5 to verify real delivery and the complete password-reset flow.
+- [ ] Tautan yang sudah dipakai harus ditolak saat disubmit ulang; periksa ulang session browser kedua setelah reset. / Verify token reuse fails and an older browser session requires login again.
+- [ ] Isi hasil di **bagian 7**, termasuk langkah yang gagal dan error yang sudah disensor. Suite tes lokal **bagian 6** opsional, hanya dengan database tes terpisah yang sudah diverifikasi. / Record results in section 7; the optional local suite requires the verified dedicated testing database.
+
+**ID:** Jangan kirim isi `.env`, password, atau tautan/token reset saat melaporkan kendala. Berhasil pull atau lolos tes cloud belum berarti pengujian laptop/SMTP di atas sudah lolos.
+
+**EN:** Never include `.env` contents, passwords, or reset links/tokens in reports. Pulling successfully or passing cloud tests does not mark these laptop/SMTP checks as complete.
+
 ## 1. Current stage / Tahap sekarang
 
 | Tahap / Stage | Status |
@@ -18,9 +78,9 @@
 | F05 — Plans + Subscription + Trial | Tersedia dalam perubahan F05 / Implemented in the F05 change |
 | F06–F08 | Belum diimplementasikan / Not implemented |
 
-**ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Pada F05 registrasi membuat workshop baru, membership owner, dan trial gratis 14 hari; akun lama tidak otomatis diubah. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Dokumen ini bukan instruksi melanjutkan F03.
+**ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Pada F05 registrasi membuat workshop baru, membership owner, dan trial gratis 14 hari; akun lama tidak otomatis diubah. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Checklist ini bukan izin otomatis melanjutkan roadmap.
 
-**EN:** F02 provides account registration, login/remember-me, logout, forgot/reset password, and a protected `/dashboard` account page. F05 registration creates a new workshop, owner membership, and free 14-day trial; existing accounts are not automatically changed. Phase 1 — Foundation is still in progress. This checklist does not authorize F03 implementation.
+**EN:** F02 provides account registration, login/remember-me, logout, forgot/reset password, and a protected `/dashboard` account page. F05 registration creates a new workshop, owner membership, and free 14-day trial; existing accounts are not automatically changed. Phase 1 — Foundation is still in progress. This checklist does not authorize automatic roadmap implementation.
 
 **ID — Pembaruan 31 Oktober:** User mengizinkan F03 dilanjutkan meskipun pengujian mandiri F02 belum sempat dilakukan. Status laptop dan SMTP tetap belum dikonfirmasi; kelanjutan implementasi bukan bukti bahwa pemeriksaan tersebut lolos.
 

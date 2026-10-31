@@ -10,6 +10,10 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 
 ## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
 
+**ID:** Untuk urutan tes mandiri setelah merge F05, mulai dari [checklist ringkas laptop](docs/MANUAL_TESTING.md#0-start-here-after-f05-merge--mulai-dari-sini-setelah-merge-f05): persiapan, registrasi owner/trial, login/logout, email reset nyata, dan pencatatan hasil.
+
+**EN:** For manual testing after the F05 merge, start with the [laptop checklist](docs/MANUAL_TESTING.md#0-start-here-after-f05-merge--mulai-dari-sini-setelah-merge-f05): setup, owner/trial registration, login/logout, real reset email, and results.
+
 **EN:** F02–F04 are merged into `main`. This change implements F05 — Plans + Subscription + Trial; F06 — Active Workshop + Tenant Isolation remains the next task. Laptop verification and real reset-email delivery are still unconfirmed and have been explicitly deferred by the user. After pulling the relevant version, follow the [manual testing checklist](docs/MANUAL_TESTING.md).
 
 **ID:** F02–F04 sudah masuk `main`. Perubahan ini mengimplementasikan F05 — Plans + Subscription + Trial; F06 — Active Workshop + Tenant Isolation tetap task berikutnya. Verifikasi laptop dan pengiriman email reset nyata masih belum dikonfirmasi dan ditunda atas instruksi user. Setelah pull versi terkait, ikuti [checklist pengujian mandiri](docs/MANUAL_TESTING.md).
