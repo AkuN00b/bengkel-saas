@@ -16,13 +16,14 @@ class RegistrationTest extends TestCase
     {
         return array_replace([
             'name' => 'Pemilik Bengkel',
+            'workshop_name' => 'Bengkel Uji',
             'email' => 'owner@example.com',
             'password' => 'secure-password-123',
             'password_confirmation' => 'secure-password-123',
         ], $overrides);
     }
 
-    public function test_registration_creates_only_a_user_and_authenticates_with_a_new_session(): void
+    public function test_registration_provisions_an_owner_and_authenticates_with_a_new_session(): void
     {
         $this->get('/register')->assertOk()->assertSee('Buat akun');
         $sessionId = session()->getId();
@@ -42,7 +43,7 @@ class RegistrationTest extends TestCase
         $this->assertNull($user->getAttribute('role'));
         $this->assertNull($user->getAttribute('workshop_id'));
         $this->assertFalse($user->isSuperAdmin());
-        $this->assertDatabaseCount('workshop_user', 0);
+        $this->assertDatabaseCount('workshop_user', 1);
         $this->assertTrue(Hash::check('secure-password-123', $user->password));
         $this->assertAuthenticatedAs($user);
         $this->assertNotSame($sessionId, session()->getId());
@@ -70,6 +71,9 @@ class RegistrationTest extends TestCase
     {
         return [
             'missing name' => [['name' => ''], 'name'],
+            'missing workshop' => [['workshop_name' => ''], 'workshop_name'],
+            'array workshop' => [['workshop_name' => ['invalid']], 'workshop_name'],
+            'long workshop' => [['workshop_name' => str_repeat('x', 256)], 'workshop_name'],
             'invalid email' => [['email' => 'invalid'], 'email'],
             'array email' => [['email' => ['owner@example.com']], 'email'],
             'short password' => [['password' => 'short', 'password_confirmation' => 'short'], 'password'],

@@ -12,6 +12,7 @@ return [
     'max' => ['string' => ':attribute maksimal :max karakter.'],
     'attributes' => [
         'name' => 'Nama',
+        'workshop_name' => 'Nama bengkel',
         'email' => 'Email',
         'password' => 'Kata sandi',
         'remember' => 'Ingat saya',

@@ -2,9 +2,69 @@
 
 > Reviewed / Ditinjau: 2026-10-31
 >
-> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 tag: `f03-workshop-tenant-v1`; F04 instructions apply to the F04 change. / Instruksi F04 berlaku untuk perubahan F04.
+> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 tag: `f03-workshop-tenant-v1`; F04 tag: `f04-membership-roles-v1`; F05 instructions apply to the F05 change. / Instruksi F05 berlaku untuk perubahan F05.
 >
 > Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
+
+## 0. Start here after F05 merge / Mulai dari sini setelah merge F05
+
+**ID:** Ini urutan praktis yang masih perlu Anda lakukan sendiri. Semua kotak tetap kosong sampai benar-benar dicoba di laptop. Detail dan penanganan kondisi khusus ada pada bagian berikutnya. Tag milestone F05: `f05-trial-provisioning-v1`; tag hanya menyimpan versi kode, bukan database atau `.env`.
+
+**EN:** Follow this practical order for the outstanding laptop checks. Leave boxes unchecked until personally verified; later sections provide details. F05 milestone tag: `f05-trial-provisioning-v1`. Tags preserve code, not the database or `.env`.
+
+### A. Update and start / Perbarui dan jalankan
+
+**ID:** Dari root repo, periksa perubahan lokal dahulu; simpan pekerjaan lokal sebelum switch/pull. Jangan menimpa `.env` atau membuat ulang `APP_KEY` yang sudah digunakan. Setelah merge dan tag tersedia, jalankan:
+
+**EN:** From the repo root, inspect and preserve local changes before switching/pulling. Preserve the existing `.env` and application key. After the merge/tag are available, run:
+
+```powershell
+git status --short --branch
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+git show --no-patch --oneline f05-trial-provisioning-v1
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+- [ ] Semua perintah berhasil dan dua migration F05 berstatus Ran; buka aplikasi melalui Herd dengan `APP_URL` yang sesuai. / Commands succeed, both F05 migrations show Ran, and the app opens via Herd with the correct `APP_URL`.
+- [ ] Halaman memiliki CSS, tanpa error 500. Tidak perlu seed ulang atau `migrate:fresh`. / Styling loads without HTTP 500; no reseeding or destructive migration reset is needed.
+
+### B. New owner trial / Trial owner baru
+
+- [ ] Logout lalu buka `/register`: field **Nama bengkel** tersedia. Nama bengkel kosong, password pendek, dan konfirmasi tidak cocok harus ditolak. / Verify the workshop-name field and validation while logged out.
+- [ ] Daftarkan **akun uji baru**, gunakan email yang Anda kuasai dan nama bengkel yang mudah dikenali. Harus masuk ke `/dashboard` dan nama pengguna tampil. / Register a new test account; the account page opens and displays the user name.
+- [ ] Bila memeriksa backend melalui pgAdmin atau pembaca database lokal, cocokkan data di tabel berikut tanpa mengubahnya. Ini belum terlihat di dashboard F05. / Optionally inspect these local tables read-only; F05 does not yet display this information on the dashboard.
+
+| Tabel / Table | Filter dan hasil yang diharapkan / Filter and expected result |
+| --- | --- |
+| `users` | Cari email akun uji baru; satu user, `is_super_admin=false`. / Find the new test email; one non-admin user. |
+| `workshop_user` | Filter `user_id` dari user tadi; satu membership `role=owner`, catat `workshop_id`. / One owner membership for that user. |
+| `workshops` | Cari ID dari membership; nama sesuai form. / The matching workshop name equals the submitted name. |
+| `subscriptions` + `plans` | Filter `workshop_id` tadi; satu subscription `trialing`, plan berkode `trial` dengan harga 0; `trial_ends_at` dan `ends_at` sama, tepat 14 hari setelah `starts_at` (UTC). / One free trial, with matching deadlines 14 days after its UTC start. |
+
+- [ ] Logout, coba login salah lalu benar; logout lagi dan akses langsung `/dashboard` harus meminta login. / Check incorrect/correct login and protected access after logout.
+- [ ] Akun lama tetap bisa login. Akun lama tidak otomatis memperoleh bengkel/trial; jangan menganggap itu kegagalan upgrade. / Existing accounts still log in; no retroactive workshop/trial is expected.
+- [ ] Periksa form pada ukuran HP; tidak melebar horizontal dan tombol nyaman ditekan. / Check mobile form layout and usable buttons.
+
+**ID:** Jika belum nyaman membaca database, jangan menebak hasil backend sebagai lolos. Tandai belum diperiksa; tes otomatis bagian 6 membuktikan provisioning/rollback secara terpisah. Jangan mengubah waktu server, status subscription, role, atau data aplikasi untuk mensimulasikan kegagalan. Tidak perlu menunggu 14 hari; tes batas waktu sudah otomatis. Menu billing, pembayaran, pemilihan workshop, dan enforcement trial belum termasuk F05.
+
+**EN:** If database inspection is unfamiliar, leave backend checks unverified; section 6 covers automated provisioning/rollback tests. Do not alter server time, subscription status, roles, or application data to simulate failures. Boundary tests avoid waiting 14 days. Billing, payments, workshop selection, and trial access enforcement are not part of F05.
+
+### C. Real reset email — still pending / Email reset nyata — masih tertunda
+
+- [ ] Ikuti **bagian 5**: konfigurasi SMTP, email benar-benar sampai, tautan memakai `APP_URL` laptop, reset berhasil, password lama gagal dan baru berhasil. / Follow section 5 to verify real delivery and the complete password-reset flow.
+- [ ] Tautan yang sudah dipakai harus ditolak saat disubmit ulang; periksa ulang session browser kedua setelah reset. / Verify token reuse fails and an older browser session requires login again.
+- [ ] Isi hasil di **bagian 7**, termasuk langkah yang gagal dan error yang sudah disensor. Suite tes lokal **bagian 6** opsional, hanya dengan database tes terpisah yang sudah diverifikasi. / Record results in section 7; the optional local suite requires the verified dedicated testing database.
+
+**ID:** Jangan kirim isi `.env`, password, atau tautan/token reset saat melaporkan kendala. Berhasil pull atau lolos tes cloud belum berarti pengujian laptop/SMTP di atas sudah lolos.
+
+**EN:** Never include `.env` contents, passwords, or reset links/tokens in reports. Pulling successfully or passing cloud tests does not mark these laptop/SMTP checks as complete.
 
 ## 1. Current stage / Tahap sekarang
 
@@ -14,12 +74,13 @@
 | F02 — Authentication | Sudah di-merge ke `main` / Merged into `main`; tag `f02-authentication-v1` |
 | F02 — Laptop + real email verification / Verifikasi laptop + email nyata | Belum dikonfirmasi / Not confirmed |
 | F03 — Workshop Tenant | Sudah di-merge; tag `f03-workshop-tenant-v1` / Merged; tagged |
-| F04 — Membership + Roles | Tersedia dalam perubahan F04 / Implemented in the F04 change |
-| F05–F08 | Belum diimplementasikan / Not implemented |
+| F04 — Membership + Roles | Sudah di-merge; tag `f04-membership-roles-v1` / Merged; tagged |
+| F05 — Plans + Subscription + Trial | Tersedia dalam perubahan F05 / Implemented in the F05 change |
+| F06–F08 | Belum diimplementasikan / Not implemented |
 
-**ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Registrasi belum membuat workshop, role, atau trial. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Dokumen ini bukan instruksi melanjutkan F03.
+**ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Pada F05 registrasi membuat workshop baru, membership owner, dan trial gratis 14 hari; akun lama tidak otomatis diubah. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Checklist ini bukan izin otomatis melanjutkan roadmap.
 
-**EN:** F02 provides account registration, login/remember-me, logout, forgot/reset password, and a protected `/dashboard` account page. Registration does not yet create workshops, roles, or trials. Phase 1 — Foundation is still in progress. This checklist does not authorize F03 implementation.
+**EN:** F02 provides account registration, login/remember-me, logout, forgot/reset password, and a protected `/dashboard` account page. F05 registration creates a new workshop, owner membership, and free 14-day trial; existing accounts are not automatically changed. Phase 1 — Foundation is still in progress. This checklist does not authorize automatic roadmap implementation.
 
 **ID — Pembaruan 31 Oktober:** User mengizinkan F03 dilanjutkan meskipun pengujian mandiri F02 belum sempat dilakukan. Status laptop dan SMTP tetap belum dikonfirmasi; kelanjutan implementasi bukan bukti bahwa pemeriksaan tersebut lolos.
 
@@ -58,7 +119,7 @@ composer install
 npm.cmd ci
 ```
 
-- [ ] `main` sudah diperbarui dan tag F01/F02/F03 terlihat. / `main` is updated and the F01/F02/F03 milestone tags are visible.
+- [ ] `main` sudah diperbarui dan tag F01–F04 terlihat. / `main` is updated and the F01–F04 milestone tags are visible.
 - [ ] PHP 8.4+ tersedia. Jika tidak terdeteksi, ikuti petunjuk PATH Herd di [README](../README.md#local-setup--persiapan-lokal). / PHP 8.4+ is available; use the README Herd PATH instructions if necessary.
 - [ ] `.env` lokal masih ada; pertahankan `APP_KEY` dan kredensial yang sudah digunakan. Jangan menimpa `.env` dengan `.env.example` atau membuat ulang key yang sudah ada. / Preserve the existing `.env`, `APP_KEY`, and credentials; do not overwrite them or regenerate an existing application key.
 - [ ] PostgreSQL lokal berjalan dan `DB_*` menunjuk database aplikasi lokal. / Local PostgreSQL is running and `DB_*` targets the local application database.
@@ -86,7 +147,7 @@ npm.cmd run build
 | Selesai / Done | Langkah / Action | Hasil yang diharapkan / Expected result |
 | --- | --- | --- |
 | [ ] | Sebagai tamu, buka `/dashboard`. / Open `/dashboard` as a guest. | Dialihkan ke `/login`. / Redirects to login. |
-| [ ] | Daftar di `/register` dengan email uji dan password minimal 12 karakter; konfirmasi sama. / Register a test account with a matching password confirmation. | Masuk ke `/dashboard`, nama tampil. / Signed in; account name displayed. |
+| [ ] | Daftar di `/register` dengan nama bengkel, email uji, dan password minimal 12 karakter; konfirmasi sama. / Register with a workshop name and matching password confirmation. | Masuk ke `/dashboard`, nama tampil. / Signed in; account name displayed. |
 | [ ] | Keluar, lalu coba daftar dengan email yang sama; coba juga password pendek atau konfirmasi berbeda. / Log out; try duplicate registration, a short password, and mismatched confirmation. | Pesan validasi tampil; akun duplikat tidak dibuat. / Validation messages; no duplicate account. |
 | [ ] | Login dengan email terdaftar dan password salah, lalu password benar. / Try an incorrect password, then the correct one. | Yang salah ditolak; yang benar masuk ke akun. / Incorrect credentials rejected; correct ones accepted. |
 | [ ] | Klik **Keluar**, lalu ketik `/dashboard` dan refresh. / Log out, navigate to `/dashboard`, and refresh. | Harus login lagi; jangan menilai dari halaman lama di browser cache. / Login required; do not judge by a cached page. |
@@ -142,7 +203,7 @@ php vendor/bin/pint --test
 npm.cmd run build
 ```
 
-- [ ] Suite dan pemeriksaan di atas lolos. Baseline F02: 41 tes / 241 assertion; F03: 51 tes / 275 assertion; F04: 72 tes / 354 assertion. / Checks pass; F02: 41 tests / 241 assertions; F03: 51 tests / 275 assertions; F04: 72 tests / 354 assertions.
+- [ ] Suite dan pemeriksaan di atas lolos. Baseline F02: 41 tes / 241 assertion; F03: 51 tes / 275 assertion; F04: 72 tes / 354 assertion; F05: 100 tes / 468 assertion. / Checks pass; F02: 41 tests / 241 assertions; F03: 51 tests / 275 assertions; F04: 72 tests / 354 assertions; F05: 100 tests / 468 assertions.
 
 **ID:** Untuk memeriksa F03 saja pada database tes yang sudah diverifikasi di atas, jalankan `php artisan test --filter=WorkshopTest` (10 tes). Ini memeriksa penyimpanan workshop, constraint, default, definisi relasi, dan rollback schema. F04 menambahkan query/attach relasi nyata beserta tes membership; pengujian isolasi tenant melalui HTTP menyusul F06. Jangan menyimpulkan isolasi tenant sudah selesai dari tes schema ini.
 
@@ -150,13 +211,25 @@ npm.cmd run build
 
 ### F04 laptop follow-up / Pemeriksaan laptop F04
 
-**ID:** Bila versi yang ditarik sudah memuat F04, jalankan `php artisan migrate` lalu `php artisan migrate:status`. Pastikan `2026_10_31_000001_create_workshop_user_table` dan `2026_10_31_000002_add_is_super_admin_to_users_table` berstatus Ran. User/workshop lama harus tetap tersedia; registrasi tidak otomatis memberi membership atau admin. Belum ada menu anggota/role, jadi tidak ada alur UI baru yang perlu dicari. Jangan mengubah flag admin atau memberikan role lewat input publik untuk mencoba fitur ini.
+**ID:** Bila versi yang ditarik sudah memuat F04, jalankan `php artisan migrate` lalu `php artisan migrate:status`. Pastikan `2026_10_31_000001_create_workshop_user_table` dan `2026_10_31_000002_add_is_super_admin_to_users_table` berstatus Ran. User/workshop lama harus tetap tersedia; pada F04 registrasi tidak memberi membership; pada F05 hanya memberi owner untuk workshop baru, tidak memberi admin platform. Belum ada menu anggota/role, jadi tidak ada alur UI baru yang perlu dicari. Jangan mengubah flag admin atau memberikan role lewat input publik untuk mencoba fitur ini.
 
-**EN:** After updating to a version containing F04, run `php artisan migrate` and `php artisan migrate:status`; both new F04 migrations should show Ran. Existing users/workshops remain available; registration must not assign membership/admin. There is no member/role menu yet. Do not use public input to attempt admin or role assignment.
+**EN:** After updating to a version containing F04, run `php artisan migrate` and `php artisan migrate:status`; both new F04 migrations should show Ran. Existing users/workshops remain available; F04 registration did not assign membership; F05 grants only owner membership for its new workshop, never platform admin. There is no member/role menu yet. Do not use public input to attempt admin or role assignment.
 
 - [ ] Kedua migration F04 berjalan dan akun lama tetap bisa login. / Both F04 migrations ran and existing accounts still log in.
 - [ ] Pada database tes terpisah yang diverifikasi di bagian 6, `php artisan test --filter=WorkshopMembershipTest` lolos (21 tes); suite penuh F04: 72 tes / 354 assertion. / On the verified dedicated test database, membership tests pass (21 tests); full F04 suite: 72 tests / 354 assertions.
 - [ ] Hasil laptop dicatat, bukan diasumsikan lolos karena tes cloud sudah berhasil. / Laptop results are recorded rather than inferred from cloud tests.
+
+### F05 laptop follow-up / Pemeriksaan laptop F05
+
+- [ ] Setelah versi F05 tersedia di branch yang dipakai, jalankan `php artisan migrate`, `php artisan migrate:status`, dan `npm.cmd run build`. Dua migration baru `2026_10_31_000003_create_plans_table` dan `2026_10_31_000004_create_subscriptions_table` harus Ran. Katalog awal dibuat otomatis; tidak perlu seed ulang. / Apply both migrations and rebuild assets; catalog initialization needs no extra seeding.
+- [ ] Daftar akun uji baru dengan nama bengkel. Harus masuk ke halaman akun; backend membuat workshop baru, owner membership, dan trial gratis 14 hari. / Register a new test account with a workshop name; the account page opens and provisioning completes.
+- [ ] Nama bengkel kosong ditolak dengan pesan validasi. Paket/role tidak dapat dipilih lewat form registrasi. / Missing workshop names are rejected; registration offers no plan/role selection.
+- [ ] Akun lama masih bisa login. Tidak ada trial/workshop retroaktif untuk akun lama, pemilihan workshop aktif, menu billing, atau tombol pembayaran pada F05. / Existing login still works; no retroactive provisioning, active-workshop selector, billing menu, or payment button is expected.
+- [ ] Pada database tes terpisah sesuai bagian 6, jalankan `php artisan test --filter=OwnerProvisioningTest` dan `php artisan test --filter=SubscriptionTest`, atau seluruh suite (100 tes / 468 assertion). Tes membuktikan semua tahap rollback saat gagal; jangan sengaja merusak database aplikasi untuk mengulangnya. / On the verified dedicated test database, run the provisioning/subscription tests or full suite; do not corrupt application data to simulate failures.
+
+**ID:** Trial dinilai tidak berlaku tepat setelah 14 hari oleh `isTrialing()`; belum ada job pengubah status atau pembatas akses subscription. Tidak perlu menunggu 14 hari untuk tes manual karena batas waktu sudah diuji otomatis. Harga Starter/Pro belum ditentukan dan paketnya belum aktif. Pemeriksaan email reset nyata di atas tetap tertunda.
+
+**EN:** `isTrialing()` returns false at the 14-day deadline; automatic status transitions and subscription access enforcement are not added. Automated boundary tests avoid waiting 14 days manually. Starter/Pro remain inactive and unpriced. Real reset-email verification above is still pending.
 
 ## 7. Record results / Catat hasil
 
@@ -176,6 +249,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
 | Kendala yang perlu diperbaiki / Issues | Belum dilaporkan / Not reported |
 
-**ID:** Task roadmap setelah F04 adalah **F05 — Plans + Subscription + Trial**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
+**ID:** Task roadmap setelah F05 adalah **F06 — Active Workshop + Tenant Isolation**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** After F04, the next task is **F05 — Plans + Subscription + Trial**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.
+**EN:** After F05, the next task is **F06 — Active Workshop + Tenant Isolation**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.

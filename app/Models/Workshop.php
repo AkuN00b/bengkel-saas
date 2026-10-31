@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'slug', 'phone', 'address', 'timezone'])]
 class Workshop extends Model
@@ -25,5 +26,11 @@ class Workshop extends Model
     {
         return $this->belongsToMany(User::class, 'workshop_user')
             ->using(WorkshopMembership::class)->withPivot(['id', 'role'])->withTimestamps();
+    }
+
+    /** @return HasMany<Subscription, $this> */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 }

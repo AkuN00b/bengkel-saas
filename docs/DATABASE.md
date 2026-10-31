@@ -249,6 +249,20 @@ Potential indexes:
 - `(workshop_id, status)`
 - `(trial_ends_at)`
 
+### F05 implementation / Implementasi F05
+
+**EN:** The new plans migration inserts the catalog once: active free trial and inactive, unpriced starter/pro placeholders. `price_monthly` is nullable for unpublished pricing, otherwise a nonnegative BIGINT in Rupiah; active plans require a price. `user_limit` is nullable or positive. Plan codes are globally unique. No previously hypothetical paid prices are activated.
+
+**ID:** Migration plans mengisi katalog sekali: trial gratis aktif serta placeholder starter/pro belum aktif dan belum berharga. `price_monthly` nullable untuk harga yang belum dipublikasikan, selain itu BIGINT Rupiah nonnegatif; paket aktif wajib memiliki harga. `user_limit` nullable atau positif. Kode paket unik global. Harga berbayar yang masih hipotesis tidak diaktifkan.
+
+**EN:** Subscriptions have required workshop/plan foreign keys with restricted deletion, a checked status, UTC `timestamp with time zone` start/end fields, optional trial/end deadlines, and timezone-aware timestamps. A trialing row requires a trial deadline after its start; an end deadline cannot precede its start. Indexes cover workshop/status and trial expiry. A PostgreSQL partial unique index prevents multiple trialing/active rows for one workshop; expired/cancelled history may coexist. The time-check helper does not persist expiry transitions automatically.
+
+**ID:** Subscription memiliki foreign key workshop/plan wajib dengan penghapusan dibatasi, status dengan constraint, field awal/akhir UTC `timestamp with time zone`, batas trial/akhir opsional, dan timestamps dengan timezone. Record trialing wajib memiliki batas trial setelah waktu mulai; batas akhir tidak boleh mendahului waktu mulai. Index mencakup workshop/status serta kedaluwarsa trial. Index unik parsial PostgreSQL mencegah beberapa record trialing/active pada satu workshop; riwayat expired/cancelled boleh tetap ada. Helper pemeriksaan waktu tidak menyimpan transisi kedaluwarsa otomatis.
+
+**EN:** Owner registration accepts only validated identity/password/workshop-name fields. An active free trial plan is selected and share-locked server-side. User, workshop (default Asia/Jakarta), owner membership, and 14-day trial are inserted atomically; client IDs/status/dates are ignored. The old migrations and existing account/tenant data are unchanged, with no automatic trial backfill. Subscription HTTP access and active-tenant resolution are deferred to later tasks.
+
+**ID:** Registrasi owner hanya menerima field identitas/password/nama bengkel yang tervalidasi. Server memilih paket trial gratis aktif dan memakai shared lock. User, workshop (default Asia/Jakarta), membership owner, serta trial 14 hari dibuat atomik; ID/status/tanggal dari client diabaikan. Migration lama dan data akun/tenant yang sudah ada tidak diubah, tanpa backfill trial otomatis. Akses HTTP subscription dan penentuan tenant aktif menyusul task berikutnya.
+
 ## 14. Customers
 
 Conceptual fields:
