@@ -17,6 +17,6 @@ class CsrfProtectionTest extends TestCase
 
     public static function authenticationEndpoints(): array
     {
-        return [['/register'], ['/login'], ['/logout'], ['/forgot-password'], ['/reset-password']];
+        return [['/register'], ['/login'], ['/logout'], ['/forgot-password'], ['/reset-password'], ['/workshops/active']];
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\WorkshopSelectionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,10 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware(['auth', 'auth.session'])->group(function (): void {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/workshops/select', [WorkshopSelectionController::class, 'index'])->name('workshops.select');
+    Route::post('/workshops/active', [WorkshopSelectionController::class, 'store'])->name('workshops.activate');
+    Route::get('/dashboard', function (Request $request) {
+        return view('dashboard', ['activeWorkshop' => $request->attributes->get('activeWorkshop')]);
+    })->middleware('active.workshop')->name('dashboard');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

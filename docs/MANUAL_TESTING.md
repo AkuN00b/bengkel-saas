@@ -1,10 +1,14 @@
 # BengkelOS — Manual Testing / Pengujian Mandiri
 
-> Reviewed / Ditinjau: 2026-10-31
+> Reviewed / Ditinjau: 2026-11-05
 >
-> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 tag: `f03-workshop-tenant-v1`; F04 tag: `f04-membership-roles-v1`; F05 instructions apply to the F05 change. / Instruksi F05 berlaku untuk perubahan F05.
+> Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 tag: `f03-workshop-tenant-v1`; F04 tag: `f04-membership-roles-v1`; F05 tag: `f05-trial-provisioning-v1`; F06 target tag: `f06-active-workshop-v1`. / Tag target F06: `f06-active-workshop-v1`.
 >
 > Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
+
+**ID:** Untuk versi terbaru, mulai dari [pemeriksaan F06](#f06-laptop-follow-up--pemeriksaan-laptop-f06); pemeriksaan autentikasi/SMTP sebelumnya tetap perlu dilakukan.
+
+**EN:** For the latest version, start with the [F06 checklist](#f06-laptop-follow-up--pemeriksaan-laptop-f06); earlier authentication/SMTP checks remain outstanding.
 
 ## 0. Start here after F05 merge / Mulai dari sini setelah merge F05
 
@@ -52,9 +56,9 @@ npm.cmd run build
 - [ ] Akun lama tetap bisa login. Akun lama tidak otomatis memperoleh bengkel/trial; jangan menganggap itu kegagalan upgrade. / Existing accounts still log in; no retroactive workshop/trial is expected.
 - [ ] Periksa form pada ukuran HP; tidak melebar horizontal dan tombol nyaman ditekan. / Check mobile form layout and usable buttons.
 
-**ID:** Jika belum nyaman membaca database, jangan menebak hasil backend sebagai lolos. Tandai belum diperiksa; tes otomatis bagian 6 membuktikan provisioning/rollback secara terpisah. Jangan mengubah waktu server, status subscription, role, atau data aplikasi untuk mensimulasikan kegagalan. Tidak perlu menunggu 14 hari; tes batas waktu sudah otomatis. Menu billing, pembayaran, pemilihan workshop, dan enforcement trial belum termasuk F05.
+**ID:** Jika belum nyaman membaca database, jangan menebak hasil backend sebagai lolos. Tandai belum diperiksa; tes otomatis bagian 6 membuktikan provisioning/rollback secara terpisah. Jangan mengubah waktu server, status subscription, role, atau data aplikasi untuk mensimulasikan kegagalan. Tidak perlu menunggu 14 hari; tes batas waktu sudah otomatis. Menu billing, pembayaran, dan enforcement trial belum termasuk F05. Pemilihan workshop ditambahkan di F06 di bawah.
 
-**EN:** If database inspection is unfamiliar, leave backend checks unverified; section 6 covers automated provisioning/rollback tests. Do not alter server time, subscription status, roles, or application data to simulate failures. Boundary tests avoid waiting 14 days. Billing, payments, workshop selection, and trial access enforcement are not part of F05.
+**EN:** If database inspection is unfamiliar, leave backend checks unverified; section 6 covers automated provisioning/rollback tests. Do not alter server time, subscription status, roles, or application data to simulate failures. Boundary tests avoid waiting 14 days. Billing, payments, and trial access enforcement are not part of F05. F06 adds workshop selection below.
 
 ### C. Real reset email — still pending / Email reset nyata — masih tertunda
 
@@ -75,8 +79,9 @@ npm.cmd run build
 | F02 — Laptop + real email verification / Verifikasi laptop + email nyata | Belum dikonfirmasi / Not confirmed |
 | F03 — Workshop Tenant | Sudah di-merge; tag `f03-workshop-tenant-v1` / Merged; tagged |
 | F04 — Membership + Roles | Sudah di-merge; tag `f04-membership-roles-v1` / Merged; tagged |
-| F05 — Plans + Subscription + Trial | Tersedia dalam perubahan F05 / Implemented in the F05 change |
-| F06–F08 | Belum diimplementasikan / Not implemented |
+| F05 — Plans + Subscription + Trial | Sudah di-merge; tag `f05-trial-provisioning-v1` / Merged; tagged |
+| F06 — Active Workshop + Tenant Isolation | Tersedia dalam perubahan F06 / Implemented in the F06 change |
+| F07–F08 | Belum diimplementasikan / Not implemented |
 
 **ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Pada F05 registrasi membuat workshop baru, membership owner, dan trial gratis 14 hari; akun lama tidak otomatis diubah. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Checklist ini bukan izin otomatis melanjutkan roadmap.
 
@@ -224,12 +229,46 @@ npm.cmd run build
 - [ ] Setelah versi F05 tersedia di branch yang dipakai, jalankan `php artisan migrate`, `php artisan migrate:status`, dan `npm.cmd run build`. Dua migration baru `2026_10_31_000003_create_plans_table` dan `2026_10_31_000004_create_subscriptions_table` harus Ran. Katalog awal dibuat otomatis; tidak perlu seed ulang. / Apply both migrations and rebuild assets; catalog initialization needs no extra seeding.
 - [ ] Daftar akun uji baru dengan nama bengkel. Harus masuk ke halaman akun; backend membuat workshop baru, owner membership, dan trial gratis 14 hari. / Register a new test account with a workshop name; the account page opens and provisioning completes.
 - [ ] Nama bengkel kosong ditolak dengan pesan validasi. Paket/role tidak dapat dipilih lewat form registrasi. / Missing workshop names are rejected; registration offers no plan/role selection.
-- [ ] Akun lama masih bisa login. Tidak ada trial/workshop retroaktif untuk akun lama, pemilihan workshop aktif, menu billing, atau tombol pembayaran pada F05. / Existing login still works; no retroactive provisioning, active-workshop selector, billing menu, or payment button is expected.
+- [ ] Akun lama masih bisa login. Tidak ada trial/workshop retroaktif untuk akun lama, menu billing atau tombol pembayaran pada F05. F06 menambah pemilihan workshop dan mengarahkan akun tanpa membership ke halaman informasi. / Existing login still works; no retroactive provisioning, billing menu or payment button is expected. F06 adds workshop selection and a safe landing page for accounts without membership.
 - [ ] Pada database tes terpisah sesuai bagian 6, jalankan `php artisan test --filter=OwnerProvisioningTest` dan `php artisan test --filter=SubscriptionTest`, atau seluruh suite (100 tes / 468 assertion). Tes membuktikan semua tahap rollback saat gagal; jangan sengaja merusak database aplikasi untuk mengulangnya. / On the verified dedicated test database, run the provisioning/subscription tests or full suite; do not corrupt application data to simulate failures.
 
 **ID:** Trial dinilai tidak berlaku tepat setelah 14 hari oleh `isTrialing()`; belum ada job pengubah status atau pembatas akses subscription. Tidak perlu menunggu 14 hari untuk tes manual karena batas waktu sudah diuji otomatis. Harga Starter/Pro belum ditentukan dan paketnya belum aktif. Pemeriksaan email reset nyata di atas tetap tertunda.
 
 **EN:** `isTrialing()` returns false at the 14-day deadline; automatic status transitions and subscription access enforcement are not added. Automated boundary tests avoid waiting 14 days manually. Starter/Pro remain inactive and unpriced. Real reset-email verification above is still pending.
+
+### F06 laptop follow-up / Pemeriksaan laptop F06
+
+**ID:** Setelah F06 di-merge dan tag tersedia, ikuti urutan berikut. Tidak ada migration baru F06; migration lama tetap harus sudah berjalan. Gunakan database lokal/data uji dan jangan menandai hasil sebagai lolos sebelum dicoba. Tag versi kode: `f06-active-workshop-v1`; tag tidak menyimpan database/`.env`.
+
+**EN:** After the F06 merge/tag, follow this order on local test data. F06 adds no migration, but prior migrations must be applied. Do not mark unperformed checks as passed. The code tag is `f06-active-workshop-v1`, excluding database/`.env`.
+
+```powershell
+git status --short --branch
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+npm.cmd run build
+```
+
+- [ ] Login dengan akun yang memiliki **satu bengkel**, atau daftar akun uji baru. Dashboard otomatis menampilkan nama bengkel miliknya. / A single-membership account automatically sees its own workshop on the dashboard.
+- [ ] Buka **Pilih bengkel lain**. Daftar hanya memuat bengkel yang boleh diakses user tersebut. Tidak ada form penambahan membership baru di F06. / The switcher lists only that user's memberships; membership creation UI is not provided.
+- [ ] Jika sudah memiliki akun uji dengan **lebih dari satu membership sah**, logout/login kembali: diarahkan memilih bengkel sebelum dashboard. Pilih bengkel pertama, lalu ganti ke kedua; nama aktif berubah dan tetap benar setelah refresh. / A multi-membership account must select first; switching changes the displayed workshop and persists on refresh.
+- [ ] Jika belum punya fixture multi-membership, tandai kasus tersebut **belum diperiksa** atau gunakan suite tes terpisah di bawah. Jangan memberi role/admin ke akun asli atau mengedit database production untuk menyiapkannya. / Leave missing-fixture cases unverified or use the dedicated test suite; never change real/production privileges to prepare fixtures.
+- [ ] Login di browser/incognito terpisah sebagai akun B yang hanya memiliki bengkel B. A hanya melihat bengkel A; B hanya bengkel B. Parameter query `workshop_id` bukan cara mengganti bengkel dan tidak boleh menampilkan nama tenant lain. / Separate A/B sessions show only their own workshops; query tenant IDs cannot switch context.
+- [ ] Pada data uji saja, jika memeriksa DevTools, ganti hidden `workshop_id` form pemilihan ke ID bengkel akun lain lalu submit: harus 404, tanpa data bengkel lain dan tanpa mengganti pilihan valid sebelumnya. Kasus ini juga sudah diuji otomatis. Jangan kirim cookie/token CSRF dalam laporan. / A forged selection must return 404 without exposing tenant data or changing a valid selection; do not include cookies/CSRF tokens in reports.
+- [ ] Jika tersedia fixture yang membership-nya **dicabut oleh pengelola melalui proses tepercaya**, refresh dashboard: akses tenant lama harus dihentikan dan diminta memilih ulang. Jangan merusak data aplikasi untuk membuat skenario ini; tes otomatis mencakup pencabutan dan penghapusan bengkel. / Revoked membership must lose dashboard access on refresh; use dedicated tests if a safe fixture is unavailable.
+- [ ] Login akun lama yang **belum punya membership**: muncul pesan belum tergabung dan tombol keluar, tanpa loop redirect atau data bengkel lain. Akun itu tetap bisa login; akses tenantnya yang belum tersedia. / A zero-membership account gets an informational page and logout, without redirect loops or tenant data.
+- [ ] Logout dari tiap akun, lalu akses `/dashboard` atau `/workshops/select`: harus login lagi. Cek tampilan pemilihan pada ukuran HP tanpa scroll horizontal. / Logout blocks dashboard/selector access; verify mobile layout.
+- [ ] Pada database tes terpisah yang diverifikasi di bagian 6: `php artisan test --filter=ActiveWorkshopTest`, lalu suite penuh. Baseline F06: **130 tes / 593 assertion**; jangan jalankan `RefreshDatabase` pada data aplikasi. / Use the verified dedicated database; F06 baseline is 130 tests / 593 assertions.
+- [ ] Pemeriksaan SMTP/email reset pada bagian 5 tetap dilakukan saat ada waktu; hasilnya masih belum dikonfirmasi. / Real SMTP verification remains pending.
+
+**ID:** F06 membuktikan konteks bengkel dan dashboard saat ini, bukan seluruh modul operasional yang belum dibuat. Membership yang valid belum otomatis memberi izin mengubah data sensitif; fitur mendatang tetap memerlukan policy dan query tenant yang benar. F07 (UI shell) belum dikerjakan.
+
+**EN:** F06 proves isolation of the existing workshop context/dashboard, not future operational modules. Valid membership alone is not permission for sensitive mutations; future features still require policies and scoped queries. F07 UI shell remains unimplemented.
 
 ## 7. Record results / Catat hasil
 
@@ -249,6 +288,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
 | Kendala yang perlu diperbaiki / Issues | Belum dilaporkan / Not reported |
 
-**ID:** Task roadmap setelah F05 adalah **F06 — Active Workshop + Tenant Isolation**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
+**ID:** Task roadmap setelah F06 adalah **F07 — Application UI Shell**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** After F05, the next task is **F06 — Active Workshop + Tenant Isolation**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.
+**EN:** After F06, the next task is **F07 — Application UI Shell**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.

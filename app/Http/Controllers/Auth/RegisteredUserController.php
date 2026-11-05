@@ -17,6 +17,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
         Auth::login($user);
+        $request->session()->forget('active_workshop_id');
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');

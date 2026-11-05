@@ -142,6 +142,20 @@ If membership is revoked or the workshop is invalid:
 
 Workshop switching must verify membership before updating the session.
 
+### F06 implementation / Implementasi F06
+
+**EN:** `ResolveActiveWorkshop` runs after authentication/session-hash verification on the dashboard. It discards any existing request attribute, verifies a positive session ID through the user's database relationship, and binds only the verified Workshop to the current request as `activeWorkshop`. If no selection exists, it checks at most two memberships and auto-activates exactly one. Invalid/revoked context is cleared, with no fallback to another tenant in that request. HTML requests go to the selection page; JSON receives 403. Zero memberships do not provision data or grant access.
+
+**ID:** `ResolveActiveWorkshop` berjalan setelah autentikasi/verifikasi hash session pada dashboard. Middleware membersihkan attribute request yang ada, memeriksa ID session positif melalui relasi database user, dan memasang hanya Workshop terverifikasi pada request saat ini sebagai `activeWorkshop`. Jika belum ada pilihan, maksimal dua membership diperiksa dan tepat satu diaktifkan otomatis. Konteks tidak valid/dicabut dibersihkan tanpa fallback ke tenant lain pada request tersebut. Request HTML menuju pemilihan; JSON mendapat 403. Nol membership tidak membuat data atau memberikan akses.
+
+**EN:** Selection lists only current memberships with pagination; the POST rechecks membership before saving the session and rotates the session ID. It never accepts a redirect destination. Foreign and missing IDs are indistinguishable (404); input validation never authorizes access. Login/registration clear stale selection; logout clears the session. No singleton/global workshop context is kept between requests, and `super_admin` has no bypass.
+
+**ID:** Daftar pemilihan hanya memuat membership saat ini dengan pagination; POST memeriksa ulang membership sebelum menyimpan session dan mengganti ID session. Tujuan redirect tidak diambil dari input. ID asing dan tidak ada tidak dibedakan (404); validasi input bukan otorisasi. Login/registrasi membersihkan pilihan lama; logout membersihkan session. Tidak ada konteks workshop singleton/global lintas request, dan `super_admin` tidak memiliki bypass.
+
+**EN:** Future tenant routes must opt into `auth`, `auth.session`, and `active.workshop`. Read the verified `activeWorkshop` request attribute, query owned rows through its relationships, and authorize each action. Do not infer access from a global model lookup/route binding, raw session value, or client workshop ID. F06 does not add global scopes to models, operational endpoints, billing enforcement, or role mutation endpoints. The currently tested tenant payload is the workshop name on the dashboard; later modules need their own isolation and IDOR tests.
+
+**ID:** Route tenant berikutnya wajib memakai `auth`, `auth.session`, dan `active.workshop`. Ambil attribute request `activeWorkshop` terverifikasi, query data miliknya melalui relasi workshop, dan otorisasi setiap tindakan. Jangan menyimpulkan akses dari lookup/binding model global, nilai session mentah, atau ID workshop client. F06 tidak menambah global scope model, endpoint operasional, enforcement billing, atau endpoint perubahan role. Payload tenant yang diuji saat ini berupa nama workshop di dashboard; modul berikutnya tetap perlu tes isolasi dan IDOR sendiri.
+
 ## 11. Tenant Query Rules / Aturan Query Tenant
 
 Tenant-owned queries must be scoped to the active workshop.

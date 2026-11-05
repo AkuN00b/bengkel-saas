@@ -13,6 +13,7 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
+        $request->session()->forget('active_workshop_id');
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));
