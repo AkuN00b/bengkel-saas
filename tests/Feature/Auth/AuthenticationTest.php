@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Models\WorkshopMembership;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +25,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
         $this->get('/dashboard')->assertRedirect(route('login'));
+        WorkshopMembership::factory()->create(['user_id' => $user->id]);
         $sessionId = session()->getId();
         $this->withCookie(config('session.cookie'), $sessionId);
 
@@ -86,7 +88,8 @@ class AuthenticationTest extends TestCase
     public function test_logout_invalidates_session_and_rotates_csrf_token(): void
     {
         $user = User::factory()->create();
-        $this->actingAs($user)->withSession(['active_workshop_id' => 123])->get('/dashboard')->assertOk();
+        $membership = WorkshopMembership::factory()->create(['user_id' => $user->id]);
+        $this->actingAs($user)->withSession(['active_workshop_id' => $membership->workshop_id])->get('/dashboard')->assertOk();
         $sessionId = session()->getId();
         $csrf = session()->token();
         $this->withCookie(config('session.cookie'), $sessionId);
@@ -114,6 +117,7 @@ class AuthenticationTest extends TestCase
     public function test_password_changes_invalidate_existing_authenticated_sessions(): void
     {
         $user = User::factory()->create();
+        WorkshopMembership::factory()->create(['user_id' => $user->id]);
         $this->actingAs($user)->get('/dashboard')->assertOk();
         $this->withCookie(config('session.cookie'), session()->getId());
         $user->forceFill(['password' => Hash::make('changed-password-123')])->save();
@@ -123,7 +127,9 @@ class AuthenticationTest extends TestCase
 
     public function test_user_supplied_html_is_escaped_on_the_account_page(): void
     {
-        $this->actingAs(User::factory()->create(['name' => '<script>alert(1)</script>']))
+        $user = User::factory()->create(['name' => '<script>alert(1)</script>']);
+        WorkshopMembership::factory()->create(['user_id' => $user->id]);
+        $this->actingAs($user)
             ->get('/dashboard')->assertOk()
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
             ->assertDontSee('<script>alert(1)</script>', false);

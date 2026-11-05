@@ -13,6 +13,7 @@ return [
     'attributes' => [
         'name' => 'Nama',
         'workshop_name' => 'Nama bengkel',
+        'workshop_id' => 'Bengkel',
         'email' => 'Email',
         'password' => 'Kata sandi',
         'remember' => 'Ingat saya',
