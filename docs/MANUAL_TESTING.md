@@ -14,6 +14,10 @@
 
 **EN:** Checked preparation is complete for the current version; rerunning command blocks is unnecessary just to start testing. Begin with the first browser item in the [F06 checklist](#f06-laptop-follow-up--pemeriksaan-laptop-f06); unchecked authentication/SMTP checks remain outstanding.
 
+**ID — F07:** Catatan dan centang hasil F06 di dokumen ini dipertahankan. Untuk UI baru setelah pull F07, mulai dari [checklist F07](#f07-laptop-follow-up--pemeriksaan-laptop-f07). Semua item F07 tetap kosong sampai dicoba di laptop. Tag target kode: `f07-application-shell-v1`.
+
+**EN — F07:** Existing F06 notes and checkmarks are preserved. Start the new UI checks in the [F07 checklist](#f07-laptop-follow-up--pemeriksaan-laptop-f07) after pulling F07. Its boxes remain unchecked until verified on the laptop. Target code tag: `f07-application-shell-v1`.
+
 ## 0. Start here after F05 merge / Mulai dari sini setelah merge F05
 
 **ID:** Ini urutan praktis persiapan dan tes manual. Persiapan yang sudah diverifikasi Codex dicentang; tes manual tetap kosong sampai dicoba pada versi saat ini. Detail dan penanganan kondisi khusus ada pada bagian berikutnya. Tag milestone F05: `f05-trial-provisioning-v1`; tag hanya menyimpan versi kode, bukan database atau `.env`.
@@ -94,8 +98,9 @@ npm.cmd run build
 | F03 — Workshop Tenant | Sudah di-merge; tag `f03-workshop-tenant-v1` / Merged; tagged |
 | F04 — Membership + Roles | Sudah di-merge; tag `f04-membership-roles-v1` / Merged; tagged |
 | F05 — Plans + Subscription + Trial | Sudah di-merge; tag `f05-trial-provisioning-v1` / Merged; tagged |
-| F06 — Active Workshop + Tenant Isolation | Tersedia dalam perubahan F06 / Implemented in the F06 change |
-| F07–F08 | Belum diimplementasikan / Not implemented |
+| F06 — Active Workshop + Tenant Isolation | Sudah di-merge; tag `f06-active-workshop-v1` / Merged; tagged |
+| F07 — Application UI Shell | Tersedia dalam perubahan F07 / Implemented in the F07 change |
+| F08 — Foundation Test & Hardening | Belum diimplementasikan / Not implemented |
 
 **ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Pada F05 registrasi membuat workshop baru, membership owner, dan trial gratis 14 hari; akun lama tidak otomatis diubah. Ini masih Phase 1 — Foundation, belum seluruh foundation selesai. Checklist ini bukan izin otomatis melanjutkan roadmap.
 
@@ -286,9 +291,50 @@ npm.cmd run build
 - [ ] Pada database tes terpisah yang diverifikasi di bagian 6: `php artisan test --filter=ActiveWorkshopTest`, lalu suite penuh. Baseline F06: **130 tes / 593 assertion**; jangan jalankan `RefreshDatabase` pada data aplikasi. / Use the verified dedicated database; F06 baseline is 130 tests / 593 assertions.
 - [ ] Pemeriksaan SMTP/email reset pada bagian 5 tetap dilakukan saat ada waktu; hasilnya masih belum dikonfirmasi. / Real SMTP verification remains pending.
 
-**ID:** F06 membuktikan konteks bengkel dan dashboard saat ini, bukan seluruh modul operasional yang belum dibuat. Membership yang valid belum otomatis memberi izin mengubah data sensitif; fitur mendatang tetap memerlukan policy dan query tenant yang benar. F07 (UI shell) belum dikerjakan.
+**ID:** F06 membuktikan konteks bengkel dan dashboard saat ini, bukan seluruh modul operasional yang belum dibuat. Membership yang valid belum otomatis memberi izin mengubah data sensitif; fitur mendatang tetap memerlukan policy dan query tenant yang benar. UI shell F07 dijelaskan pada checklist berikutnya.
 
-**EN:** F06 proves isolation of the existing workshop context/dashboard, not future operational modules. Valid membership alone is not permission for sensitive mutations; future features still require policies and scoped queries. F07 UI shell remains unimplemented.
+**EN:** F06 proves isolation of the existing workshop context/dashboard, not future operational modules. Valid membership alone is not permission for sensitive mutations; future features still require policies and scoped queries. The F07 UI shell has its own checklist below.
+
+### F07 laptop follow-up / Pemeriksaan laptop F07
+
+**ID:** F07 memperbarui tampilan; progres persiapan dan hasil terdahulu di atas tidak dihapus atau dianggap sebagai bukti UI F07. Tidak ada migration atau dependency baru. Setelah F07 masuk `main`, simpan perubahan lokal lalu perbarui checkout/aset. Jangan menimpa `.env` atau mengganti `APP_KEY` yang sudah digunakan.
+
+**EN:** F07 changes the UI; earlier preparation/results above are preserved and do not verify F07. No migrations or dependencies are added. After the merge, preserve local work and update code/assets without overwriting `.env` or regenerating an existing application key.
+
+```powershell
+git status --short --branch
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+php artisan config:clear
+npm.cmd run build
+```
+
+- [ ] Login akun dengan membership valid: terlihat sidebar **Ringkasan/Pilih bengkel lain**, header bengkel aktif, sapaan, serta role Pemilik/Kasir/Mekanik sesuai membership. / A member sees the shell, verified workshop name, welcome, and actual role.
+- [ ] Jika punya trial, status/sisa hari sesuai data bengkel. Tanggal memakai timezone bengkel; sisa sebagian hari dibulatkan ke atas. Tidak perlu menunggu 14 hari atau mengubah waktu/data aplikasi untuk tes kedaluwarsa—suite sudah memeriksa batasnya. / Verify displayed real trial data; automated tests cover exact expiry without altering application time/data.
+- [ ] Bengkel tanpa subscription menampilkan **Belum ada paket**, tanpa trial/angka buatan. Tidak ada menu pelanggan, order, stok, invoice, atau tombol pembayaran yang belum diimplementasikan. / Empty subscriptions have an explicit state; no fake business metrics or unimplemented navigation is shown.
+- [ ] Ganti bengkel melalui tautan/kartu pemilihan. Nama, role, dan informasi paket mengikuti bengkel yang baru; data bengkel lain tidak tertinggal di tampilan. Gunakan fixture uji sah jika tersedia; jangan memberi privilege pada akun asli untuk menyiapkannya. / Switching updates workshop/role/subscription without stale tenant data; use authorized test fixtures only.
+- [ ] Pada HP atau DevTools sekitar 390 px, tombol **Buka navigasi** membuka panel. **Tutup navigasi** dan Escape menutupnya; fokus kembali ke pemicu. Tautan **Ringkasan/Pilih bengkel lain** berfungsi. / Mobile navigation opens/closes with keyboard focus handling and working links.
+- [ ] Buka menu pengguna lewat avatar/nama. Nama/email benar; Escape atau klik luar menutup menu. Tombol **Keluar** mengakhiri session; akses dashboard setelah logout harus meminta login. / User details are correct; menu close and POST logout work.
+- [ ] Periksa nama panjang dan layout pada desktop/HP: tidak ada scroll horizontal, kartu tidak bertumpuk, teks/tombol terbaca. / Check readable long names and responsive cards without horizontal scrolling.
+- [ ] Akun tanpa membership tetap memperoleh halaman **Anda belum tergabung** dalam layout baru, tanpa nama/paket bengkel yang tidak boleh diakses; logout tetap tersedia. / Zero-membership accounts get a safe page in the new shell, with logout and no foreign tenant data.
+- [ ] Refresh halaman dan buka dua browser akun A/B terpisah: header/kartu tetap menunjukkan data masing-masing. Tes isolasi F06 di atas tetap relevan. / Refresh and separate A/B sessions retain their own tenant data; F06 isolation checks remain applicable.
+- [ ] Opsional pada database tes terpisah yang diverifikasi bagian 6: `php artisan test --filter=ApplicationShellTest`, lalu suite penuh. Baseline F07: **149 tes / 671 assertion**. Jangan jalankan tes `RefreshDatabase` terhadap data aplikasi. / Use the verified dedicated testing database for the optional suite.
+- [ ] Catat hasil F07 secara terpisah pada tabel di bawah. Jangan mengubah centang/laporan terdahulu berdasarkan tes cloud F07. / Record F07 results separately, without inferring earlier local outcomes from cloud checks.
+
+| Pemeriksaan F07 / F07 check | Hasil laptop / Laptop result |
+| --- | --- |
+| Tanggal + commit F07 / Date + commit | Belum diisi / Pending |
+| Desktop + navigasi / Desktop + navigation | Belum diuji / Not tested |
+| HP + fokus/menu / Mobile + focus/menu | Belum diuji / Not tested |
+| Trial/paket kosong + ganti tenant / Trial/empty + switching | Belum diuji / Not tested |
+| Menu pengguna + logout / User menu + logout | Belum diuji / Not tested |
+| Kasus tanpa membership / No-membership case | Belum diuji / Not tested |
+| Suite lokal F07 (opsional) / Local F07 suite (optional) | Belum dijalankan / Not run |
+
+**ID:** Perubahan ini tidak mengubah SMTP/reset email atau mengaktifkan billing/trial enforcement. Catatan pengujian lama dipertahankan; item SMTP yang belum pasti tetap perlu dikonfirmasi sesuai hasil nyata. F08 berikutnya masih diperlukan untuk review Foundation.
+
+**EN:** F07 does not change SMTP/reset email or enable billing/trial enforcement. Existing reports are preserved; uncertain SMTP outcomes still need confirmation from actual results. F08 Foundation review remains next.
 
 ## 7. Record results / Catat hasil
 
@@ -312,6 +358,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Suite F06 belum dijalankan; hasil F02 sebelumnya bukan verifikasi F06 / F06 suite not run; earlier F02 results do not verify F06 |
 | Kendala yang perlu diperbaiki / Issues | Konflik IIS/Herd sudah ditangani sementara; hasil tes browser/SMTP masih menunggu / IIS conflict temporarily resolved; browser/SMTP results pending |
 
-**ID:** Task roadmap setelah F06 adalah **F07 — Application UI Shell**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
+**ID:** Task roadmap setelah F07 adalah **F08 — Foundation Test & Hardening**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** After F06, the next task is **F07 — Application UI Shell**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.
+**EN:** After F07, the next task is **F08 — Foundation Test & Hardening**, requiring a separate instruction. Complete the outstanding F02 laptop/SMTP checklist when time permits. Milestone tags preserve code, not databases or `.env` files.
