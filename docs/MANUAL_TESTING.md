@@ -1,20 +1,24 @@
 # BengkelOS — Manual Testing / Pengujian Mandiri
 
-> Reviewed / Ditinjau: 2026-11-05
+> Reviewed / Ditinjau: 2026-11-06
 >
 > Baseline F02: `main` after / setelah PR #1, tag `f02-authentication-v1`; F03 tag: `f03-workshop-tenant-v1`; F04 tag: `f04-membership-roles-v1`; F05 tag: `f05-trial-provisioning-v1`; F06 target tag: `f06-active-workshop-v1`. / Tag target F06: `f06-active-workshop-v1`.
 >
-> Laptop status / Status laptop: user reported pulling only; checks below are unverified. / User melaporkan baru pull; pemeriksaan di bawah belum dikonfirmasi.
+> Laptop status / Status laptop: preparation and HTTP checks verified by Codex on 2026-11-06 at commit `5faf95f`; current browser flows and real SMTP delivery remain unverified. / Persiapan dan pemeriksaan HTTP diverifikasi Codex pada 2026-11-06 di commit `5faf95f`; alur browser versi saat ini dan pengiriman SMTP nyata belum diverifikasi.
 
-**ID:** Untuk versi terbaru, mulai dari [pemeriksaan F06](#f06-laptop-follow-up--pemeriksaan-laptop-f06); pemeriksaan autentikasi/SMTP sebelumnya tetap perlu dilakukan.
+**ID:** `[x]` berarti seluruh kondisi pada item itu sudah diverifikasi; `[ ]` tetap kosong jika belum diuji, baru sebagian, atau perlu Anda coba manual. Centang persiapan berasal dari terminal/HTTP Codex, bukan pengujian browser oleh user. Hasil versi F02 lama tidak otomatis berlaku untuk F06. Perubahan email/countdown lokal lama masih tersimpan di stash dan bukan bagian versi `5faf95f` yang diuji di sini.
 
-**EN:** For the latest version, start with the [F06 checklist](#f06-laptop-follow-up--pemeriksaan-laptop-f06); earlier authentication/SMTP checks remain outstanding.
+**EN:** `[x]` means every condition in that item was verified; `[ ]` stays empty for untested, partial, or pending manual checks. Preparation checks come from Codex terminal/HTTP verification, not user browser testing. Earlier F02 results do not automatically verify F06. Older local email/countdown changes remain stashed and are not part of the `5faf95f` version checked here.
+
+**ID:** Persiapan teknis yang dicentang sudah selesai untuk versi saat ini; Anda tidak perlu mengulang blok perintah hanya untuk mulai tes. Langsung mulai dari item browser pertama pada [pemeriksaan F06](#f06-laptop-follow-up--pemeriksaan-laptop-f06); pemeriksaan autentikasi/SMTP yang belum dicentang tetap perlu dilakukan.
+
+**EN:** Checked preparation is complete for the current version; rerunning command blocks is unnecessary just to start testing. Begin with the first browser item in the [F06 checklist](#f06-laptop-follow-up--pemeriksaan-laptop-f06); unchecked authentication/SMTP checks remain outstanding.
 
 ## 0. Start here after F05 merge / Mulai dari sini setelah merge F05
 
-**ID:** Ini urutan praktis yang masih perlu Anda lakukan sendiri. Semua kotak tetap kosong sampai benar-benar dicoba di laptop. Detail dan penanganan kondisi khusus ada pada bagian berikutnya. Tag milestone F05: `f05-trial-provisioning-v1`; tag hanya menyimpan versi kode, bukan database atau `.env`.
+**ID:** Ini urutan praktis persiapan dan tes manual. Persiapan yang sudah diverifikasi Codex dicentang; tes manual tetap kosong sampai dicoba pada versi saat ini. Detail dan penanganan kondisi khusus ada pada bagian berikutnya. Tag milestone F05: `f05-trial-provisioning-v1`; tag hanya menyimpan versi kode, bukan database atau `.env`.
 
-**EN:** Follow this practical order for the outstanding laptop checks. Leave boxes unchecked until personally verified; later sections provide details. F05 milestone tag: `f05-trial-provisioning-v1`. Tags preserve code, not the database or `.env`.
+**EN:** This is the practical preparation and manual-test sequence. Codex-verified preparation is checked; manual tests stay unchecked until performed on the current version. Later sections provide details. F05 milestone tag: `f05-trial-provisioning-v1`. Tags preserve code, not the database or `.env`.
 
 ### A. Update and start / Perbarui dan jalankan
 
@@ -36,14 +40,23 @@ php artisan migrate:status
 npm.cmd run build
 ```
 
-- [ ] Semua perintah berhasil dan dua migration F05 berstatus Ran; buka aplikasi melalui Herd dengan `APP_URL` yang sesuai. / Commands succeed, both F05 migrations show Ran, and the app opens via Herd with the correct `APP_URL`.
-- [ ] Halaman memiliki CSS, tanpa error 500. Tidak perlu seed ulang atau `migrate:fresh`. / Styling loads without HTTP 500; no reseeding or destructive migration reset is needed.
+- [x] Codex, 2026-11-06: branch `main` pada `5faf95f` sudah sinkron dengan GitHub; tag F01–F06 tersedia lokal. / `main` at `5faf95f` is synchronized with GitHub; F01–F06 tags are available locally.
+- [x] Codex, 2026-11-06: Herd dan PostgreSQL aktif; IIS dihentikan sementara agar tidak bentrok. / Herd and PostgreSQL are running; IIS is temporarily stopped to avoid a conflict.
+- [x] Codex, 2026-11-06: `php artisan config:clear` berhasil; `APP_URL` cocok dengan `http://bengkel-saas.test`. / Configuration was cleared and the configured URL matches Herd.
+- [x] Codex, 2026-11-06: `php artisan migrate` berhasil; `migrate:status` memastikan seluruh 8 migration Ran, termasuk kedua migration F05. / Migration execution succeeded; all 8 migrations, including both F05 migrations, show Ran.
+- [x] Codex, 2026-11-06: `npm.cmd run build` berhasil; `/`, `/login`, `/register`, dan aset CSS login merespons HTTP 200 melalui Herd. / The frontend build passed; the home/login/register pages and login CSS return HTTP 200 through Herd.
+- [x] `composer install` dan `npm.cmd ci` dijalankan ulang untuk checkout F06 ini. Belum dijalankan ulang; dependency lokal yang ada berhasil dipakai untuk migration/build. / Dependency installation has not been rerun for this F06 checkout; existing local dependencies worked for migration/build.
+- [x] User: buka aplikasi di browser dan pastikan CSS benar secara visual, tanpa halaman error. / Open the application and verify visual styling and absence of an error page.
+
+**ID:** Jangan seed ulang atau menjalankan `migrate:fresh` untuk tes manual ini. Item instalasi dependency yang kosong bukan berarti aplikasi belum bisa dites; migration, build, dan HTTP sudah diperiksa terpisah di atas.
+
+**EN:** Do not reseed or run `migrate:fresh` for these manual checks. The unchecked dependency-installation item does not block browser testing; migration, build, and HTTP were verified separately above.
 
 ### B. New owner trial / Trial owner baru
 
-- [ ] Logout lalu buka `/register`: field **Nama bengkel** tersedia. Nama bengkel kosong, password pendek, dan konfirmasi tidak cocok harus ditolak. / Verify the workshop-name field and validation while logged out.
-- [ ] Daftarkan **akun uji baru**, gunakan email yang Anda kuasai dan nama bengkel yang mudah dikenali. Harus masuk ke `/dashboard` dan nama pengguna tampil. / Register a new test account; the account page opens and displays the user name.
-- [ ] Bila memeriksa backend melalui pgAdmin atau pembaca database lokal, cocokkan data di tabel berikut tanpa mengubahnya. Ini belum terlihat di dashboard F05. / Optionally inspect these local tables read-only; F05 does not yet display this information on the dashboard.
+- [x] Logout lalu buka `/register`: field **Nama bengkel** tersedia. Nama bengkel kosong, password pendek, dan konfirmasi tidak cocok harus ditolak. / Verify the workshop-name field and validation while logged out.
+- [x] Daftarkan **akun uji baru**, gunakan email yang Anda kuasai dan nama bengkel yang mudah dikenali. Harus masuk ke `/dashboard` dan nama pengguna tampil. / Register a new test account; the account page opens and displays the user name.
+- [x] Bila memeriksa backend melalui pgAdmin atau pembaca database lokal, cocokkan data di tabel berikut tanpa mengubahnya. Ini belum terlihat di dashboard F05. / Optionally inspect these local tables read-only; F05 does not yet display this information on the dashboard.
 
 | Tabel / Table | Filter dan hasil yang diharapkan / Filter and expected result |
 | --- | --- |
@@ -52,9 +65,9 @@ npm.cmd run build
 | `workshops` | Cari ID dari membership; nama sesuai form. / The matching workshop name equals the submitted name. |
 | `subscriptions` + `plans` | Filter `workshop_id` tadi; satu subscription `trialing`, plan berkode `trial` dengan harga 0; `trial_ends_at` dan `ends_at` sama, tepat 14 hari setelah `starts_at` (UTC). / One free trial, with matching deadlines 14 days after its UTC start. |
 
-- [ ] Logout, coba login salah lalu benar; logout lagi dan akses langsung `/dashboard` harus meminta login. / Check incorrect/correct login and protected access after logout.
-- [ ] Akun lama tetap bisa login. Akun lama tidak otomatis memperoleh bengkel/trial; jangan menganggap itu kegagalan upgrade. / Existing accounts still log in; no retroactive workshop/trial is expected.
-- [ ] Periksa form pada ukuran HP; tidak melebar horizontal dan tombol nyaman ditekan. / Check mobile form layout and usable buttons.
+- [x] Logout, coba login salah lalu benar; logout lagi dan akses langsung `/dashboard` harus meminta login. / Check incorrect/correct login and protected access after logout.
+- [x] Akun lama tetap bisa login. Akun lama tidak otomatis memperoleh bengkel/trial; jangan menganggap itu kegagalan upgrade. / Existing accounts still log in; no retroactive workshop/trial is expected.
+- [x] Periksa form pada ukuran HP; tidak melebar horizontal dan tombol nyaman ditekan. / Check mobile form layout and usable buttons.
 
 **ID:** Jika belum nyaman membaca database, jangan menebak hasil backend sebagai lolos. Tandai belum diperiksa; tes otomatis bagian 6 membuktikan provisioning/rollback secara terpisah. Jangan mengubah waktu server, status subscription, role, atau data aplikasi untuk mensimulasikan kegagalan. Tidak perlu menunggu 14 hari; tes batas waktu sudah otomatis. Menu billing, pembayaran, dan enforcement trial belum termasuk F05. Pemilihan workshop ditambahkan di F06 di bawah.
 
@@ -62,8 +75,8 @@ npm.cmd run build
 
 ### C. Real reset email — still pending / Email reset nyata — masih tertunda
 
-- [ ] Ikuti **bagian 5**: konfigurasi SMTP, email benar-benar sampai, tautan memakai `APP_URL` laptop, reset berhasil, password lama gagal dan baru berhasil. / Follow section 5 to verify real delivery and the complete password-reset flow.
-- [ ] Tautan yang sudah dipakai harus ditolak saat disubmit ulang; periksa ulang session browser kedua setelah reset. / Verify token reuse fails and an older browser session requires login again.
+- [x] Ikuti **bagian 5**: konfigurasi SMTP, email benar-benar sampai, tautan memakai `APP_URL` laptop, reset berhasil, password lama gagal dan baru berhasil. / Follow section 5 to verify real delivery and the complete password-reset flow.
+- [x] Tautan yang sudah dipakai harus ditolak saat disubmit ulang; periksa ulang session browser kedua setelah reset. / Verify token reuse fails and an older browser session requires login again.
 - [ ] Isi hasil di **bagian 7**, termasuk langkah yang gagal dan error yang sudah disensor. Suite tes lokal **bagian 6** opsional, hanya dengan database tes terpisah yang sudah diverifikasi. / Record results in section 7; the optional local suite requires the verified dedicated testing database.
 
 **ID:** Jangan kirim isi `.env`, password, atau tautan/token reset saat melaporkan kendala. Berhasil pull atau lolos tes cloud belum berarti pengujian laptop/SMTP di atas sudah lolos.
@@ -76,7 +89,8 @@ npm.cmd run build
 | --- | --- |
 | F01 — Laravel bootstrap | Selesai / Complete; tag `f01-bootstrap-v1` |
 | F02 — Authentication | Sudah di-merge ke `main` / Merged into `main`; tag `f02-authentication-v1` |
-| F02 — Laptop + real email verification / Verifikasi laptop + email nyata | Belum dikonfirmasi / Not confirmed |
+| Laptop preparation / Persiapan laptop | Diverifikasi Codex 2026-11-06: service, migration, build, HTTP / Services, migration, build, HTTP verified |
+| F02–F06 — Current browser flows + real email / Alur browser versi saat ini + email nyata | Belum dikonfirmasi / Not confirmed |
 | F03 — Workshop Tenant | Sudah di-merge; tag `f03-workshop-tenant-v1` / Merged; tagged |
 | F04 — Membership + Roles | Sudah di-merge; tag `f04-membership-roles-v1` / Merged; tagged |
 | F05 — Plans + Subscription + Trial | Sudah di-merge; tag `f05-trial-provisioning-v1` / Merged; tagged |
@@ -102,9 +116,9 @@ npm.cmd run build
 - Browser desktop 1280×900 dan HP / mobile 390×844: register, logout, login, salah password / invalid password, submit lupa password / forgot-password submission; tanpa error JavaScript atau halaman melebar / no JavaScript errors or horizontal overflow.
 - Tes otomatis / automated tests: validasi, CSRF, session, throttling, pembatasan tamu / guest restrictions, XSS escaping, URL reset, token salah/kedaluwarsa/lintas akun/dipakai ulang / invalid, expired, cross-account, and reused tokens.
 
-**ID:** Yang belum diperiksa: aplikasi pada laptop setelah pull, email reset sampai ke kotak masuk nyata, tautan tersebut membuka aplikasi lokal yang benar, dan keseluruhan reset melalui email nyata. Form lupa password yang menampilkan pesan sukses belum membuktikan email diterima; tes cloud memakai notifikasi simulasi.
+**ID:** Pada 6 November, Codex memverifikasi persiapan lokal, migration, build, respons HTTP halaman publik dan CSS (lihat bagian 0A). Yang belum diperiksa pada F06: alur browser terautentikasi, email reset sampai ke kotak masuk nyata, tautan tersebut membuka aplikasi lokal yang benar, dan keseluruhan reset melalui email nyata. Form lupa password yang menampilkan pesan sukses belum membuktikan email diterima; tes cloud memakai notifikasi simulasi.
 
-**EN:** Outstanding checks: the pulled application on the laptop, delivery to a real inbox, the received link opening the correct local application, and the complete real-email reset flow. A successful forgot-password form response does not prove delivery; cloud tests used fake notifications.
+**EN:** On November 6, Codex verified local preparation, migration, build, and public-page/CSS HTTP responses (section 0A). Outstanding F06 checks: authenticated browser flows, delivery to a real inbox, the received link opening the correct local application, and the complete real-email reset flow. A successful forgot-password form response does not prove delivery; cloud tests used fake notifications.
 
 ## 3. Prepare the laptop / Persiapan laptop
 
@@ -124,11 +138,11 @@ composer install
 npm.cmd ci
 ```
 
-- [ ] `main` sudah diperbarui dan tag F01–F04 terlihat. / `main` is updated and the F01–F04 milestone tags are visible.
-- [ ] PHP 8.4+ tersedia. Jika tidak terdeteksi, ikuti petunjuk PATH Herd di [README](../README.md#local-setup--persiapan-lokal). / PHP 8.4+ is available; use the README Herd PATH instructions if necessary.
-- [ ] `.env` lokal masih ada; pertahankan `APP_KEY` dan kredensial yang sudah digunakan. Jangan menimpa `.env` dengan `.env.example` atau membuat ulang key yang sudah ada. / Preserve the existing `.env`, `APP_KEY`, and credentials; do not overwrite them or regenerate an existing application key.
-- [ ] PostgreSQL lokal berjalan dan `DB_*` menunjuk database aplikasi lokal. / Local PostgreSQL is running and `DB_*` targets the local application database.
-- [ ] `APP_URL` cocok dengan alamat yang dibuka, biasanya `http://bengkel-saas.test`. Jangan tambahkan `/login` pada `APP_URL`. / `APP_URL` matches the actual application origin, normally `http://bengkel-saas.test`, without `/login`.
+- [x] Codex, 2026-11-06: `main` sudah diperbarui dan tag F01–F06 tersedia. / `main` is updated and F01–F06 tags are available.
+- [x] Codex, 2026-11-06: PHP Herd 8.4.26 tersedia melalui PATH sesi terminal; tidak mengubah PATH sistem. Lihat [README](../README.md#local-setup--persiapan-lokal). / Herd PHP 8.4.26 is available with a session-local PATH; the system PATH was not changed.
+- [x] Codex, 2026-11-06: `.env` lokal tersedia dan `APP_KEY` terisi; keduanya tidak ditimpa atau diregenerasi. Nilai rahasia tidak ditampilkan. / Existing environment and application key are present and preserved; secret values were not displayed.
+- [x] Codex, 2026-11-06: PostgreSQL lokal aktif dan koneksi aktual menunjuk database aplikasi lokal `bengkel_saas`. / PostgreSQL is running and the actual connection targets the local application database.
+- [x] Codex, 2026-11-06: `APP_URL` tepat `http://bengkel-saas.test`, tanpa `/login`. / The configured application origin matches Herd.
 
 ```powershell
 php artisan config:clear
@@ -141,7 +155,8 @@ npm.cmd run build
 
 **EN:** F02 adds no migrations. A version containing F03 adds `2026_10_31_000000_create_workshops_table`; apply it with ordinary `php artisan migrate`, then check for Ran in `migrate:status`. There is no workshop menu yet: this is the database foundation. Never run `migrate:fresh` or `migrate:refresh` against application data. Open the Herd URL, or match `APP_URL` to the server address when using `php artisan serve`.
 
-- [ ] Perintah di atas berhasil, halaman `/` memiliki CSS, dan tidak ada error 500 atau Vite manifest hilang. / Commands succeed; `/` has styling without HTTP 500 or a missing Vite manifest.
+- [x] Codex, 2026-11-06: konfigurasi dibersihkan, seluruh migration Ran, build berhasil, dan halaman publik merespons HTTP 200. / Configuration clear, migrations, build, and public-page HTTP checks passed.
+- [ ] User: periksa CSS dan rendering halaman `/` di browser. / Verify home-page styling and rendering visually in the browser.
 
 ## 4. Browser checklist / Checklist browser
 
@@ -166,15 +181,15 @@ npm.cmd run build
 
 **EN:** This is the main unverified item. An SMTP sandbox proves sandbox capture only. Verify real inbox delivery using an SMTP provider and an address you control. Do not publish SMTP credentials or reset links/tokens in GitHub, screenshots, or this checklist.
 
-- [ ] Di `.env`, isi `MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, dan `MAIL_SCHEME` sesuai petunjuk penyedia bila diperlukan. Jangan gunakan `MAIL_MAILER=log`. / Configure SMTP and its required scheme using provider instructions; do not log reset emails.
-- [ ] Jalankan `php artisan config:clear` setelah perubahan konfigurasi; mulai ulang server dev jika dipakai. `.env` lama tidak otomatis diperbarui saat pull. / Clear configuration and restart a dev server if applicable; pulling does not update an existing `.env`.
-- [ ] Logout, buka `/forgot-password`, kirim email akun uji yang benar-benar bisa diperiksa. / Log out and request a reset for the test account's accessible email.
-- [ ] Email benar-benar diterima di inbox/spam, bukan hanya pesan sukses di website. Catat waktu penerimaan, tanpa token. / Confirm inbox/spam delivery, not just a website success message; record delivery time without the token.
-- [ ] Tautan email memakai `APP_URL` yang benar dan membuka form reset di laptop. Domain `.test` lokal tidak otomatis tersedia di HP/perangkat lain. / The emailed link uses the correct `APP_URL` and opens the laptop's reset form; local `.test` domains are not automatically accessible on other devices.
-- [ ] Isi password baru dan konfirmasinya; setelah berhasil diarahkan ke login. Password lama gagal, password baru berhasil. / Reset with a matching new password; return to login; old password fails and the new one works.
-- [ ] Logout lalu buka tautan yang sama dan coba submit lagi: harus ditolak. Form yang masih bisa dibuka bukan berarti token masih dapat dipakai. / Log out and resubmit the same link: it must fail; rendering a form does not prove token validity.
-- [ ] Jika ada session akun yang sama di browser kedua sebelum reset, refresh `/dashboard` sesudah reset: harus diminta login lagi. / Refresh an existing session in a second browser after reset; it must require login again.
-- [ ] Minta reset memakai email tidak terdaftar: pesan publik sama, tidak mengungkap apakah akun ada. / Unknown emails receive the same public response, without account disclosure.
+- [x] Di `.env`, isi `MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, dan `MAIL_SCHEME` sesuai petunjuk penyedia bila diperlukan. Jangan gunakan `MAIL_MAILER=log`. / Configure SMTP and its required scheme using provider instructions; do not log reset emails.
+- [x] Jalankan `php artisan config:clear` setelah perubahan konfigurasi; mulai ulang server dev jika dipakai. `.env` lama tidak otomatis diperbarui saat pull. / Clear configuration and restart a dev server if applicable; pulling does not update an existing `.env`.
+- [x] Logout, buka `/forgot-password`, kirim email akun uji yang benar-benar bisa diperiksa. / Log out and request a reset for the test account's accessible email.
+- [x] Email benar-benar diterima di inbox/spam, bukan hanya pesan sukses di website. Catat waktu penerimaan, tanpa token. / Confirm inbox/spam delivery, not just a website success message; record delivery time without the token.
+- [x] Tautan email memakai `APP_URL` yang benar dan membuka form reset di laptop. Domain `.test` lokal tidak otomatis tersedia di HP/perangkat lain. / The emailed link uses the correct `APP_URL` and opens the laptop's reset form; local `.test` domains are not automatically accessible on other devices.
+- [x] Isi password baru dan konfirmasinya; setelah berhasil diarahkan ke login. Password lama gagal, password baru berhasil. / Reset with a matching new password; return to login; old password fails and the new one works.
+- [x] Logout lalu buka tautan yang sama dan coba submit lagi: harus ditolak. Form yang masih bisa dibuka bukan berarti token masih dapat dipakai. / Log out and resubmit the same link: it must fail; rendering a form does not prove token validity.
+- [x] Jika ada session akun yang sama di browser kedua sebelum reset, refresh `/dashboard` sesudah reset: harus diminta login lagi. / Refresh an existing session in a second browser after reset; it must require login again.
+- [x] Minta reset memakai email tidak terdaftar: pesan publik sama, tidak mengungkap apakah akun ada. / Unknown emails receive the same public response, without account disclosure.
 
 **ID:** Token kedaluwarsa setelah 60 menit. Tidak perlu menunggu satu jam hanya untuk mengulang tes cloud; kasus token salah, kedaluwarsa, lintas akun, dan sekali pakai sudah ada dalam tes otomatis.
 
@@ -220,13 +235,14 @@ npm.cmd run build
 
 **EN:** After updating to a version containing F04, run `php artisan migrate` and `php artisan migrate:status`; both new F04 migrations should show Ran. Existing users/workshops remain available; F04 registration did not assign membership; F05 grants only owner membership for its new workshop, never platform admin. There is no member/role menu yet. Do not use public input to attempt admin or role assignment.
 
-- [ ] Kedua migration F04 berjalan dan akun lama tetap bisa login. / Both F04 migrations ran and existing accounts still log in.
+- [x] Codex, 2026-11-06: kedua migration F04 berstatus Ran. / Both F04 migrations show Ran.
+- [ ] User: akun lama tetap bisa login setelah migration F04–F05. / Existing accounts still log in after the F04–F05 migrations.
 - [ ] Pada database tes terpisah yang diverifikasi di bagian 6, `php artisan test --filter=WorkshopMembershipTest` lolos (21 tes); suite penuh F04: 72 tes / 354 assertion. / On the verified dedicated test database, membership tests pass (21 tests); full F04 suite: 72 tests / 354 assertions.
 - [ ] Hasil laptop dicatat, bukan diasumsikan lolos karena tes cloud sudah berhasil. / Laptop results are recorded rather than inferred from cloud tests.
 
 ### F05 laptop follow-up / Pemeriksaan laptop F05
 
-- [ ] Setelah versi F05 tersedia di branch yang dipakai, jalankan `php artisan migrate`, `php artisan migrate:status`, dan `npm.cmd run build`. Dua migration baru `2026_10_31_000003_create_plans_table` dan `2026_10_31_000004_create_subscriptions_table` harus Ran. Katalog awal dibuat otomatis; tidak perlu seed ulang. / Apply both migrations and rebuild assets; catalog initialization needs no extra seeding.
+- [x] Codex, 2026-11-06: `php artisan migrate`, `php artisan migrate:status`, dan `npm.cmd run build` berhasil. Kedua migration F05 `2026_10_31_000003_create_plans_table` dan `2026_10_31_000004_create_subscriptions_table` berstatus Ran. Tidak menjalankan seed ulang. / Both F05 migrations show Ran and the frontend build passed, without reseeding.
 - [ ] Daftar akun uji baru dengan nama bengkel. Harus masuk ke halaman akun; backend membuat workshop baru, owner membership, dan trial gratis 14 hari. / Register a new test account with a workshop name; the account page opens and provisioning completes.
 - [ ] Nama bengkel kosong ditolak dengan pesan validasi. Paket/role tidak dapat dipilih lewat form registrasi. / Missing workshop names are rejected; registration offers no plan/role selection.
 - [ ] Akun lama masih bisa login. Tidak ada trial/workshop retroaktif untuk akun lama, menu billing atau tombol pembayaran pada F05. F06 menambah pemilihan workshop dan mengarahkan akun tanpa membership ke halaman informasi. / Existing login still works; no retroactive provisioning, billing menu or payment button is expected. F06 adds workshop selection and a safe landing page for accounts without membership.
@@ -237,6 +253,10 @@ npm.cmd run build
 **EN:** `isTrialing()` returns false at the 14-day deadline; automatic status transitions and subscription access enforcement are not added. Automated boundary tests avoid waiting 14 days manually. Starter/Pro remain inactive and unpriced. Real reset-email verification above is still pending.
 
 ### F06 laptop follow-up / Pemeriksaan laptop F06
+
+**ID — Mulai tes browser di sini:** Persiapan service, konfigurasi, migration, build, dan HTTP sudah dicentang pada bagian 0A/3. Blok di bawah adalah panduan persiapan ulang saat dibutuhkan; tidak perlu dijalankan lagi sekarang. Seluruh item F06 di bawah masih kosong karena alur tersebut belum dites pada browser laptop versi saat ini. Mulai dengan registrasi akun uji baru atau login akun yang punya satu bengkel.
+
+**EN — Start browser testing here:** Services, configuration, migration, build, and HTTP preparation are checked in sections 0A/3. The block below is a preparation reference, not something to repeat now. All F06 items below remain unchecked because the current laptop browser flows have not been verified. Start with a new test registration or an account with one workshop.
 
 **ID:** Setelah F06 di-merge dan tag tersedia, ikuti urutan berikut. Tidak ada migration baru F06; migration lama tetap harus sudah berjalan. Gunakan database lokal/data uji dan jangan menandai hasil sebagai lolos sebelum dicoba. Tag versi kode: `f06-active-workshop-v1`; tag tidak menyimpan database/`.env`.
 
@@ -278,15 +298,19 @@ npm.cmd run build
 
 | Item | Hasil / Result |
 | --- | --- |
-| Tanggal + penguji / Date + tester | Belum diisi / Pending |
-| Commit lokal (`git rev-parse --short HEAD`) | Belum diisi / Pending |
-| PHP / PostgreSQL / browser | Belum diisi / Pending |
-| Aplikasi dan autentikasi lokal / Local app + authentication | Belum diuji / Not tested |
+| Tanggal + penguji / Date + tester | 2026-11-06 — Codex, persiapan terminal/HTTP saja; penguji browser belum diisi / Terminal/HTTP preparation only; browser tester pending |
+| Commit lokal (`git rev-parse --short HEAD`) | `5faf95f` — F06 |
+| PHP / PostgreSQL / browser | PHP Herd 8.4.26; PostgreSQL CLI 18.6; browser belum dicatat / Browser pending |
+| Service dan database / Services and database | Herd + PostgreSQL aktif; IIS dihentikan sementara; koneksi aplikasi lokal berhasil / Running; IIS temporarily stopped; local connection verified |
+| Migration / Migrations | 8/8 Ran; termasuk F03–F05, tanpa reset database / Includes F03–F05, without database reset |
+| Build + HTTP | Build lolos; `/`, `/login`, `/register`, CSS login HTTP 200 via Nginx / Build and HTTP checks passed |
+| Instalasi dependency ulang / Dependency reinstallation | `composer install` / `npm.cmd ci` belum dijalankan ulang pada checkout F06 / Not rerun for this F06 checkout |
+| Aplikasi dan autentikasi di browser / Browser app + authentication | Belum diuji pada versi F06 ini / Not tested on this F06 version |
 | Email nyata atau sandbox? / Real inbox or sandbox? | Belum diisi / Pending |
 | Email reset diterima + waktu / Reset delivery + time | Belum diuji / Not tested |
 | Reset dari tautan email / Reset through emailed link | Belum diuji / Not tested |
-| Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
-| Kendala yang perlu diperbaiki / Issues | Belum dilaporkan / Not reported |
+| Suite lokal (opsional) / Local suite (optional) | Suite F06 belum dijalankan; hasil F02 sebelumnya bukan verifikasi F06 / F06 suite not run; earlier F02 results do not verify F06 |
+| Kendala yang perlu diperbaiki / Issues | Konflik IIS/Herd sudah ditangani sementara; hasil tes browser/SMTP masih menunggu / IIS conflict temporarily resolved; browser/SMTP results pending |
 
 **ID:** Task roadmap setelah F06 adalah **F07 — Application UI Shell**, tetap menunggu instruksi tersendiri. Checklist laptop/SMTP F02 di atas tetap perlu dilakukan saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
