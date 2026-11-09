@@ -265,7 +265,7 @@ Potential indexes:
 
 ## 14. Customers
 
-Conceptual fields:
+Implemented C01 fields / Field C01 yang diimplementasikan:
 
     customers
     ---------
@@ -282,6 +282,10 @@ Rules:
 - duplicate names allowed
 - phone optional and not assumed globally unique
 - customer is not required for vehicle creation
+
+**EN — C01 implementation:** Migration `2026_11_09_000000_create_customers_table.php` adds BIGINT identity, a required workshop FK with `RESTRICT` on deletion, `name VARCHAR(255)` with a nonblank-name check, nullable `phone VARCHAR(32)` and `notes TEXT`, timestamps, and `(workshop_id, name, id)` indexing for tenant list ordering. Names and phones have no uniqueness constraint. Application validation limits notes to 5,000 characters. `Customer` belongs to `Workshop`; only name/phone/notes are fillable. HTTP writes derive workshop ownership server-side. C01 has no delete/archive flow or soft deletion; customer rows prevent workshop deletion while present. Vehicles remain planned in C02.
+
+**ID — Implementasi C01:** Migration `2026_11_09_000000_create_customers_table.php` menambah ID BIGINT, FK bengkel wajib dengan `RESTRICT` saat hapus, `name VARCHAR(255)` dengan check nama tidak kosong, `phone VARCHAR(32)` dan `notes TEXT` nullable, timestamps, serta index `(workshop_id, name, id)` untuk pengurutan daftar tenant. Nama/telepon tidak diberi constraint unik. Validasi aplikasi membatasi catatan 5.000 karakter. `Customer` memiliki relasi ke `Workshop`; hanya nama/telepon/catatan yang fillable. Kepemilikan bengkel pada request tulis ditentukan server. C01 tidak memiliki alur hapus/arsip atau soft delete; record pelanggan mencegah penghapusan bengkel selama masih ada. Kendaraan tetap direncanakan pada C02.
 
 ## 15. Vehicles
 

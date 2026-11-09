@@ -1,8 +1,8 @@
 # BengkelOS
 
-**EN:** A mobile-friendly workshop SaaS built as one Laravel application. F01 provides the application foundation; F02 adds account authentication. Workshop modules follow as separate tasks.
+**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation F01–F08 is complete; C01 adds workshop-scoped customer management.
 
-**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. F01 menyediakan fondasi aplikasi; F02 menambahkan autentikasi akun. Modul bengkel mengikuti sebagai task terpisah.
+**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation F01–F08 selesai; C01 menambahkan manajemen pelanggan per bengkel.
 
 ## Stack
 
@@ -18,9 +18,9 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 
 **ID:** F01–F07 sudah masuk `main`. F08 menyelesaikan review kode dan validasi Foundation di lingkungan terpisah: 161 tes / 703 assertion lolos, dengan isolasi tenant terverifikasi pada endpoint yang sudah tersedia. Lihat [laporan Foundation](docs/FOUNDATION_REVIEW.md) dan [checklist laptop F08](docs/MANUAL_TESTING.md#f08-laptop-follow-up--pemeriksaan-laptop-f08). Hasil manual lama dipertahankan; tes cloud tidak membuktikan hasil laptop/SMTP. Fitur pelanggan/kendaraan (C01 dan seterusnya) memerlukan instruksi terpisah.
 
-**EN:** The next phase is documented in the [Sprint 1 plan — C01–C03](docs/SPRINT_1_CUSTOMER_VEHICLE.md). It records planned implementation steps and pending decisions; customer/vehicle features are not implemented yet.
+**EN:** C01 customer management is implemented and validated: **221 tests / 1,069 assertions** pass across the full suite. Owners/cashiers can add/edit customers; mechanics can view/search; deletion is unavailable. Follow the [C01 laptop checklist](docs/MANUAL_TESTING.md#c01-laptop-follow-up--pemeriksaan-laptop-c01) after pulling, including the new customer migration. [Sprint 1 progress](docs/SPRINT_1_CUSTOMER_VEHICLE.md) records the agreed rules and results. C02 vehicles and C03 UX remain separate future tasks.
 
-**ID:** Fase berikutnya dicatat pada [rencana Sprint 1 — C01–C03](docs/SPRINT_1_CUSTOMER_VEHICLE.md). Dokumen berisi langkah implementasi yang direncanakan dan keputusan tertunda; fitur pelanggan/kendaraan belum diimplementasikan.
+**ID:** Manajemen pelanggan C01 sudah diimplementasikan dan divalidasi: **221 tes / 1.069 assertion** lolos pada suite penuh. Owner/kasir dapat menambah/mengedit pelanggan; mekanik melihat/mencari; hapus tidak tersedia. Ikuti [checklist laptop C01](docs/MANUAL_TESTING.md#c01-laptop-follow-up--pemeriksaan-laptop-c01) setelah pull, termasuk migration pelanggan baru. [Progres Sprint 1](docs/SPRINT_1_CUSTOMER_VEHICLE.md) mencatat aturan yang disepakati dan hasilnya. C02 kendaraan serta C03 UX tetap task terpisah berikutnya.
 
 ## F01 status / Status F01
 
@@ -145,6 +145,16 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 **EN:** Four Symfony packages receive security patches in `composer.lock`, resolving seven reported advisories. Run `composer install` after pulling, then clear configuration and rebuild assets as described in the F08 checklist. No new packages, migrations, or operational modules are added. Full evidence, migration/rollback checks, browser results, and remaining manual checks are in the [Foundation review](docs/FOUNDATION_REVIEW.md).
 
 **ID:** Empat paket Symfony mendapat patch keamanan di `composer.lock`, menutup tujuh advisory yang terdeteksi. Jalankan `composer install` setelah pull, lalu bersihkan konfigurasi dan build aset sesuai checklist F08. Tidak ada paket, migration, atau modul operasional baru. Bukti tes, pemeriksaan migration/rollback, hasil browser, dan pemeriksaan manual tersisa ada di [laporan Foundation](docs/FOUNDATION_REVIEW.md).
+
+## C01 — Customer Management / Manajemen Pelanggan
+
+**EN:** `/customers` provides a 20-row paginated list, literal case-insensitive name/phone search, detail, create, and edit forms in the Indonesian desktop/mobile shell. Names are required (255 characters); phone is optional (32 characters, digits and common phone punctuation); notes are optional (5,000 characters). Duplicate names/phones are allowed. The active workshop is resolved from current membership. All record lookups are scoped through that workshop; incoming ownership/privilege fields are ignored. Policies enforce owner/cashier writes and mechanic reads on the server. No delete endpoint, soft deletion, vehicle module, or new dependency is added.
+
+**ID:** `/customers` menyediakan daftar 20 baris per halaman, pencarian nama/telepon literal tanpa membedakan huruf besar/kecil, detail, serta form tambah/edit pada shell Indonesia desktop/HP. Nama wajib (255 karakter); telepon opsional (32 karakter, angka dan tanda baca telepon umum); catatan opsional (5.000 karakter). Nama/telepon boleh sama. Bengkel aktif ditentukan dari membership terkini. Seluruh pencarian record dibatasi melalui bengkel itu; field kepemilikan/privilege dari request diabaikan. Policy menerapkan izin tulis owner/kasir dan baca mekanik di server. Tidak ada endpoint hapus, soft delete, modul kendaraan, atau dependency baru.
+
+**EN:** Apply `2026_11_09_000000_create_customers_table.php` with `php artisan migrate` after pulling. It adds a BIGINT customer ID, required workshop FK with restricted deletion, nonblank name, nullable phone/notes, timestamps, and an index on `(workshop_id, name, id)`. Shared migrations are unchanged. Isolated upgrade from F08, customer rollback/reapplication, fresh migrations/seed, the full suite, Pint, Composer validation, Blade compilation, and frontend build pass. Chromium desktop/mobile checks pass create/edit, validation/input preservation, search/pagination, long names, A/B isolation, role restrictions, CSRF, workshop switching, and revoked membership. See the [Sprint 1 validation record](docs/SPRINT_1_CUSTOMER_VEHICLE.md). Target milestone: `c01-customer-management-v1`.
+
+**ID:** Terapkan `2026_11_09_000000_create_customers_table.php` melalui `php artisan migrate` setelah pull. Migration menambah ID pelanggan BIGINT, FK bengkel wajib dengan pembatasan penghapusan, nama tidak kosong, telepon/catatan nullable, timestamps, serta index `(workshop_id, name, id)`. Migration lama tidak diubah. Upgrade dari F08, rollback/penerapan ulang pelanggan, fresh migration/seed pada database terpisah, suite penuh, Pint, validasi Composer, kompilasi Blade, dan build frontend lolos. Tes Chromium desktop/HP lolos untuk tambah/edit, validasi/isian dipertahankan, pencarian/pagination, nama panjang, isolasi A/B, pembatasan role, CSRF, pergantian bengkel, dan membership dicabut. Lihat [catatan validasi Sprint 1](docs/SPRINT_1_CUSTOMER_VEHICLE.md). Target milestone: `c01-customer-management-v1`.
 
 ## Local setup / Persiapan lokal
 

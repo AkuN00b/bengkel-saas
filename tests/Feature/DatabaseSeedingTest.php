@@ -21,6 +21,7 @@ class DatabaseSeedingTest extends TestCase
         $this->assertDatabaseCount('workshops', 0);
         $this->assertDatabaseCount('workshop_user', 0);
         $this->assertDatabaseCount('subscriptions', 0);
+        $this->assertDatabaseCount('customers', 0);
         $this->assertSame($plans, Plan::orderBy('id')->get()->toArray());
     }
 

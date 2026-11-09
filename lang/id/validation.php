@@ -7,9 +7,11 @@ return [
     'unique' => ':attribute sudah digunakan.',
     'confirmed' => 'Konfirmasi :attribute tidak cocok.',
     'boolean' => ':attribute harus bernilai benar atau salah.',
+    'integer' => ':attribute harus berupa bilangan bulat.',
+    'regex' => 'Format :attribute tidak valid.',
     'not_regex' => ':attribute mengandung karakter yang tidak didukung.',
-    'min' => ['string' => ':attribute minimal :min karakter.'],
-    'max' => ['string' => ':attribute maksimal :max karakter.'],
+    'min' => ['string' => ':attribute minimal :min karakter.', 'numeric' => ':attribute minimal :min.'],
+    'max' => ['string' => ':attribute maksimal :max karakter.', 'numeric' => ':attribute maksimal :max.'],
     'attributes' => [
         'name' => 'Nama',
         'workshop_name' => 'Nama bengkel',

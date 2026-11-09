@@ -12,7 +12,7 @@
         <aside class="fixed inset-y-0 left-0 hidden w-64 flex-col bg-slate-950 px-5 py-8 text-white lg:flex">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 text-xl font-bold tracking-tight"><span class="grid size-9 place-items-center rounded-xl bg-emerald-400 text-base text-slate-950" aria-hidden="true">B</span>BengkelOS</a>
             <p class="mb-8 mt-3 px-3 text-xs tracking-wide text-slate-400">Ruang kerja bengkel Anda</p>
-            <x-app-navigation />
+            <x-app-navigation :active-workshop="$activeWorkshop" />
             <p class="mt-auto px-3 pt-8 text-xs leading-relaxed text-slate-500">Sederhana, terhubung,<br>siap untuk kegiatan bengkel.</p>
         </aside>
         <dialog x-ref="mobileNav" id="mobile-navigation" @close="mobileOpen = false" @click="if ($event.target === $refs.mobileNav) $refs.mobileNav.close()" class="fixed inset-y-0 left-0 m-0 h-full max-h-none w-72 max-w-[85vw] bg-slate-950 p-6 text-white shadow-xl backdrop:bg-slate-950/60" aria-label="Navigasi">
@@ -20,7 +20,7 @@
                 <span class="text-xl font-bold">BengkelOS</span>
                 <button type="button" class="grid min-h-11 min-w-11 place-items-center rounded-lg hover:bg-white/10" @click="$refs.mobileNav.close()" aria-label="Tutup navigasi">✕</button>
             </div>
-            <x-app-navigation />
+            <x-app-navigation :active-workshop="$activeWorkshop" />
         </dialog>
         <div class="min-w-0 lg:pl-64">
             <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-8">

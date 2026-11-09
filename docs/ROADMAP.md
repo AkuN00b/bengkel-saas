@@ -18,7 +18,8 @@ Only implement the task explicitly requested.
 | Steps / Langkah | Status | Detail |
 | --- | --- | --- |
 | F01–F08 — Foundation | Complete for implemented scope; laptop results tracked separately / Selesai untuk scope yang tersedia; hasil laptop dicatat terpisah | [Foundation review / Review Foundation](FOUNDATION_REVIEW.md); tag `f08-foundation-hardening-v1` |
-| C01–C03 — Customer + Vehicle | Planned; application implementation has not started / Direncanakan; implementasi aplikasi belum dimulai | [Sprint 1 implementation plan / Rencana implementasi Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md) |
+| C01 — Customer Management | Implemented; cloud validation passes, laptop checks pending / Diimplementasikan; validasi cloud lolos, tes laptop belum dikonfirmasi | [Sprint 1 progress / Progres Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md); target `c01-customer-management-v1` |
+| C02–C03 — Vehicle + UX | Planned; not implemented / Direncanakan; belum diimplementasikan | [Sprint 1 implementation plan / Rencana implementasi Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md) |
 
 **EN:** This roadmap remains the source of phase order and scope. The linked Sprint 1 document expands C01–C03 into implementation steps, testing criteria, and decisions to settle before coding. Recording the plan does not authorize implementing the features.
 
@@ -356,6 +357,10 @@ STOP. Sprint 1 requires explicit approval.
 
 ### C01 — Customer Management
 
+**EN — C01 implementation, 2026-11-09:** Customer list/search/detail/create/edit is implemented. Owner/cashier writes and mechanic reads are agreed; the user explicitly chose no deletion. Full validation: 221 tests / 1,069 assertions pass. See [Sprint 1 rules and evidence](SPRINT_1_CUSTOMER_VEHICLE.md) and the [C01 manual checklist](MANUAL_TESTING.md#c01-laptop-follow-up--pemeriksaan-laptop-c01).
+
+**ID — Implementasi C01, 2026-11-09:** Daftar/pencarian/detail/tambah/edit pelanggan tersedia. Izin tulis owner/kasir dan baca mekanik disepakati; user memilih tanpa hapus secara eksplisit. Validasi penuh: 221 tes / 1.069 assertion lolos. Lihat [aturan dan bukti Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md) serta [checklist manual C01](MANUAL_TESTING.md#c01-laptop-follow-up--pemeriksaan-laptop-c01).
+
 Fields approximately:
 - name
 - phone optional
@@ -369,7 +374,7 @@ Requirements:
 - duplicate names allowed
 
 Tests:
-- CRUD behavior
+- create/read/update behavior; deletion unavailable as agreed for C01
 - validation
 - authorization
 - tenant isolation
