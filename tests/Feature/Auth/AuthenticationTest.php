@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use App\Models\WorkshopMembership;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -121,6 +122,22 @@ class AuthenticationTest extends TestCase
         $this->actingAs($user)->get('/dashboard')->assertOk();
         $this->withCookie(config('session.cookie'), session()->getId());
         $user->forceFill(['password' => Hash::make('changed-password-123')])->save();
+        $this->get('/dashboard')->assertRedirect(route('login'));
+        $this->assertGuest();
+    }
+
+    public function test_password_changes_invalidate_login_before_the_first_protected_request(): void
+    {
+        $user = User::factory()->create();
+        WorkshopMembership::factory()->create(['user_id' => $user->id]);
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'password'])
+            ->assertRedirect(route('dashboard'));
+        $this->withCookie(config('session.cookie'), session()->getId());
+
+        $user->forceFill(['password' => Hash::make('changed-password-123')])->save();
+        Auth::forgetGuards();
+
         $this->get('/dashboard')->assertRedirect(route('login'));
         $this->assertGuest();
     }
