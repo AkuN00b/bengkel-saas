@@ -24,6 +24,10 @@
 
 **EN — F08:** Start the latest update with the [F08 checklist](#f08-laptop-follow-up--pemeriksaan-laptop-f08). Existing checkmarks and result tables remain historical records; F08 cloud checks do not change your laptop/SMTP results. Target code tag: `f08-foundation-hardening-v1`.
 
+**ID — C01:** Untuk versi pelanggan terbaru, mulai dari [checklist C01](#c01-laptop-follow-up--pemeriksaan-laptop-c01): pull, migration baru, build, dan pengujian pelanggan per role/tenant. Baseline cloud C01: **221 tes / 1.069 assertion**; ini bukan hasil laptop. Target kode: `c01-customer-management-v1`. Semua centang dan laporan versi sebelumnya tetap dipertahankan.
+
+**EN — C01:** For the customer release, start with the [C01 checklist](#c01-laptop-follow-up--pemeriksaan-laptop-c01): pull, the new migration, build, and customer role/tenant checks. C01 cloud baseline: **221 tests / 1,069 assertions**, not laptop results. Target code: `c01-customer-management-v1`. All previous-version checkmarks and reports are preserved.
+
 ## 0. Start here after F05 merge / Mulai dari sini setelah merge F05
 
 **ID:** Ini urutan praktis persiapan dan tes manual. Persiapan yang sudah diverifikasi Codex dicentang; tes manual tetap kosong sampai dicoba pada versi saat ini. Detail dan penanganan kondisi khusus ada pada bagian berikutnya. Tag milestone F05: `f05-trial-provisioning-v1`; tag hanya menyimpan versi kode, bukan database atau `.env`.
@@ -107,6 +111,8 @@ npm.cmd run build
 | F06 — Active Workshop + Tenant Isolation | Sudah di-merge; tag `f06-active-workshop-v1` / Merged; tagged |
 | F07 — Application UI Shell | Sudah di-merge; tag `f07-application-shell-v1` / Merged; tagged |
 | F08 — Foundation Test & Hardening | Validasi kode cloud lolos; lihat laporan Foundation / Cloud code validation passes; see Foundation review |
+| C01 — Customer Management | Implementasi dan tes cloud lolos; pengujian laptop belum dikonfirmasi / Implementation and cloud tests pass; laptop checks pending |
+| C02–C03 — Vehicle + UX | Belum diimplementasikan / Not implemented |
 
 **ID:** F02 menyediakan registrasi akun, login/ingat saya, logout, lupa/reset kata sandi, dan halaman akun `/dashboard`. Pada F05 registrasi membuat workshop baru, membership owner, dan trial gratis 14 hari; akun lama tidak otomatis diubah. F08 menutup validasi kode Phase 1 — Foundation pada scope yang tersedia. Hasil laptop dicatat terpisah; checklist ini bukan izin otomatis melanjutkan roadmap.
 
@@ -378,6 +384,55 @@ npm.cmd run build
 | Email nyata + pencabutan session / Real email + session invalidation | Belum dikonfirmasi untuk F08 / Not confirmed for F08 |
 | Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
 
+### C01 laptop follow-up / Pemeriksaan laptop C01
+
+**ID:** C01 menambahkan tabel pelanggan, policy, form tambah/edit, detail, dan pencarian. Keputusan user: tanpa hapus. Gunakan data lokal khusus pengujian; jangan menjalankan `migrate:fresh`, `migrate:reset`, atau rollback pada data aplikasi untuk pemeriksaan ini. Tidak ada dependency baru. Simpan perubahan lokal sebelum beralih branch, pertahankan `.env` dan `APP_KEY` yang sudah dipakai.
+
+**EN:** C01 adds the customer table, policy, create/edit forms, detail, and search. The user chose no deletion. Use local test data; do not run fresh/reset migrations or rollback against application data for this checklist. No dependencies are added. Preserve local work before switching branches and retain `.env` and the existing `APP_KEY`.
+
+```powershell
+git status --short --branch
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+composer install
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+- [ ] Migration baru `2026_11_09_000000_create_customers_table` berhasil; total 9 migration `Ran`, data akun/bengkel/trial lama tetap ada, halaman login/dashboard normal. / The new migration is applied (nine total), existing account/workshop/trial data survives, and login/dashboard work.
+- [ ] Owner dengan bengkel aktif melihat menu **Pelanggan** di sidebar desktop dan navigasi HP. Daftar awal kosong menampilkan pesan yang sesuai, bukan data buatan. / Owners see customer navigation on desktop/mobile; empty lists show the real empty state.
+- [ ] Tambah pelanggan dengan nama saja berhasil. Coba juga nama, telepon `081234567890` atau `+62 812-3456`, dan catatan multiline; detail sesuai input dan nol awal telepon dipertahankan. / Name-only and full customer forms save correctly, including leading phone zeros and multiline notes.
+- [ ] Nama wajib dan maksimal 255 karakter. Telepon opsional, maksimal 32 karakter, hanya angka/tanda baca telepon yang dijelaskan; huruf ditolak dengan pesan Indonesia dan isian lain tetap ada. Catatan opsional maksimal 5.000 karakter. / Validate required/length-limited names, optional phone/notes, Indonesian errors, and preserved input.
+- [ ] Ubah nama/telepon/catatan berhasil. Kosongkan telepon/catatan lalu simpan: detail menunjukkan **Belum diisi/Belum ada catatan**. Tidak tercipta pelanggan duplikat karena update. / Edit and clearing optional fields work without creating another record.
+- [ ] Nama dan nomor telepon yang sama boleh dipakai oleh pelanggan berbeda. Data hanya masuk ke bengkel aktif. / Duplicate names/phones are allowed and records belong to the active workshop.
+- [ ] Cari sebagian nama tanpa membedakan huruf besar/kecil atau sebagian telepon. Hasil benar, pencarian kosong kembali ke daftar, dan kata yang tidak cocok menampilkan pesan tidak ditemukan. `%`, `_`, dan backslash diperlakukan sebagai karakter literal. / Verify partial case-insensitive name/phone search, empty/no-result states, and literal wildcard characters.
+- [ ] Jika ada lebih dari 20 fixture pelanggan, pagination tidak mengulang/melewatkan baris dan mempertahankan pencarian. Jika fixture belum tersedia, biarkan item ini kosong; suite cloud sudah memeriksa kasusnya. / With over 20 test records, pagination is stable and retains the search; leave unchecked if fixtures are unavailable.
+- [ ] Pada lebar sekitar 390 px dan desktop, daftar/form/detail tetap terbaca, nama panjang tidak membuat halaman melebar, tombol/menu bekerja, dan menu **Pelanggan** menandai halaman aktif. / Check readable responsive layouts, long names, working controls, and active navigation.
+- [ ] Jika punya fixture role sah: kasir dapat tambah/edit; mekanik dapat lihat/cari tetapi tidak melihat tombol tambah/edit. Mekanik yang membuka `/customers/create` atau `/customers/{id}/edit` untuk record bengkelnya mendapat 403. / Authorized role fixtures confirm cashier writes and mechanic reads, with direct mechanic write-form access denied.
+- [ ] Dengan dua akun fixture A/B di browser terpisah, daftar/pencarian A tidak menampilkan B dan sebaliknya. Buka URL detail pelanggan B memakai akun A: 404, tanpa detail B. / Separate A/B sessions cannot see each other's records, even through a copied detail URL.
+- [ ] Jika user fixture punya dua bengkel: buka edit pelanggan A, ganti ke bengkel B pada tab lain, lalu kirim form lama. Request ditolak (404); pelanggan A tetap utuh. Buat form baru setelah kembali ke bengkel yang benar. / An old edit form cannot update a customer after the active workshop changes.
+- [ ] Tidak ada tombol hapus untuk owner/kasir/mekanik. Tes otomatis memverifikasi request DELETE ditolak dan record tetap ada. / No role gets deletion UI; automated tests verify DELETE is unavailable and records survive.
+- [ ] Opsional: setelah database khusus tes diverifikasi sesuai bagian 6, jalankan `php artisan test --filter=Customer`, lalu suite penuh. Baseline penuh **221 tes / 1.069 assertion**; jangan arahkan ke database aplikasi. / Run optional customer/full tests only on the verified disposable testing database.
+- [ ] Catat hasil aktual di tabel C01 berikut, tanpa mencentang berdasarkan hasil cloud. / Record actual C01 results below without inferring them from cloud checks.
+
+**ID:** C01 belum menyediakan UI pengelolaan membership/role. Untuk pemeriksaan kasir/mekanik, dua tenant, atau pencabutan membership, gunakan fixture uji sah bila tersedia; jangan menaikkan privilege akun asli hanya untuk tes. Jika tidak ada fixture, tandai belum diuji dan gunakan bukti suite otomatis sebagai catatan terpisah.
+
+**EN:** C01 does not include membership/role management UI. Use authorized test fixtures for cashier/mechanic, multiple tenants, or revocation checks; do not elevate real accounts merely for testing. If fixtures are unavailable, leave the manual checks pending and keep automated evidence separate.
+
+| Pemeriksaan C01 / C01 check | Hasil laptop / Laptop result |
+| --- | --- |
+| Tanggal + commit/tag / Date + commit/tag | Belum diisi / Pending |
+| Migration, data lama, build / Migration, existing data, build | Belum diuji / Not tested |
+| Tambah/detail/edit + validasi / Create/detail/edit + validation | Belum diuji / Not tested |
+| Pencarian + pagination / Search + pagination | Belum diuji / Not tested |
+| Role owner/kasir/mekanik / Owner/cashier/mechanic | Belum diuji / Not tested |
+| Isolasi A/B + pergantian bengkel / A/B isolation + switching | Belum diuji / Not tested |
+| UI HP/desktop + tanpa hapus / Mobile/desktop + no deletion | Belum diuji / Not tested |
+| Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
+
 ## 7. Record results / Catat hasil
 
 **ID:** Isi setelah pengujian; jangan tandai lolos hanya karena sudah pull. Jika gagal, catat langkah, hasil yang diharapkan, hasil aktual, dan pesan error yang sudah disensor. Checklist yang belum dijalankan tetap kosong.
@@ -400,6 +455,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Suite F06 belum dijalankan; hasil F02 sebelumnya bukan verifikasi F06 / F06 suite not run; earlier F02 results do not verify F06 |
 | Kendala yang perlu diperbaiki / Issues | Konflik IIS/Herd sudah ditangani sementara; hasil tes browser/SMTP masih menunggu / IIS conflict temporarily resolved; browser/SMTP results pending |
 
-**ID:** F08 menutup validasi kode Foundation; berikutnya **C01 — Customer Management** hanya jika diminta secara eksplisit. Lengkapi hasil laptop/SMTP sesuai checklist saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
+**ID:** F08 menutup validasi kode Foundation; C01 menambahkan pelanggan sesuai keputusan tanpa hapus. Berikutnya **C02 — Vehicle Management** hanya jika diminta secara eksplisit. Lengkapi hasil laptop/SMTP sesuai checklist saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** F08 completes Foundation code validation; **C01 — Customer Management** requires an explicit request. Complete laptop/SMTP records when time permits. Milestone tags preserve code, not databases or `.env` files.
+**EN:** F08 completes Foundation code validation; C01 adds customers with the agreed no-deletion behavior. **C02 — Vehicle Management** requires an explicit request. Complete laptop/SMTP records when time permits. Milestone tags preserve code, not databases or `.env` files.
