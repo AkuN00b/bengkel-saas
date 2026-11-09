@@ -14,9 +14,9 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 
 **EN:** For manual testing after the F05 merge, start with the [laptop checklist](docs/MANUAL_TESTING.md#0-start-here-after-f05-merge--mulai-dari-sini-setelah-merge-f05): setup, owner/trial registration, login/logout, real reset email, and results.
 
-**EN:** F02–F06 are merged into `main`. This change implements F07 — Application UI Shell; F08 — Foundation Test & Hardening remains the next task. Earlier local preparation/testing progress is preserved in the manual checklist; F07 laptop checks have not yet been confirmed. After pulling the relevant version, follow the [manual testing checklist](docs/MANUAL_TESTING.md).
+**EN:** F01–F07 are merged into `main`. F08 completes the Foundation code review and isolated validation: 161 tests / 703 assertions pass, with tenant isolation verified for the existing endpoints. See the [Foundation review](docs/FOUNDATION_REVIEW.md) and [F08 laptop checklist](docs/MANUAL_TESTING.md#f08-laptop-follow-up--pemeriksaan-laptop-f08). Earlier manual results are preserved; cloud checks do not establish laptop/SMTP results. Customer/vehicle work (C01 onward) requires a separate instruction.
 
-**ID:** F02–F06 sudah masuk `main`. Perubahan ini mengimplementasikan F07 — Application UI Shell; F08 — Foundation Test & Hardening tetap task berikutnya. Progres persiapan/pengujian lokal sebelumnya dipertahankan pada checklist; tes laptop F07 belum dikonfirmasi. Setelah pull versi terkait, ikuti [checklist pengujian mandiri](docs/MANUAL_TESTING.md).
+**ID:** F01–F07 sudah masuk `main`. F08 menyelesaikan review kode dan validasi Foundation di lingkungan terpisah: 161 tes / 703 assertion lolos, dengan isolasi tenant terverifikasi pada endpoint yang sudah tersedia. Lihat [laporan Foundation](docs/FOUNDATION_REVIEW.md) dan [checklist laptop F08](docs/MANUAL_TESTING.md#f08-laptop-follow-up--pemeriksaan-laptop-f08). Hasil manual lama dipertahankan; tes cloud tidak membuktikan hasil laptop/SMTP. Fitur pelanggan/kendaraan (C01 dan seterusnya) memerlukan instruksi terpisah.
 
 ## F01 status / Status F01
 
@@ -132,6 +132,16 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 
 **ID:** Validasi PHP 8.4 / PostgreSQL 17 terpisah: 149 tes / 671 assertion lolos, termasuk batas waktu trial, label, fallback timezone, XSS, pembacaan subscription sesuai tenant, pergantian, serta regresi F02–F06. Pint, validasi Composer, kompilasi Blade, dan build frontend lolos. Chromium desktop/HP memeriksa navigasi, Escape/pengembalian fokus dialog, menu pengguna/logout, pergantian, keadaan trial/kosong, nol membership, dan batas tenant tanpa error JavaScript atau scroll horizontal. Browser juga memeriksa nama panjang serta penutupan dialog HP saat resize ke desktop.
 
+## F08 — Foundation Test & Hardening
+
+**EN:** The default seeder no longer creates a predictable demo login and can be rerun without changing existing accounts. The plan catalog remains supplied by its existing migration; owners register normally. Existing accounts are not deleted. Test startup now rejects configurations other than `APP_ENV=testing`, PostgreSQL `bengkel_saas_testing`, and an empty `DB_URL`, before `RefreshDatabase` runs. New regressions also verify session invalidation when passwords change before the first protected request; Laravel already handles this correctly.
+
+**ID:** Seeder default tidak lagi membuat login demo dengan password bawaan dan dapat diulang tanpa mengubah akun yang sudah ada. Katalog paket tetap berasal dari migration yang tersedia; owner mendaftar melalui aplikasi. Akun lama tidak dihapus. Startup tes kini menolak konfigurasi selain `APP_ENV=testing`, PostgreSQL `bengkel_saas_testing`, dan `DB_URL` kosong sebelum `RefreshDatabase` berjalan. Regresi baru juga memverifikasi pencabutan session ketika password berubah sebelum request terlindungi pertama; Laravel sudah menangani kasus ini dengan benar.
+
+**EN:** Four Symfony packages receive security patches in `composer.lock`, resolving seven reported advisories. Run `composer install` after pulling, then clear configuration and rebuild assets as described in the F08 checklist. No new packages, migrations, or operational modules are added. Full evidence, migration/rollback checks, browser results, and remaining manual checks are in the [Foundation review](docs/FOUNDATION_REVIEW.md).
+
+**ID:** Empat paket Symfony mendapat patch keamanan di `composer.lock`, menutup tujuh advisory yang terdeteksi. Jalankan `composer install` setelah pull, lalu bersihkan konfigurasi dan build aset sesuai checklist F08. Tidak ada paket, migration, atau modul operasional baru. Bukti tes, pemeriksaan migration/rollback, hasil browser, dan pemeriksaan manual tersisa ada di [laporan Foundation](docs/FOUNDATION_REVIEW.md).
+
 ## Local setup / Persiapan lokal
 
 1. Run / Jalankan `composer install` and / dan `npm install`.
@@ -171,9 +181,9 @@ php artisan test
 npm run build
 ```
 
-**EN:** Tests use PHPUnit with array-backed sessions/cache and synchronous queues. The default test database is `bengkel_saas_testing` on PostgreSQL. Create a separate testing database and configure `.env.testing` (including `APP_KEY` and `DB_*`) before running authentication tests. They use `RefreshDatabase`, which may rebuild the testing schema. Never point tests at production or persistent application data. Feature tests disable Vite lookup; validate assets separately with `npm run build`.
+**EN:** Tests use PHPUnit with array-backed sessions/cache and synchronous queues. The required test database is `bengkel_saas_testing` on PostgreSQL. Create this dedicated disposable database and configure `.env.testing` (including `APP_KEY`, `DB_*`, and empty `DB_URL`) before running feature tests. F08 refuses unsafe resolved configuration before `RefreshDatabase`, which may rebuild the testing schema. The database name alone cannot prove a host is safe: verify `DB_HOST` and credentials too. Never target production or persistent application data. Feature tests disable Vite lookup; validate assets separately with `npm run build`.
 
-**ID:** Test menggunakan PHPUnit, session/cache array, dan queue sinkron. Database test default adalah `bengkel_saas_testing` di PostgreSQL. Buat database test terpisah dan konfigurasi `.env.testing` (termasuk `APP_KEY` dan `DB_*`) sebelum menjalankan tes autentikasi. Tes memakai `RefreshDatabase`, yang dapat membangun ulang schema tes. Jangan arahkan test ke production atau data aplikasi persisten. Feature test menonaktifkan pencarian Vite; validasi aset terpisah melalui `npm run build`.
+**ID:** Test menggunakan PHPUnit, session/cache array, dan queue sinkron. Database tes yang diwajibkan adalah `bengkel_saas_testing` di PostgreSQL. Buat database sementara khusus ini dan konfigurasi `.env.testing` (termasuk `APP_KEY`, `DB_*`, dan `DB_URL` kosong) sebelum menjalankan feature test. F08 menolak konfigurasi hasil resolusi yang tidak aman sebelum `RefreshDatabase`, yang dapat membangun ulang schema tes. Nama database saja tidak membuktikan host aman: verifikasi juga `DB_HOST` dan kredensial. Jangan arahkan tes ke production atau data aplikasi persisten. Feature test menonaktifkan pencarian Vite; validasi aset terpisah melalui `npm run build`.
 
 ## Project documentation / Dokumentasi project
 
@@ -183,3 +193,4 @@ npm run build
 - [Database](docs/DATABASE.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Manual testing / Pengujian mandiri](docs/MANUAL_TESTING.md)
+- [F08 Foundation review / Laporan Foundation F08](docs/FOUNDATION_REVIEW.md)

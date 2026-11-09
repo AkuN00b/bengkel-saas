@@ -331,6 +331,10 @@ Relevant commands:
 
 Foundation complete only when tests pass and tenant isolation is proven.
 
+**EN — F08 review, 2026-11-09:** Foundation code validation passes for the implemented scope. Evidence, fixes, and manual/deployment limits are recorded in [FOUNDATION_REVIEW.md](FOUNDATION_REVIEW.md). This status does not authorize Sprint 1.
+
+**ID — Review F08, 2026-11-09:** Validasi kode Foundation lolos untuk scope yang sudah diimplementasikan. Bukti, perbaikan, dan batas pengujian manual/deployment dicatat di [FOUNDATION_REVIEW.md](FOUNDATION_REVIEW.md). Status ini bukan izin melanjutkan Sprint 1.
+
 STOP. Sprint 1 requires explicit approval.
 
 ## 15. Sprint 1 — Customer + Vehicle

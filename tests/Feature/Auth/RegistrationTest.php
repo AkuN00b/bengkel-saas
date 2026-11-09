@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -56,6 +57,18 @@ class RegistrationTest extends TestCase
         $this->post('/register', $this->registration(['email' => 'OWNER@EXAMPLE.COM']))
             ->assertSessionHasErrors('email');
         $this->assertDatabaseCount('users', 1);
+        $this->assertGuest();
+    }
+
+    public function test_password_changes_invalidate_registration_before_the_first_protected_request(): void
+    {
+        $this->post('/register', $this->registration())->assertRedirect(route('dashboard'));
+        $this->withCookie(config('session.cookie'), session()->getId());
+
+        User::sole()->forceFill(['password' => Hash::make('changed-password-123')])->save();
+        Auth::forgetGuards();
+
+        $this->get('/dashboard')->assertRedirect(route('login'));
         $this->assertGuest();
     }
 
