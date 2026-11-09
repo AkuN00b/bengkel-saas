@@ -18,6 +18,10 @@ PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PH
 
 **ID:** F01–F07 sudah masuk `main`. F08 menyelesaikan review kode dan validasi Foundation di lingkungan terpisah: 161 tes / 703 assertion lolos, dengan isolasi tenant terverifikasi pada endpoint yang sudah tersedia. Lihat [laporan Foundation](docs/FOUNDATION_REVIEW.md) dan [checklist laptop F08](docs/MANUAL_TESTING.md#f08-laptop-follow-up--pemeriksaan-laptop-f08). Hasil manual lama dipertahankan; tes cloud tidak membuktikan hasil laptop/SMTP. Fitur pelanggan/kendaraan (C01 dan seterusnya) memerlukan instruksi terpisah.
 
+**EN:** The next phase is documented in the [Sprint 1 plan — C01–C03](docs/SPRINT_1_CUSTOMER_VEHICLE.md). It records planned implementation steps and pending decisions; customer/vehicle features are not implemented yet.
+
+**ID:** Fase berikutnya dicatat pada [rencana Sprint 1 — C01–C03](docs/SPRINT_1_CUSTOMER_VEHICLE.md). Dokumen berisi langkah implementasi yang direncanakan dan keputusan tertunda; fitur pelanggan/kendaraan belum diimplementasikan.
+
 ## F01 status / Status F01
 
 **EN:** Laravel 13.38.0 is installed. Herd serves the verified BengkelOS home page at http://bengkel-saas.test with HTTP 200 via Nginx. IIS (W3SVC) was stopped temporarily to resolve the port conflict; the original F01 checks (2 PHPUnit tests, Pint, Composer validation/audit, and frontend build) passed. The three standard Laravel migrations are included. The PostgreSQL connection and all three migrations were verified successfully. F01 is complete.
