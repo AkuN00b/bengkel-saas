@@ -13,6 +13,17 @@ It is a planning document, not authorization to implement every listed task auto
 
 Only implement the task explicitly requested.
 
+### Current checkpoint / Posisi saat ini — 2026-11-09
+
+| Steps / Langkah | Status | Detail |
+| --- | --- | --- |
+| F01–F08 — Foundation | Complete for implemented scope; laptop results tracked separately / Selesai untuk scope yang tersedia; hasil laptop dicatat terpisah | [Foundation review / Review Foundation](FOUNDATION_REVIEW.md); tag `f08-foundation-hardening-v1` |
+| C01–C03 — Customer + Vehicle | Planned; application implementation has not started / Direncanakan; implementasi aplikasi belum dimulai | [Sprint 1 implementation plan / Rencana implementasi Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md) |
+
+**EN:** This roadmap remains the source of phase order and scope. The linked Sprint 1 document expands C01–C03 into implementation steps, testing criteria, and decisions to settle before coding. Recording the plan does not authorize implementing the features.
+
+**ID:** Roadmap ini tetap menjadi acuan urutan dan scope fase. Dokumen Sprint 1 yang ditautkan merinci C01–C03 menjadi langkah implementasi, kriteria pengujian, dan keputusan yang perlu ditetapkan sebelum coding. Pencatatan rencana bukan izin mengimplementasikan fitur.
+
 ## 2. Mandatory Execution Rule / Aturan Eksekusi Wajib
 
     READ TASK
@@ -338,6 +349,10 @@ Foundation complete only when tests pass and tenant isolation is proven.
 STOP. Sprint 1 requires explicit approval.
 
 ## 15. Sprint 1 — Customer + Vehicle
+
+**EN:** Detailed steps and current progress: [Sprint 1 — Customer + Vehicle](SPRINT_1_CUSTOMER_VEHICLE.md). Implement only the individually requested C step; do not automatically continue from C01 to C02 or C03.
+
+**ID:** Rincian langkah dan progres: [Sprint 1 — Customer + Vehicle](SPRINT_1_CUSTOMER_VEHICLE.md). Kerjakan hanya langkah C yang diminta; jangan otomatis lanjut dari C01 ke C02 atau C03.
 
 ### C01 — Customer Management
 
