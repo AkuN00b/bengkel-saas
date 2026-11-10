@@ -27,7 +27,8 @@ class User extends Authenticatable
     public function workshops(): BelongsToMany
     {
         return $this->belongsToMany(Workshop::class, 'workshop_user')
-            ->using(WorkshopMembership::class)->withPivot(['id', 'role'])->withTimestamps();
+            ->using(WorkshopMembership::class)->withPivot(['id', 'role', 'is_active', 'version'])
+            ->wherePivot('is_active', true)->withTimestamps();
     }
 
     public function isMemberOf(Workshop $workshop): bool
@@ -53,6 +54,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'needs_password_setup' => 'boolean',
             'is_super_admin' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',

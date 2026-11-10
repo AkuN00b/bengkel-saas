@@ -17,6 +17,14 @@ class CsrfProtectionTest extends TestCase
 
     public static function authenticationEndpoints(): array
     {
-        return [['/register'], ['/login'], ['/logout'], ['/forgot-password'], ['/reset-password'], ['/workshops/active'], ['/customers'], ['/vehicles']];
+        return [['/register'], ['/login'], ['/logout'], ['/forgot-password'], ['/reset-password'], ['/workshops/active'], ['/customers'], ['/vehicles'], ['/mechanics'], ['/mechanics/1/resend'], ['/work-orders'], ['/work-orders/1/transition']];
+    }
+
+    public function test_work_order_edits_assignments_and_mechanic_activation_require_csrf(): void
+    {
+        $this->app->detectEnvironment(fn () => 'local');
+        $this->put('/work-orders/1', [])->assertStatus(419);
+        $this->put('/work-orders/1/mechanic', [])->assertStatus(419);
+        $this->patch('/mechanics/1/activation', [])->assertStatus(419);
     }
 }

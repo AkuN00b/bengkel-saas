@@ -6,7 +6,9 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MechanicController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkshopSelectionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +39,13 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::post('/workshops/active', [WorkshopSelectionController::class, 'store'])->name('workshops.activate');
     Route::get('/dashboard', DashboardController::class)->middleware('active.workshop')->name('dashboard');
     Route::middleware('active.workshop')->group(function (): void {
+        Route::get('/mechanics', [MechanicController::class, 'index'])->name('mechanics.index');
+        Route::post('/mechanics', [MechanicController::class, 'store'])->name('mechanics.store');
+        Route::post('/mechanics/{mechanic}/resend', [MechanicController::class, 'resend'])->whereNumber('mechanic')->middleware('throttle:password-requests')->name('mechanics.resend');
+        Route::patch('/mechanics/{mechanic}/activation', [MechanicController::class, 'activation'])->whereNumber('mechanic')->name('mechanics.activation');
+        Route::post('/work-orders/{work_order}/transition', [WorkOrderController::class, 'transition'])->whereNumber('work_order')->name('work-orders.transition');
+        Route::put('/work-orders/{work_order}/mechanic', [WorkOrderController::class, 'assign'])->whereNumber('work_order')->name('work-orders.assign');
+        Route::resource('work-orders', WorkOrderController::class)->except('destroy')->whereNumber('work_order');
         Route::resource('customers', CustomerController::class)->except('destroy')->whereNumber('customer');
         Route::get('/vehicles/lookup', [VehicleController::class, 'lookup'])->name('vehicles.lookup');
         Route::get('/vehicles/customer-options', [VehicleController::class, 'customers'])->name('vehicles.customers');

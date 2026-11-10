@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        if (! Auth::attemptWhen($this->only('email', 'password'), fn (User $user): bool => ! $user->needs_password_setup, $this->boolean('remember'))) {
             RateLimiter::hit($key, 60);
 
             throw ValidationException::withMessages(['email' => __('auth.failed')]);

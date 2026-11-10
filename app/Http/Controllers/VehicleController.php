@@ -8,6 +8,7 @@ use App\Http\Requests\VehiclePrefillRequest;
 use App\Http\Requests\VehicleRequest;
 use App\Http\Requests\VehicleSearchRequest;
 use App\Models\Vehicle;
+use App\Models\WorkOrder;
 use App\Models\Workshop;
 use App\Support\PlateNumber;
 use Illuminate\Database\QueryException;
@@ -66,7 +67,10 @@ class VehicleController extends Controller
         $workshop = $request->attributes->get('activeWorkshop');
         Gate::authorize('view', [$record, $workshop]);
 
-        return view('vehicles.show', ['activeWorkshop' => $workshop, 'vehicle' => $record->load('customer')]);
+        $activeOrder = WorkOrder::where('workshop_id', $workshop->id)->where('vehicle_id', $record->id)
+            ->whereIn('status', ['draft', 'open', 'in_progress'])->first();
+
+        return view('vehicles.show', ['activeWorkshop' => $workshop, 'vehicle' => $record->load('customer'), 'activeOrder' => $activeOrder]);
     }
 
     public function edit(Request $request, string $vehicle): View

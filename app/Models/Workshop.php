@@ -25,7 +25,8 @@ class Workshop extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'workshop_user')
-            ->using(WorkshopMembership::class)->withPivot(['id', 'role'])->withTimestamps();
+            ->using(WorkshopMembership::class)->withPivot(['id', 'role', 'is_active', 'version'])
+            ->wherePivot('is_active', true)->withTimestamps();
     }
 
     /** @return HasMany<Subscription, $this> */
