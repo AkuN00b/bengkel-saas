@@ -311,6 +311,10 @@ Historical Work Orders retain transaction context even when current vehicle/cust
 
 ## 21. Inventory Architecture / Arsitektur Inventory
 
+**ID — Sprint 3 diimplementasikan:** Catalogs menangani master owner-only; WorkOrderItems menangani baris dengan izin parent WO; Inventory mengoordinasikan stok/ledger/versi dalam transaksi. Semua memakai lock workshop lebih dahulu, mengikuti konvensi monolit tanpa repository/event infrastructure baru. Resource jasa/spare part dan endpoint use/returns/cancel terpisah memvalidasi konteks dan role di server. Ledger append-only dilindungi PostgreSQL. Retur final khusus owner tidak memodifikasi WO final. Rincian keputusan, termasuk retur stok tanpa pengurangan subtotal, ada di [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md).
+
+**EN — Sprint 3 implemented:** Catalogs handles owner-only masters, WorkOrderItems checks parent-WO permissions, and Inventory coordinates balance/ledger/version transactions. All lock workshops first within the existing monolith, without new repositories/event infrastructure. Catalog resources and dedicated use/return/cancel endpoints validate context and permissions server-side. PostgreSQL protects append-only movements. Owner-only final returns preserve final WOs. See [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md), including stock-only return/value decisions.
+
 Selecting a spare part on a Work Order does not change stock.
 
 Approved flow:

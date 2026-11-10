@@ -344,6 +344,10 @@ Changing current customer association must not rewrite old Work Order meaning.
 
 ## 18. Services
 
+**ID — Sprint 3 diimplementasikan:** Migration `2026_11_10_120000_create_services_and_inventory` menambah lima tabel inventory/jasa dengan PK BIGINT tanpa mengubah migration lama. Jasa menyimpan nama, deskripsi opsional, default_price BIGINT nonnegatif, is_active, version positif, dan timestamp UTC. Referensi gabungan memakai unique `(workshop_id,id)`; daftar memiliki index `(workshop_id,is_active,id)`. Detail aturan ada di [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md).
+
+**EN — Sprint 3 implemented:** One new migration adds five service/inventory tables with BIGINT keys, preserving old migration history. Services store names, optional descriptions, nonnegative BIGINT default prices, activation, positive versions, and UTC timestamps. Composite references use `(workshop_id,id)` uniqueness; list filtering uses `(workshop_id,is_active,id)`. See [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md).
+
 Conceptual fields:
 
     services
@@ -360,6 +364,10 @@ Conceptual fields:
 Changing `default_price` never changes historical transaction prices.
 
 ## 19. Spare Parts
+
+**ID:** Spare part menambah SKU nullable/normalisasi trim-uppercase unik per bengkel, satuan tetap (default pcs), harga jual BIGINT, saldo awal 0, minimum opsional, keaktifan, dan versi. Saldo tidak pernah negatif; edit katalog tidak menerima current_stock. Tidak ada hard delete. Stock awal melalui movement restock. Satuan tidak dapat diganti melalui aplikasi.
+
+**EN:** Parts have optional normalized tenant-unique SKUs, immutable units (default pcs), BIGINT selling prices/balances, zero opening stock, optional minima, activation, and versions. Balances cannot be negative; catalog writes exclude current_stock. No hard delete exists; opening stock uses restock movements.
 
 Conceptual fields:
 
@@ -393,6 +401,14 @@ Any stock-changing operation must update movement history and current balance at
 Never allow arbitrary stock changes that bypass movement history.
 
 ## 21. Inventory Movements
+
+**ID — Field implementasi tambahan:** work_order_spare_part_id, source_movement_id, balance_before, balance_after, name_snapshot, sku_snapshot, unit_snapshot, operation_key UUID, dan request_fingerprint. Pelaku memakai created_by FK user. Kuantitas INTEGER positif; saldo BIGINT. FK gabungan mengikat movement ke tenant/barang/baris/WO yang sama dan retur ke sumber terkait. Unique partial menjamin satu work_order_usage per baris; `(workshop_id,operation_key)` mencegah posting ulang. Constraint memvalidasi tipe, arah saldo, alasan wajib, dan referensi penggunaan/retur. Trigger menolak UPDATE/DELETE movement. Index mendukung riwayat per barang dan pencarian retur berdasarkan source.
+
+**EN — Additional implemented fields:** work_order_spare_part_id, source_movement_id, before/after balances, part snapshots, operation_key UUID, and request_fingerprint. created_by references users. Positive INTEGER quantities and BIGINT balances use composite FKs to match tenancy, part, WO line, and source. A partial unique index allows one usage per line; tenant operation keys prevent reposts. Checks enforce types, balances, reasons, and usage/return references. Triggers reject movement UPDATE/DELETE. Indexes support part histories and source-based returns.
+
+**ID:** Action transaksi mengunci workshop → WO opsional → barang → baris/sumber. Memeriksa versi, stok terbaru, dan total retur di bawah lock; saldo, ledger, baris, dan event aktif atomik. Fingerprint mengikat replay pada pelaku/target/payload/versi, dengan otorisasi ulang. Koreksi tidak menghapus movement. Retur final menambah ledger saja tanpa mengubah record/event WO final.
+
+**EN:** Actions lock workshop → optional WO → part → line/source, rechecking versions, balances, and cumulative returns under lock. Balances, movements, line state, and active-WO events commit atomically. Fingerprints bind replays to actor/targets/payload/versions after fresh authorization. Corrections never erase movements. Final returns append ledger entries without changing final WO records/events.
 
 Conceptual fields:
 
@@ -530,6 +546,10 @@ Do not accept arbitrary status mutation from requests.
 
 ## 26. Work Order Services
 
+**ID — Sprint 3:** work_order_services menyimpan referensi katalog wajib melalui FK gabungan tenant, name_snapshot, description_snapshot, quantity INTEGER, unit_price/subtotal BIGINT, status active/cancelled, dan timestamp UTC. Jumlah/harga diperiksa server terhadap overflow; constraint memastikan subtotal = quantity × unit_price. Baris dibatalkan tetap tersimpan; tidak ada jasa bebas/hard delete.
+
+**EN — Sprint 3:** Service lines require tenant-scoped catalog references and store name/description snapshots, INTEGER quantities, BIGINT unit prices/subtotals, active/cancelled status, and UTC timestamps. Server checks prevent overflow; database checks verify multiplication. Cancelled lines remain stored; free-text services and hard deletes are unavailable.
+
 Conceptual fields:
 
     work_order_services
@@ -550,6 +570,10 @@ Snapshot fields are intentional.
 Historical display must not depend on current master prices.
 
 ## 27. Work Order Spare Parts
+
+**ID — Sprint 3:** work_order_spare_parts menyimpan referensi katalog wajib, name/sku/unit snapshots, quantity, unit_price, subtotal, dan status planned/used/cancelled. FK gabungan melindungi tenant. Quantity tetap setelah digunakan; perubahan harga saat aktif menaikkan versi WO dan membuat event tanpa movement. Retur diturunkan dari ledger sumber, bukan mengubah quantity/subtotal. Label Diretur sebagian/seluruhnya adalah informasi dari agregasi ledger. WO final dan snapshot baris tetap terkunci.
+
+**EN — Sprint 3:** Part lines require catalog references and store name/SKU/unit snapshots, quantities, prices/subtotals, and planned/used/cancelled status. Composite FKs enforce tenancy. Used quantities lock; active price changes increment WO versions and append events without movements. Returns are ledger aggregates rather than quantity/subtotal rewrites. Partial/full-return labels derive from the ledger, preserving final lines and snapshots.
 
 Conceptual fields:
 

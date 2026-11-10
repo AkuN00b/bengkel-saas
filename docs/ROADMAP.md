@@ -20,6 +20,7 @@ Only implement the task explicitly requested.
 | F01–F08 — Foundation | Complete for implemented scope; laptop results tracked separately / Selesai untuk scope yang tersedia; hasil laptop dicatat terpisah | [Foundation review / Review Foundation](FOUNDATION_REVIEW.md); tag `f08-foundation-hardening-v1` |
 | C01–C03 — Customers + Vehicles / Pelanggan + Kendaraan | Implemented, local automated checks passed / Diimplementasikan, tes otomatis lokal lolos | [Sprint 1 progress / Progres Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md); tags `c02-vehicle-management-v1`, `c03-customer-vehicle-ux-v1` |
 | W01–W03 + mechanic accounts / Akun mekanik | Sprint 2 package implemented; acceptance tracked separately / Paket Sprint 2 diimplementasikan; penerimaan dicatat terpisah | [Sprint 2](SPRINT_2_WORK_ORDERS.md); release tag `sprint-2-work-orders-v1`; [testing](MANUAL_TESTING.md#sprint-2--wo-dan-mekanik) |
+| I01–I05 — Services, parts, inventory / Jasa, spare part, stok | Sprint 3 package implemented; manual acceptance pending / Paket Sprint 3 diimplementasikan; penerimaan manual belum dilakukan | [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md); tag `sprint-3-services-inventory-v1`; [testing](MANUAL_TESTING.md#sprint-3--jasa-spare-part-dan-stok) |
 
 **EN:** This roadmap remains the source of phase order and scope. The linked Sprint 1 document expands C01–C03 into implementation steps, testing criteria, and decisions to settle before coding. Recording the plan does not authorize implementing the features.
 
@@ -479,6 +480,10 @@ No complex scheduling or multi-mechanic allocation.
 STOP. Sprint 2 ends.
 
 ## 17. Sprint 3 — Service + Spare Part + Inventory
+
+**ID — Paket disetujui 2026-11-10:** I01–I05 dikerjakan berurutan dalam satu paket, menggantikan STOP per subtask di bawah. Owner kelola katalog/koreksi; owner/kasir kelola item WO, restock, pemakaian, dan retur aktif; retur final khusus owner melalui ledger terpisah. Kuantitas bulat, harga WO fleksibel, penggunaan satu baris saat Dikerjakan, retur parsial hanya stok, tanpa pengurangan subtotal otomatis. Penyelesaian menunggu rencana dibereskan. Detail dan hasil ada di [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md). Tetap berhenti sebelum Sprint 4; manual Sprint 2 belum dikonfirmasi.
+
+**EN — Approved package, 2026-11-10:** I01–I05 ship sequentially as one package, superseding individual STOP boundaries below. Owners manage catalogs/adjustments; owners/cashiers manage WO lines, restock, usage, and active returns; final returns are owner-only separate ledger entries. Integer quantities, flexible WO prices, full-line usage in progress, partial stock-only returns, no automatic subtotal reduction, and completion guards follow the agreed decisions. See [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md). Stop before Sprint 4; Sprint 2 manual acceptance remains unconfirmed.
 
 ### I01 — Service Catalog
 
