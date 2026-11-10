@@ -283,9 +283,9 @@ Rules:
 - phone optional and not assumed globally unique
 - customer is not required for vehicle creation
 
-**EN — C01 implementation:** Migration `2026_11_09_000000_create_customers_table.php` adds BIGINT identity, a required workshop FK with `RESTRICT` on deletion, `name VARCHAR(255)` with a nonblank-name check, nullable `phone VARCHAR(32)` and `notes TEXT`, timestamps, and `(workshop_id, name, id)` indexing for tenant list ordering. Names and phones have no uniqueness constraint. Application validation limits notes to 5,000 characters. `Customer` belongs to `Workshop`; only name/phone/notes are fillable. HTTP writes derive workshop ownership server-side. C01 has no delete/archive flow or soft deletion; customer rows prevent workshop deletion while present. Vehicles remain planned in C02.
+**EN — C01 implementation:** Migration `2026_11_09_000000_create_customers_table.php` adds BIGINT identity, a required workshop FK with `RESTRICT` on deletion, `name VARCHAR(255)` with a nonblank-name check, nullable `phone VARCHAR(32)` and `notes TEXT`, timestamps, and `(workshop_id, name, id)` indexing for tenant list ordering. Names and phones have no uniqueness constraint. Application validation limits notes to 5,000 characters. `Customer` belongs to `Workshop`; only name/phone/notes are fillable. HTTP writes derive workshop ownership server-side. C01 has no delete/archive flow or soft deletion; customer rows prevent workshop deletion while present. C02 now adds the vehicle relationship described below.
 
-**ID — Implementasi C01:** Migration `2026_11_09_000000_create_customers_table.php` menambah ID BIGINT, FK bengkel wajib dengan `RESTRICT` saat hapus, `name VARCHAR(255)` dengan check nama tidak kosong, `phone VARCHAR(32)` dan `notes TEXT` nullable, timestamps, serta index `(workshop_id, name, id)` untuk pengurutan daftar tenant. Nama/telepon tidak diberi constraint unik. Validasi aplikasi membatasi catatan 5.000 karakter. `Customer` memiliki relasi ke `Workshop`; hanya nama/telepon/catatan yang fillable. Kepemilikan bengkel pada request tulis ditentukan server. C01 tidak memiliki alur hapus/arsip atau soft delete; record pelanggan mencegah penghapusan bengkel selama masih ada. Kendaraan tetap direncanakan pada C02.
+**ID — Implementasi C01:** Migration `2026_11_09_000000_create_customers_table.php` menambah ID BIGINT, FK bengkel wajib dengan `RESTRICT` saat hapus, `name VARCHAR(255)` dengan check nama tidak kosong, `phone VARCHAR(32)` dan `notes TEXT` nullable, timestamps, serta index `(workshop_id, name, id)` untuk pengurutan daftar tenant. Nama/telepon tidak diberi constraint unik. Validasi aplikasi membatasi catatan 5.000 karakter. `Customer` memiliki relasi ke `Workshop`; hanya nama/telepon/catatan yang fillable. Kepemilikan bengkel pada request tulis ditentukan server. C01 tidak memiliki alur hapus/arsip atau soft delete; record pelanggan mencegah penghapusan bengkel selama masih ada. C02 kini menambahkan relasi kendaraan yang dijelaskan di bawah.
 
 ## 15. Vehicles
 
@@ -311,6 +311,10 @@ Relationship:
 
 Vehicle may exist without customer.
 
+**EN — C02/C03 implementation, 2026-11-10:** `vehicles` has BIGINT identity and workshop FK, nullable customer ID, 20-character display/normalized plates, nullable 100-character brand/model, nullable SMALLINT year, notes TEXT, and timestamps. A composite FK `(workshop_id, customer_id)` references a supporting unique key `(workshop_id, id)` on customers and restricts parent deletion/key changes. This prevents cross-workshop references even outside HTTP. Vehicles also restrict workshop deletion. Indexes cover unique `(workshop_id, normalized_plate_number)` and customer lookups `(workshop_id, customer_id)`. There is no delete endpoint or cascading removal. Shared migration history is unchanged; rollback of the new migration removes vehicles and its supporting customer key only.
+
+**ID — Implementasi C02/C03, 2026-11-10:** `vehicles` memuat ID BIGINT, FK bengkel, ID pelanggan nullable, pelat tampilan/normalisasi 20 karakter, merek/model nullable 100 karakter, tahun SMALLINT nullable, catatan TEXT, serta timestamps. FK gabungan `(workshop_id, customer_id)` merujuk kunci unik pendukung `(workshop_id, id)` pada pelanggan dan membatasi hapus/perubahan kunci induk. Ini mencegah referensi lintas bengkel bahkan di luar HTTP. Kendaraan juga membatasi penghapusan bengkel. Index mencakup keunikan `(workshop_id, normalized_plate_number)` dan pencarian pelanggan `(workshop_id, customer_id)`. Tidak ada endpoint hapus atau penghapusan berantai. Migration lama tidak diubah; rollback migration baru hanya menghapus kendaraan dan kunci pelanggan pendukungnya.
+
 ## 16. Vehicle Plate Normalization / Normalisasi Plat
 
 Example:
@@ -319,6 +323,10 @@ Example:
     normalized_plate_number = "B1234ABC"
 
 Normalization must be deterministic.
+
+**EN:** The implemented normalizer accepts validated ASCII letters/digits/spaces, with at least one letter and digit. Display text is trimmed, uppercase, with single spaces; its normalized key removes spaces and is recomputed on every model save. Database checks require matching display/key values. Invalid punctuation, non-ASCII characters, and internal control bytes are rejected rather than silently discarded. HTTP limits: plate 20; brand/model 100; notes 5,000; year 1900 through next year (database ceiling 2100). Current customer association may change without creating history records; future Work Orders must preserve their own transaction context.
+
+**ID:** Normalisasi yang tersedia menerima huruf ASCII/angka/spasi tervalidasi, wajib mengandung huruf dan angka. Tampilan dirapikan menjadi huruf besar dengan spasi tunggal; kunci normalisasi menghapus spasi dan dihitung ulang setiap model disimpan. Check database mewajibkan tampilan/kunci yang sesuai. Tanda baca tidak valid, karakter non-ASCII, serta byte kontrol internal ditolak, bukan dihapus diam-diam. Batas HTTP: pelat 20; merek/model 100; catatan 5.000; tahun 1900 sampai tahun depan (batas database 2100). Hubungan pelanggan saat ini dapat berubah tanpa tabel riwayat; Work Order mendatang harus menyimpan konteks transaksinya sendiri.
 
 Recommended V1 uniqueness:
 

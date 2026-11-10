@@ -5,6 +5,8 @@ return [
     'string' => ':attribute harus berupa teks.',
     'email' => ':attribute harus berupa alamat email yang valid.',
     'unique' => ':attribute sudah digunakan.',
+    'exists' => ':attribute tidak tersedia.',
+    'in' => ':attribute tidak valid.',
     'confirmed' => 'Konfirmasi :attribute tidak cocok.',
     'boolean' => ':attribute harus bernilai benar atau salah.',
     'integer' => ':attribute harus berupa bilangan bulat.',
