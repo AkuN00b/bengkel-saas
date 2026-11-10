@@ -383,6 +383,10 @@ STOP.
 
 ### C02 — Vehicle Management
 
+**EN — Implemented 2026-11-10:** Explicitly requested together with C03. Owner/cashier writes, mechanic reads, no deletion as confirmed by the user. Vehicle persistence, optional same-tenant customer, normalized per-workshop plate uniqueness, scoped policies/forms and list/detail/edit UI are implemented. See [Sprint 1 validation](SPRINT_1_CUSTOMER_VEHICLE.md#c02c03-local-validation--validasi-lokal-c02c03).
+
+**ID — Diimplementasikan 2026-11-10:** Diminta eksplisit bersama C03. User mengonfirmasi owner/kasir tulis, mekanik baca, tanpa hapus. Penyimpanan kendaraan, pelanggan satu tenant opsional, keunikan pelat normalisasi per bengkel, policy/form sesuai tenant, dan UI daftar/detail/edit tersedia. Lihat [validasi Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md#c02c03-local-validation--validasi-lokal-c02c03).
+
 Fields approximately:
 - customer optional
 - plate number
@@ -404,6 +408,10 @@ Tests:
 STOP.
 
 ### C03 — Customer + Vehicle UX
+
+**EN — Implemented 2026-11-10:** Exact plate lookup opens the existing vehicle or offers prefilled creation. Optional paginated customer search and customer-to-vehicle links reuse C01/C02 authorization. Full suite: 296 tests / 1,434 assertions, 3 JavaScript tests, and desktop/mobile browser checks pass. Sprint 1 implementation is complete; user manual checks remain separate. No later module is authorized by this completion.
+
+**ID — Diimplementasikan 2026-11-10:** Pencarian pelat penuh membuka kendaraan yang ada atau menawarkan tambah dengan isian pelat. Pencarian pelanggan opsional berhalaman dan tautan pelanggan-kendaraan memakai otorisasi C01/C02. Suite penuh: 296 tes / 1.434 assertion, 3 tes JavaScript, serta pemeriksaan browser desktop/HP lolos. Implementasi Sprint 1 selesai; tes manual user tetap terpisah. Penyelesaian ini bukan izin modul selanjutnya.
 
 Core:
 

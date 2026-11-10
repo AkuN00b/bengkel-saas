@@ -65,12 +65,15 @@ class CustomerTest extends TestCase
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
+        $vehicleMigration = require database_path('migrations/2026_11_10_000000_create_vehicles_table.php');
+        $vehicleMigration->down();
         $migration = require database_path('migrations/2026_11_09_000000_create_customers_table.php');
         $migration->down();
         $this->assertFalse(Schema::hasTable('customers'));
         $this->assertDatabaseHas('workshops', ['id' => $customer->workshop_id]);
         $this->assertDatabaseHas('users', ['id' => $user->id]);
         $migration->up();
+        $vehicleMigration->up();
         $this->assertTrue(Schema::hasTable('customers'));
         $this->assertTrue(Customer::factory()->create(['workshop_id' => $customer->workshop_id])->exists);
     }

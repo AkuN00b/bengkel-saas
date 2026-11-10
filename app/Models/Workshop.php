@@ -39,4 +39,10 @@ class Workshop extends Model
     {
         return $this->hasMany(Customer::class);
     }
+
+    /** @return HasMany<Vehicle, $this> */
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(Vehicle::class);
+    }
 }

@@ -11,6 +11,11 @@
             <svg aria-hidden="true" class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg>
             Pelanggan
         </a>
+        <a href="{{ route('vehicles.index') }}" @if (request()->routeIs('vehicles.*')) aria-current="page" @endif
+           @class(['flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition', 'bg-emerald-400 text-slate-950' => request()->routeIs('vehicles.*'), 'text-slate-300 hover:bg-white/10 hover:text-white' => ! request()->routeIs('vehicles.*')])>
+            <svg aria-hidden="true" class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 16h18l-2-8H5l-2 8zM5 8l2-3h10l2 3M5 16v3M19 16v3M7 12h10"/></svg>
+            Kendaraan
+        </a>
     @endif
     <a href="{{ route('workshops.select') }}" @if (request()->routeIs('workshops.select')) aria-current="page" @endif
        @class(['flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition', 'bg-emerald-400 text-slate-950' => request()->routeIs('workshops.select'), 'text-slate-300 hover:bg-white/10 hover:text-white' => ! request()->routeIs('workshops.select')])>

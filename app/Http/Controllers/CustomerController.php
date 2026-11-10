@@ -53,8 +53,11 @@ class CustomerController extends Controller
         $record = $this->findCustomer($request, $customer);
         $workshop = $request->attributes->get('activeWorkshop');
         Gate::authorize('view', [$record, $workshop]);
+        $request->validate(['vehicles_page' => ['sometimes', 'integer', 'min:1', 'max:1000000']]);
 
-        return view('customers.show', ['activeWorkshop' => $workshop, 'customer' => $record]);
+        return view('customers.show', ['activeWorkshop' => $workshop, 'customer' => $record,
+            'vehicles' => $workshop->vehicles()->where('customer_id', $record->id)
+                ->orderBy('normalized_plate_number')->orderBy('id')->paginate(10, ['*'], 'vehicles_page')]);
     }
 
     public function edit(Request $request, string $customer): View

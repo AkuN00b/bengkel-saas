@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\WorkshopSelectionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,9 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->middleware('active.workshop')->name('dashboard');
     Route::middleware('active.workshop')->group(function (): void {
         Route::resource('customers', CustomerController::class)->except('destroy')->whereNumber('customer');
+        Route::get('/vehicles/lookup', [VehicleController::class, 'lookup'])->name('vehicles.lookup');
+        Route::get('/vehicles/customer-options', [VehicleController::class, 'customers'])->name('vehicles.customers');
+        Route::resource('vehicles', VehicleController::class)->except('destroy')->whereNumber('vehicle');
     });
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

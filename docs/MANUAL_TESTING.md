@@ -2,6 +2,10 @@
 
 > Reviewed / Ditinjau: 2026-11-10
 
+**ID — Versi terbaru C02/C03:** Kendaraan dan alur pencarian pelat selesai diimplementasikan pada 10 November. Mulai dari [checklist C02/C03](#c02c03-laptop-follow-up--pemeriksaan-laptop-c02c03). Persiapan lokal, 10 migration, suite penuh, dan browser otomatis sudah diverifikasi di sana. Centang historis dari versi sebelumnya tetap dipertahankan; tes user dan SMTP nyata tidak dianggap otomatis lolos.
+
+**EN — Latest C02/C03 version:** Vehicles and plate lookup were implemented on November 10. Start with the [C02/C03 checklist](#c02c03-laptop-follow-up--pemeriksaan-laptop-c02c03). Local preparation, 10 migrations, the full suite, and automated browser tests are verified there. Earlier historical checks are preserved; user and real SMTP checks are not inferred to pass.
+
 **ID — Verifikasi lokal C01, 10 November:** Codex memeriksa `3fa9bfb` beserta perbaikan koneksi UTC dan tes constraint PostgreSQL 18. Dependency, 9 migration Ran, build, 221 tes / 1.073 assertion, Pint, validasi/audit Composer, kompilasi Blade, dan browser Edge otomatis desktop/HP lolos. Detail ada di [bagian C01](#c01-laptop-follow-up--pemeriksaan-laptop-c01). Catatan lama di bawah tetap historis. Browser otomatis memakai server terpisah `127.0.0.1:8011` dan database `bengkel_saas_testing`, bukan data akun aplikasi. SMTP nyata tidak diuji ulang.
 
 **EN — C01 local verification, November 10:** Codex checked `3fa9bfb` plus the UTC connection and PostgreSQL 18 constraint-test fixes. Dependencies, 9 migrations, build, 221 tests / 1,073 assertions, Pint, Composer validation/audit, Blade compilation, and automated desktop/mobile Edge checks passed. See the [C01 section](#c01-laptop-follow-up--pemeriksaan-laptop-c01). Earlier records remain historical. Browser tests used a separate `127.0.0.1:8011` server and `bengkel_saas_testing`, not application account data. Real SMTP was not retested.
@@ -455,6 +459,48 @@ npm.cmd run build
 | Cek user pada akun aplikasi / User checks on application accounts | Tetap kosong sampai dicoba; hasil otomatis menggunakan data testing terpisah / Remain unchecked until tried on application accounts |
 | SMTP nyata / Real SMTP | Tidak diuji ulang; hasil historis user tetap dipertahankan / Not retested; historical user results preserved |
 
+### C02/C03 laptop follow-up / Pemeriksaan laptop C02/C03
+
+**ID:** User mengonfirmasi aturan kendaraan sama dengan pelanggan: owner/kasir tambah-edit, mekanik lihat/cari, tanpa hapus. Kedua langkah diminta sekaligus. Tidak perlu mengulang persiapan yang dicentang untuk mulai tes melalui Herd. Gunakan data uji saat mencoba; jangan reset atau rollback database aplikasi. Tag rilis gabungan: `c02-vehicle-management-v1` dan `c03-customer-vehicle-ux-v1`.
+
+**EN:** The user confirmed the customer access rules for vehicles: owner/cashier writes, mechanic reads/searches, no deletion. Both steps were requested together. Checked preparation need not be repeated to start testing through Herd. Use test data and never reset/roll back the application database. Combined release tags: `c02-vehicle-management-v1` and `c03-customer-vehicle-ux-v1`.
+
+- [x] Codex, 2026-11-10: migration `2026_11_10_000000_create_vehicles_table` diterapkan; **10 migration Ran**. Jumlah akun/bengkel/membership/paket/subscription/pelanggan lama terjaga. / Migration applied and existing application row counts preserved.
+- [x] Codex: **296 tes / 1.434 assertion** pada database PostgreSQL testing terpisah lolos; termasuk regresi Foundation/C01, isolasi tenant, role, CSRF, input tidak valid, duplicate/race, constraint dan rollback/reapply. / Full PHP suite passed on the separate testing database.
+- [x] Codex: **3 tes JavaScript** untuk respons pencarian lama, perubahan tenant, dan kegagalan pencarian dengan pilihan terjaga lolos. / Customer-picker JavaScript regression tests passed.
+- [x] Codex: Pint, validasi Composer, kompilasi Blade, serta `npm.cmd run build` lolos. / Formatting, Composer validation, Blade compilation, and frontend build passed.
+- [x] Codex: Edge otomatis 1280×900 dan 390×844 lolos untuk pelat ditemukan/belum ditemukan, tambah dengan pelat terisi, kendaraan tanpa pelanggan, cari/pilih/lepas pelanggan, duplikat dengan isian terjaga, edit/kosongkan opsional, tautan pelanggan, pagination, serta menu HP. Tidak ada error JavaScript atau halaman melebar. / Automated desktop/mobile browser flows passed without JS errors or horizontal overflow.
+- [x] Codex: browser otomatis membuktikan kasir tambah-edit, mekanik tanpa akses tulis/pemilih pelanggan, ID kendaraan tenant lain 404 dua arah, serta form edit lama ditolak sesudah pindah bengkel. Fixture hanya di `bengkel_saas_testing`. / Automated browser checks verified role restrictions, bidirectional tenant denial, and stale-form rejection on disposable fixtures only.
+
+**ID — Yang masih Anda coba sendiri:** Kotak di bawah sengaja kosong. Hasil browser otomatis adalah pemeriksaan Codex pada data terpisah, bukan laporan bahwa user sudah mencoba dengan akun aplikasi sendiri.
+
+**EN — Your own manual checks:** Boxes below intentionally remain unchecked. Codex automated browser results on isolated data do not imply the user tried them with application accounts.
+
+- [ ] Login lewat `http://bengkel-saas.test`; buka menu **Kendaraan**. Pastikan bengkel aktif benar dan tampilan nyaman di perangkat Anda. / Verify the active workshop and layout with your application account/device.
+- [ ] Dari ringkasan, cari pelat baru seperti **B 1234 UJI**. Klik **Tambah kendaraan dengan pelat ini**, simpan tanpa pelanggan, lalu cari lagi dengan **b1234uji**. Harus membuka kendaraan yang sama. / Test missing → prefilled create → normalized repeat lookup.
+- [ ] Ubah kendaraan, pilih **Cari atau pilih pelanggan**, cari nama/telepon pelanggan bengkel Anda, pilih hasilnya, isi merek/model/tahun/catatan, lalu simpan. / Search and select an optional customer, add details, and save.
+- [ ] Buka pelanggan dari detail kendaraan. Daftar kendaraannya harus memuat pelat tadi; **Tambah kendaraan pelanggan** membuka form dengan pelanggan terpilih. / Verify both customer/vehicle links and preselection.
+- [ ] Coba pelat sama dengan spasi/huruf berbeda: ditolak pada bengkel yang sama. Pelat yang sama boleh dibuat pada bengkel uji lain. / Verify tenant-local normalized uniqueness.
+- [ ] Coba pelat kosong/tanda baca/karakter tak didukung, tahun di luar 1900–tahun depan, serta merek/model/catatan terlalu panjang. Pesan Indonesia tampil dan isian lain terjaga. / Check validation and input preservation.
+- [ ] Lepas pelanggan dan kosongkan field opsional: tersimpan sebagai kosong; detail menampilkan **Tanpa pelanggan / Belum diisi**. / Verify optional-field clearing and customer detachment.
+- [ ] Jika punya fixture role sah, kasir boleh tambah-edit; mekanik lihat/cari saja, URL form tulis langsung 403. Tidak ada tombol hapus untuk semua role. / Check authorized role fixtures and no deletion.
+- [ ] Jika punya dua akun/bengkel uji, hasil daftar/pencarian/pilihan pelanggan tidak bocor A/B. Form kendaraan lama setelah pindah bengkel harus ditolak. / Verify A/B isolation and stale forms with safe fixtures.
+- [ ] Opsional pada database testing terpisah yang diverifikasi: `php artisan test --filter=Vehicle`, `php artisan test`, `node --test tests/Frontend/customer-picker.test.js`. / Run optional regressions only against the verified disposable database.
+
+| Pemeriksaan C02/C03 / C02/C03 check | Hasil / Result |
+| --- | --- |
+| Tanggal + pemeriksa / Date + tester | 2026-11-10 — Codex; browser Edge otomatis pada fixture terpisah / Automated Edge on isolated fixtures |
+| Migration / upgrade | PASS — 10 Ran, jumlah data lama terjaga / Existing row counts preserved |
+| PHP / JavaScript | PASS — 296 tes / 1.434 assertion; 3 tes JavaScript |
+| Build / lint / view | PASS — frontend, Pint, Composer, Blade |
+| Browser desktop/HP / Desktop/mobile | PASS — create/edit/lookup/picker, role, tenant, pagination, input, layout |
+| Tes user pada akun aplikasi / User application-account tests | Belum dikonfirmasi / Not confirmed |
+| SMTP nyata / Real SMTP | Tidak diuji ulang; laporan historis dipertahankan / Not retested; earlier reports preserved |
+
+**ID:** Migration baru menambah tabel kendaraan dan kunci unik pelanggan pendukung untuk FK gabungan. Rollback menghapus data kendaraan, sehingga tes rollback hanya dijalankan pada database sementara. Tidak ada Work Order, riwayat servis, inventory, invoice, atau pembayaran yang ditambahkan. C02/C03 menyelesaikan implementasi Sprint 1; modul berikutnya menunggu permintaan terpisah.
+
+**EN:** The new migration adds vehicles and a supporting customer unique key for the composite FK. Rollback deletes vehicle records and was tested only on the disposable database. No Work Orders, service history, inventory, invoices, or payments were added. C02/C03 completes Sprint 1 implementation; further modules require a separate request.
+
 ## 7. Record results / Catat hasil
 
 **ID:** Isi setelah pengujian; jangan tandai lolos hanya karena sudah pull. Jika gagal, catat langkah, hasil yang diharapkan, hasil aktual, dan pesan error yang sudah disensor. Checklist yang belum dijalankan tetap kosong.
@@ -477,6 +523,6 @@ npm.cmd run build
 | Suite lokal (opsional) / Local suite (optional) | Suite F06 belum dijalankan; hasil F02 sebelumnya bukan verifikasi F06 / F06 suite not run; earlier F02 results do not verify F06 |
 | Kendala yang perlu diperbaiki / Issues | Konflik IIS/Herd sudah ditangani sementara; hasil tes browser/SMTP masih menunggu / IIS conflict temporarily resolved; browser/SMTP results pending |
 
-**ID:** F08 menutup validasi kode Foundation; C01 menambahkan pelanggan sesuai keputusan tanpa hapus. Berikutnya **C02 — Vehicle Management** hanya jika diminta secara eksplisit. Lengkapi hasil laptop/SMTP sesuai checklist saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
+**ID:** Foundation dan implementasi Sprint 1 C01–C03 selesai. Berikutnya **W01 — Work Order Foundation** hanya jika diminta secara eksplisit. Lengkapi hasil manual user/SMTP sesuai checklist saat ada waktu. Tag milestone menyimpan versi kode; bukan backup database atau `.env`.
 
-**EN:** F08 completes Foundation code validation; C01 adds customers with the agreed no-deletion behavior. **C02 — Vehicle Management** requires an explicit request. Complete laptop/SMTP records when time permits. Milestone tags preserve code, not databases or `.env` files.
+**EN:** Foundation and Sprint 1 C01–C03 implementation are complete. **W01 — Work Order Foundation** requires an explicit request. Complete user manual/SMTP records when time permits. Milestone tags preserve code, not databases or `.env` files.
