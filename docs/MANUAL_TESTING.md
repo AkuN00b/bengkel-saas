@@ -2,6 +2,68 @@
 
 > Reviewed / Ditinjau: 2026-11-10
 
+**ID — Versi terbaru Sprint 3:** I01–I05 jasa, spare part, dan stok sudah tersedia. Mulai dari [checklist Sprint 3](#sprint-3--jasa-spare-part-dan-stok). Penerimaan manual Sprint 2 dan Sprint 3 tetap belum dikonfirmasi; hasil otomatis bukan pengganti centang user.
+
+**EN — Latest Sprint 3 version:** I01–I05 services, parts, and inventory are available. Start with the [Sprint 3 checklist](#sprint-3--jasa-spare-part-dan-stok). Sprint 2/3 user acceptance remains unconfirmed; automation does not check user-acceptance boxes.
+
+## Sprint 3 — Jasa, Spare Part, dan Stok
+
+**ID:** Nyalakan Herd dan PostgreSQL, lalu buka `http://bengkel-saas.test`. Build frontend tersedia; tidak perlu npm run dev. Untuk laptop lain setelah menerima rilis, jalankan dari folder project:
+
+**EN:** Run Herd/PostgreSQL and open the local app. Existing compiled assets do not require npm run dev. On another laptop after receiving this release, run from the project directory:
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+git show --no-patch --oneline sprint-3-services-inventory-v1
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+### Automated local verification / Verifikasi otomatis lokal
+
+- [x] Migration Sprint 3 Ran, total 13 migration. Data lama sebelum/sesudah upgrade tetap: users 4, workshops 2, memberships 2, plans 3, subscriptions 2, customers 0, vehicles 0, work_orders 0, work_order_events 0. / One new migration ran, 13 total; existing application record counts were preserved.
+- [x] Suite penuh **358 tes / 2.151 assertion** lolos, termasuk regresi Sprint 2, role/tenant, harga dan snapshot, stok/retur, idempotensi, constraint/ledger append-only, rollback/upgrade, CSRF, dan proses PHP bersamaan. / Full suite passed **358 tests / 2,151 assertions**, including Sprint 2 regressions and inventory/security/concurrency checks.
+- [x] **3 tes JavaScript**, Pint seluruh project, Composer validation strict, kompilasi Blade, dan build Vite lolos. / **3 JavaScript tests**, project-wide Pint, strict Composer validation, Blade compilation, and Vite build passed.
+- [x] Browser Edge otomatis desktop **1280×900** dan HP **390×844**: katalog/pagination, restock, jasa/rencana/pemakaian, perubahan harga, retur parsial/final, pembatalan, seluruh role, ID tenant, form stale/pergantian bengkel, koreksi owner, aktivasi, dan navigasi HP lolos. Tanpa error JavaScript atau overflow horizontal. / Automated desktop/mobile Edge checks passed across catalog, inventory, WO, role/security, conflict, and responsive flows; no JavaScript errors or horizontal overflow.
+
+**ID:** Otomasi memakai `bengkel_saas_testing`, akun sintetis, dan mail array. Database aplikasi tidak di-reset atau di-seed ulang. Angka di atas adalah bukti pemeriksaan lokal 10 November, bukan data contoh yang ditambahkan ke akun user.
+
+**EN:** Automation uses the dedicated test database, synthetic accounts, and array mail. Application data was not reset or reseeded. These counts document November 10 verification, not sample data added to user accounts.
+
+### User acceptance / Penerimaan user
+
+**ID:** Semua kotak berikut tetap kosong sampai lu mencoba dan mengonfirmasi. Pakai data uji yang mudah dikenali. Tidak perlu memakai pgAdmin untuk katalog/stok.
+
+**EN:** Leave these boxes empty until the user performs and confirms the checks. Use recognizable test records; catalog/inventory flows do not require pgAdmin.
+
+- [ ] Owner: tambah jasa dengan nama/deskripsi/harga; ubah harga katalog. Kasir dapat membaca tetapi tidak mengubah; mekanik tidak mempunyai menu katalog. / Verify catalog roles and editing.
+- [ ] Owner: tambah spare part dengan SKU, satuan, harga, batas minimum. Saldo awal nol; stok tidak dapat diedit melalui form katalog. Satuan tidak dapat diganti. / Verify part creation, zero opening balance, and immutable units.
+- [ ] SKU beda huruf besar/kecil pada bengkel yang sama ditolak; SKU kosong diperbolehkan. Pencarian nama/SKU, filter aktif/nonaktif/stok menipis, dan pagination berjalan. / Check SKU uniqueness, search, filters, and pagination.
+- [ ] Owner/kasir: Restock menambah stok dan riwayat. Koreksi masuk/keluar hanya owner, wajib alasan; stok negatif ditolak. / Check stock roles, reasons, balances, and insufficient stock.
+- [ ] Pada WO aktif, tambah jasa dari katalog, ubah jumlah/harga WO. Harga dan deskripsi katalog berubah kemudian tetapi snapshot WO tidak ikut berubah. / Check service line overrides and snapshots.
+- [ ] Tambah spare part Rencana; stok belum berkurang dan tidak dicadangkan. Konfirmasi tidak tersedia sebelum Dikerjakan. / Planned lines do not consume/reserve stock.
+- [ ] Saat Dikerjakan, konfirmasi seluruh jumlah satu baris. Stok berkurang tepat sekali; klik ulang tidak menggandakan movement. / Confirm full-line usage exactly once.
+- [ ] Setelah dipakai, identitas/jumlah tidak bisa diubah; owner/kasir masih dapat mengubah harga selama aktif tanpa movement tambahan. / Used identities/quantities lock; active price edits do not move stock.
+- [ ] Retur sebagian beberapa kali, maksimal sisa yang dipakai; kelebihan ditolak. Pastikan barang fisik benar-benar kembali dan layak disimpan. / Check partial/repeated usable-stock returns and limits.
+- [ ] Retur menaikkan stok, tetapi jumlah asli/harga/subtotal WO tetap; jumlah dipakai/diretur terlihat terpisah. / Returns affect stock, not WO line value.
+- [ ] WO dengan sisa Rencana tidak dapat diselesaikan. Batalkan rencana atau konfirmasi pemakaian dahulu; WO tanpa item tetap bisa selesai. / Resolve plans before completion; legacy empty WOs still complete.
+- [ ] Batalkan WO dengan barang Dipakai dan Rencana: rencana dibatalkan, stok terpakai tidak otomatis kembali. / Cancellation voids plans without restoring usage.
+- [ ] Setelah WO final, owner membuka detail spare part → Riwayat stok → Retur WO final. Retur tercatat tanpa membuka/mengubah WO final; kasir/mekanik tidak boleh menjalankannya. / Verify owner-only separate final returns.
+- [ ] Nonaktifkan barang: tidak dapat dipilih/restock/dipakai lagi; riwayat, koreksi owner, dan retur pemakaian lama tetap tersedia. / Check inactive catalog behavior.
+- [ ] Mekanik hanya melihat item/harga WO tugas sendiri, dapat mulai/selesai sesuai aturan Sprint 2, tanpa tindakan edit barang/stok/harga. / Check mechanic read-only item access.
+- [ ] Dua tab: perubahan katalog/stok/WO membuat form lama ditolak. Ganti bengkel di tab lain: form sebelumnya ditolak dengan konflik jelas. / Check stale versions and workshop switches.
+- [ ] HP/desktop: menu, form, pilihan katalog, riwayat, dan angka Rupiah terbaca tanpa melebar; waktu mengikuti timezone bengkel. / Check real-device usability, Rupiah display, and workshop timezones.
+
+**ID:** Aturan tagihan/refund uang belum ditetapkan oleh subtotal/retur ini. Stop sebelum Sprint 4. Detail implementasi: [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md).
+
+**EN:** These subtotals/returns do not define billing/money-refund rules. Stop before Sprint 4. See [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md).
+
 **ID — Versi terbaru Sprint 2:** W01–W03 dan akun mekanik sudah tersedia. Mulai dari [checklist WO dan mekanik](#sprint-2--wo-dan-mekanik). Hasil otomatis, browser sintetis, SMTP asli, dan penerimaan manual user dicatat terpisah. Bagian C02/C03 serta foundation di bawah merupakan catatan historis.
 
 **EN — Latest Sprint 2 version:** W01–W03 and mechanic onboarding are available. Start with the [WO and mechanic checklist](#sprint-2--wo-dan-mekanik). Automation, synthetic browser checks, real SMTP, and user acceptance are tracked separately. C02/C03 and foundation entries below remain historical.

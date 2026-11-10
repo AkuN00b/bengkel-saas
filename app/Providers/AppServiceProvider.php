@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Service;
+use App\Models\SparePart;
 use App\Models\User;
+use App\Policies\CatalogPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Service::class, CatalogPolicy::class);
+        Gate::policy(SparePart::class, CatalogPolicy::class);
         ResetPassword::createUrlUsing(fn (User $user, string $token) => rtrim(config('app.url'), '/').route('password.reset', [
             'token' => $token,
             'email' => $user->getEmailForPasswordReset(),

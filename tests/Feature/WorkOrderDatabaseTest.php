@@ -56,6 +56,8 @@ class WorkOrderDatabaseTest extends TestCase
         $member = WorkshopMembership::factory()->create(['role' => 'owner']);
         $vehicle = Vehicle::factory()->create(['workshop_id' => $member->workshop_id]);
         $orders = require database_path('migrations/2026_11_10_110000_create_work_orders.php');
+        $inventory = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
+        $inventory->down();
         $accounts = require database_path('migrations/2026_11_10_100000_add_mechanic_account_state.php');
         $orders->down();
         $accounts->down();
@@ -64,6 +66,7 @@ class WorkOrderDatabaseTest extends TestCase
         $this->assertDatabaseHas('vehicles', ['id' => $vehicle->id]);
         $accounts->up();
         $orders->up();
+        $inventory->up();
         $this->assertTrue($member->fresh()->is_active);
         $this->assertSame(1, $member->fresh()->version);
         $this->assertFalse($member->user->fresh()->needs_password_setup);

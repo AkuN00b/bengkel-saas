@@ -6,6 +6,9 @@
         Ringkasan
     </a>
     @if ($activeWorkshop)
+        @can('viewAny', [\App\Models\Service::class, $activeWorkshop])
+            @foreach (['services'=>'Jasa','spare-parts'=>'Spare Part'] as $catalogRoute=>$catalogLabel)<a href="{{ route($catalogRoute.'.index') }}" @if(request()->routeIs($catalogRoute.'.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs($catalogRoute.'.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">{{ $catalogLabel }}</a>@endforeach
+        @endcan
         <a href="{{ route('work-orders.index') }}" @if (request()->routeIs('work-orders.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('work-orders.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Perintah Kerja</a>
         @can('viewAny', [\App\Models\WorkshopMembership::class, $activeWorkshop])
             <a href="{{ route('mechanics.index') }}" @if (request()->routeIs('mechanics.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('mechanics.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Mekanik</a>

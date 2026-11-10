@@ -1,14 +1,22 @@
 # BengkelOS
 
-**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, Sprint 1 customers/vehicles, and Sprint 2 W01–W03 work orders with mechanic onboarding are implemented.
+**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, customers/vehicles, work orders/mechanics, and Sprint 3 I01–I05 services/parts/inventory are implemented.
 
-**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, Sprint 1 pelanggan/kendaraan, serta Sprint 2 W01–W03 perintah kerja dan akun mekanik sudah tersedia.
+**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, pelanggan/kendaraan, perintah kerja/mekanik, serta Sprint 3 I01–I05 jasa/spare part/stok sudah tersedia.
 
 ## Stack
 
 PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PHPUnit 12.
 
 ## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
+
+**ID — Sprint 3:** Katalog jasa/spare part, baris WO, restock, koreksi owner, konfirmasi pemakaian saat Dikerjakan, dan retur parsial sudah tersedia. Harga WO dapat disesuaikan tanpa mengubah katalog. Stok tidak negatif dan transaksi duplikat tidak menggandakan ledger. Retur hanya mengubah stok; belum ada invoice/pembayaran. Lihat [Sprint 3](docs/SPRINT_3_SERVICES_INVENTORY.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-3--jasa-spare-part-dan-stok). Penerimaan manual Sprint 2/3 tetap terpisah dari hasil otomatis.
+
+**EN — Sprint 3:** Service/part catalogs, WO lines, restock, owner adjustments, in-progress consumption, and partial returns are available. WO prices can differ from catalogs. Stock cannot be negative; replayed transactions cannot duplicate movements. Returns affect inventory only; invoices/payments are not implemented. See [Sprint 3](docs/SPRINT_3_SERVICES_INVENTORY.md) and the [latest checklist](docs/MANUAL_TESTING.md#sprint-3--jasa-spare-part-dan-stok). Manual Sprint 2/3 acceptance remains separate from automation.
+
+**ID — Validasi Sprint 3:** 358 tes / 2.151 assertion, 3 tes JavaScript, Pint, Composer validation, Blade, build Vite, dan browser desktop/HP lolos. Total 13 migration Ran. Tag: `sprint-3-services-inventory-v1`.
+
+**EN — Sprint 3 validation:** 358 tests / 2,151 assertions, 3 JavaScript tests, Pint, Composer validation, Blade compilation, Vite build, and desktop/mobile browser checks passed. All 13 migrations ran. Tag: `sprint-3-services-inventory-v1`.
 
 **ID — Sprint 2:** Cari kendaraan → buat WO → Antre → tugaskan mekanik → Dikerjakan → Selesai/batal. Owner mengelola akun mekanik dan pembatalan; kasir mengelola WO aktif; mekanik memproses tugas sendiri. Selesai pekerjaan belum berarti lunas. Ikuti [keputusan Sprint 2](docs/SPRINT_2_WORK_ORDERS.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-2--wo-dan-mekanik). Migration baru mempertahankan data lama. Penerimaan manual user dan SMTP asli tetap terpisah dari tes otomatis.
 

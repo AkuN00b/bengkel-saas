@@ -66,6 +66,8 @@ class CustomerTest extends TestCase
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $orders = require database_path('migrations/2026_11_10_110000_create_work_orders.php');
+        $inventory = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
+        $inventory->down();
         $orders->down();
         $vehicleMigration = require database_path('migrations/2026_11_10_000000_create_vehicles_table.php');
         $vehicleMigration->down();
@@ -77,6 +79,7 @@ class CustomerTest extends TestCase
         $migration->up();
         $vehicleMigration->up();
         $orders->up();
+        $inventory->up();
         $this->assertTrue(Schema::hasTable('customers'));
         $this->assertTrue(Customer::factory()->create(['workshop_id' => $customer->workshop_id])->exists);
     }

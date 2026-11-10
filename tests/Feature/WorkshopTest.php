@@ -102,6 +102,8 @@ class WorkshopTest extends TestCase
         $user = User::factory()->create();
         // Roll dependent migrations back before the workshop table.
         $orders = require database_path('migrations/2026_11_10_110000_create_work_orders.php');
+        $inventory = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
+        $inventory->down();
         $accounts = require database_path('migrations/2026_11_10_100000_add_mechanic_account_state.php');
         $orders->down();
         $accounts->down();
@@ -125,6 +127,7 @@ class WorkshopTest extends TestCase
         $vehicleMigration->up();
         $accounts->up();
         $orders->up();
+        $inventory->up();
         $this->assertTrue(Schema::hasTable('workshops'));
         $this->assertTrue(Workshop::factory()->create()->exists);
     }
