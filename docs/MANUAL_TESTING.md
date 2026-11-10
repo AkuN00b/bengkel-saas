@@ -1,6 +1,10 @@
 # BengkelOS — Manual Testing / Pengujian Mandiri
 
-> Reviewed / Ditinjau: 2026-11-06
+> Reviewed / Ditinjau: 2026-11-10
+
+**ID — Verifikasi lokal C01, 10 November:** Codex memeriksa `3fa9bfb` beserta perbaikan koneksi UTC dan tes constraint PostgreSQL 18. Dependency, 9 migration Ran, build, 221 tes / 1.073 assertion, Pint, validasi/audit Composer, kompilasi Blade, dan browser Edge otomatis desktop/HP lolos. Detail ada di [bagian C01](#c01-laptop-follow-up--pemeriksaan-laptop-c01). Catatan lama di bawah tetap historis. Browser otomatis memakai server terpisah `127.0.0.1:8011` dan database `bengkel_saas_testing`, bukan data akun aplikasi. SMTP nyata tidak diuji ulang.
+
+**EN — C01 local verification, November 10:** Codex checked `3fa9bfb` plus the UTC connection and PostgreSQL 18 constraint-test fixes. Dependencies, 9 migrations, build, 221 tests / 1,073 assertions, Pint, Composer validation/audit, Blade compilation, and automated desktop/mobile Edge checks passed. See the [C01 section](#c01-laptop-follow-up--pemeriksaan-laptop-c01). Earlier records remain historical. Browser tests used a separate `127.0.0.1:8011` server and `bengkel_saas_testing`, not application account data. Real SMTP was not retested.
 >
 > F08 cloud review / Review cloud F08: 2026-11-09 — see / lihat [FOUNDATION_REVIEW.md](FOUNDATION_REVIEW.md). Earlier laptop results below are unchanged. / Hasil laptop terdahulu di bawah dipertahankan.
 >
@@ -386,6 +390,21 @@ npm.cmd run build
 
 ### C01 laptop follow-up / Pemeriksaan laptop C01
 
+**ID — Hasil Codex 2026-11-10:** Centang berlabel Codex berasal dari terminal lokal atau browser otomatis pada database testing terpisah. Item manual lain tetap kosong sampai seluruh kondisinya dicoba. Blok persiapan di bawah tidak perlu diulang untuk mulai mencoba menu Pelanggan di Herd.
+
+**EN — Codex results 2026-11-10:** Codex-labeled checks come from local commands or automated browser testing on a separate database. Other manual items stay unchecked until every condition is verified. Repeating the preparation block below is unnecessary to start trying Customers through Herd.
+
+- [x] Codex: `composer install`, `npm.cmd ci`, dan `npm.cmd run build` selesai sesuai lock file. / Locked dependency installation and frontend build completed.
+- [x] Codex: konfigurasi dibersihkan; 9 migration Ran. Jumlah data user/bengkel/membership/paket/subscription lama sebelum dan sesudah upgrade sama. / Configuration/migrations passed; existing application row counts were preserved.
+- [x] Codex: koneksi PostgreSQL aplikasi UTC; halaman login BengkelOS melalui Herd/Nginx HTTP 200. / The application connection uses UTC; Herd serves the correct login page with HTTP 200.
+- [x] Codex: suite penuh PostgreSQL lokal 18 lolos **221 tes / 1.073 assertion**; Pint, validasi/audit Composer, dan kompilasi Blade lolos. / The local full suite and code/dependency/view checks passed.
+- [x] Codex: Edge otomatis 1280×900 dan 390×844 lolos untuk tambah nama saja/field lengkap, telepon huruf ditolak dengan nama dipertahankan, edit/kosongkan field opsional, nama sama, pencarian nama case-insensitive/literal `%_`, pagination 20+1, nama panjang tanpa overflow, dan navigasi HP. / Automated desktop/mobile customer, validation, search, pagination, layout, and navigation checks passed.
+- [x] Codex: browser otomatis memverifikasi kasir tambah/edit, mekanik tanpa tombol tulis dan form tulis 403, detail lintas tenant A/B 404 dua arah, serta form edit lama 404 sesudah ganti bengkel. Tidak ada error JavaScript. / Browser checks verified cashier writes, mechanic restrictions, bidirectional tenant denial, stale-form rejection, and no JavaScript errors.
+
+**ID:** Pemeriksaan manual lengkap di bawah tetap terpisah. Batas panjang field, penolakan DELETE, pencabutan role, dan edge case lain tercakup suite PHP; bukan berarti seluruhnya sudah dicoba user lewat browser.
+
+**EN:** The complete manual checklist below remains separate. Field limits, DELETE rejection, role revocation, and other edge cases are covered by PHP tests, not all manually exercised by the user.
+
 **ID:** C01 menambahkan tabel pelanggan, policy, form tambah/edit, detail, dan pencarian. Keputusan user: tanpa hapus. Gunakan data lokal khusus pengujian; jangan menjalankan `migrate:fresh`, `migrate:reset`, atau rollback pada data aplikasi untuk pemeriksaan ini. Tidak ada dependency baru. Simpan perubahan lokal sebelum beralih branch, pertahankan `.env` dan `APP_KEY` yang sudah dipakai.
 
 **EN:** C01 adds the customer table, policy, create/edit forms, detail, and search. The user chose no deletion. Use local test data; do not run fresh/reset migrations or rollback against application data for this checklist. No dependencies are added. Preserve local work before switching branches and retain `.env` and the existing `APP_KEY`.
@@ -402,7 +421,8 @@ php artisan migrate:status
 npm.cmd run build
 ```
 
-- [ ] Migration baru `2026_11_09_000000_create_customers_table` berhasil; total 9 migration `Ran`, data akun/bengkel/trial lama tetap ada, halaman login/dashboard normal. / The new migration is applied (nine total), existing account/workshop/trial data survives, and login/dashboard work.
+- [x] Codex: migration `2026_11_09_000000_create_customers_table` berhasil; total 9 migration Ran dan jumlah data akun/bengkel/trial lama terjaga. / Nine migrations are applied and existing application row counts are preserved.
+- [ ] User: login dengan akun aplikasi lama dan pastikan dashboard normal setelah upgrade C01. / Log in with an existing application account and verify the dashboard after upgrading.
 - [ ] Owner dengan bengkel aktif melihat menu **Pelanggan** di sidebar desktop dan navigasi HP. Daftar awal kosong menampilkan pesan yang sesuai, bukan data buatan. / Owners see customer navigation on desktop/mobile; empty lists show the real empty state.
 - [ ] Tambah pelanggan dengan nama saja berhasil. Coba juga nama, telepon `081234567890` atau `+62 812-3456`, dan catatan multiline; detail sesuai input dan nol awal telepon dipertahankan. / Name-only and full customer forms save correctly, including leading phone zeros and multiline notes.
 - [ ] Nama wajib dan maksimal 255 karakter. Telepon opsional, maksimal 32 karakter, hanya angka/tanda baca telepon yang dijelaskan; huruf ditolak dengan pesan Indonesia dan isian lain tetap ada. Catatan opsional maksimal 5.000 karakter. / Validate required/length-limited names, optional phone/notes, Indonesian errors, and preserved input.
@@ -415,7 +435,7 @@ npm.cmd run build
 - [ ] Dengan dua akun fixture A/B di browser terpisah, daftar/pencarian A tidak menampilkan B dan sebaliknya. Buka URL detail pelanggan B memakai akun A: 404, tanpa detail B. / Separate A/B sessions cannot see each other's records, even through a copied detail URL.
 - [ ] Jika user fixture punya dua bengkel: buka edit pelanggan A, ganti ke bengkel B pada tab lain, lalu kirim form lama. Request ditolak (404); pelanggan A tetap utuh. Buat form baru setelah kembali ke bengkel yang benar. / An old edit form cannot update a customer after the active workshop changes.
 - [ ] Tidak ada tombol hapus untuk owner/kasir/mekanik. Tes otomatis memverifikasi request DELETE ditolak dan record tetap ada. / No role gets deletion UI; automated tests verify DELETE is unavailable and records survive.
-- [ ] Opsional: setelah database khusus tes diverifikasi sesuai bagian 6, jalankan `php artisan test --filter=Customer`, lalu suite penuh. Baseline penuh **221 tes / 1.069 assertion**; jangan arahkan ke database aplikasi. / Run optional customer/full tests only on the verified disposable testing database.
+- [x] Codex: suite penuh termasuk seluruh tes Customer dijalankan pada database lokal khusus testing, **221 tes / 1.073 assertion** lolos. Baseline cloud awal 221 tes / 1.069 assertion; tambahan assertion memastikan data induk/membership tetap ada setelah penolakan hapus. / The full local suite passed; extra assertions check parent/membership preservation after restricted deletion.
 - [ ] Catat hasil aktual di tabel C01 berikut, tanpa mencentang berdasarkan hasil cloud. / Record actual C01 results below without inferring them from cloud checks.
 
 **ID:** C01 belum menyediakan UI pengelolaan membership/role. Untuk pemeriksaan kasir/mekanik, dua tenant, atau pencabutan membership, gunakan fixture uji sah bila tersedia; jangan menaikkan privilege akun asli hanya untuk tes. Jika tidak ada fixture, tandai belum diuji dan gunakan bukti suite otomatis sebagai catatan terpisah.
@@ -424,14 +444,16 @@ npm.cmd run build
 
 | Pemeriksaan C01 / C01 check | Hasil laptop / Laptop result |
 | --- | --- |
-| Tanggal + commit/tag / Date + commit/tag | Belum diisi / Pending |
-| Migration, data lama, build / Migration, existing data, build | Belum diuji / Not tested |
-| Tambah/detail/edit + validasi / Create/detail/edit + validation | Belum diuji / Not tested |
-| Pencarian + pagination / Search + pagination | Belum diuji / Not tested |
-| Role owner/kasir/mekanik / Owner/cashier/mechanic | Belum diuji / Not tested |
-| Isolasi A/B + pergantian bengkel / A/B isolation + switching | Belum diuji / Not tested |
-| UI HP/desktop + tanpa hapus / Mobile/desktop + no deletion | Belum diuji / Not tested |
-| Suite lokal (opsional) / Local suite (optional) | Belum dijalankan / Not run |
+| Tanggal + commit/tag / Date + commit/tag | 2026-11-10 — Codex; `3fa9bfb` + perbaikan UTC/tes PG18 lokal / local UTC/PG18 test fixes |
+| Migration, data lama, build / Migration, existing data, build | PASS — 9 Ran; jumlah data lama terjaga; Composer/npm install, build, dan Herd login HTTP 200 / Existing row counts preserved |
+| Tambah/detail/edit + validasi / Create/detail/edit + validation | PASS — browser otomatis terpisah: nama saja/field lengkap, telepon huruf ditolak, isian dipertahankan, edit/kosongkan opsional; batas lain di suite PHP / Isolated automated browser flows; remaining boundaries covered by PHP |
+| Pencarian + pagination / Search + pagination | PASS — browser otomatis: nama case-insensitive, `%_` literal, 20+1 baris; edge case lain di suite PHP / Automated browser checks; other edge cases covered by PHP |
+| Role owner/kasir/mekanik / Owner/cashier/mechanic | PASS — browser otomatis: owner/kasir tambah-edit; mekanik lihat, form tulis 403 / Automated browser role checks |
+| Isolasi A/B + pergantian bengkel / A/B isolation + switching | PASS — browser otomatis: detail A/B 404 dua arah dan form edit lama 404 sesudah ganti bengkel / Bidirectional tenant denial and stale-form rejection |
+| UI HP/desktop + tanpa hapus / Mobile/desktop + no deletion | PASS — Edge otomatis 1280×900 dan 390×844, tanpa overflow/error JS; DELETE ditolak di suite PHP / Automated Edge layouts and PHP deletion denial |
+| Suite lokal (opsional) / Local suite (optional) | PASS — PHP 8.4.26 + PostgreSQL 18.6, 221 tes / 1.073 assertion; Pint, validasi/audit Composer, kompilasi Blade lolos / All checks passed |
+| Cek user pada akun aplikasi / User checks on application accounts | Tetap kosong sampai dicoba; hasil otomatis menggunakan data testing terpisah / Remain unchecked until tried on application accounts |
+| SMTP nyata / Real SMTP | Tidak diuji ulang; hasil historis user tetap dipertahankan / Not retested; historical user results preserved |
 
 ## 7. Record results / Catat hasil
 

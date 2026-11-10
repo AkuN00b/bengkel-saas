@@ -156,9 +156,17 @@ class WorkshopMembershipTest extends TestCase
     public function test_memberships_prevent_silent_parent_deletion(string $parent): void
     {
         $membership = WorkshopMembership::factory()->create();
-        $this->expectException(QueryException::class);
-        $this->expectExceptionCode('23503');
-        $membership->{$parent}->delete();
+
+        try {
+            DB::transaction(fn () => $membership->{$parent}->delete());
+            $this->fail('A parent with an existing membership must not be deleted.');
+        } catch (QueryException $exception) {
+            $this->assertContains((string) $exception->getCode(), ['23503', '23001']);
+        }
+
+        $this->assertDatabaseHas('users', ['id' => $membership->user_id]);
+        $this->assertDatabaseHas('workshops', ['id' => $membership->workshop_id]);
+        $this->assertDatabaseHas('workshop_user', ['id' => $membership->id]);
     }
 
     public static function parentModels(): array
