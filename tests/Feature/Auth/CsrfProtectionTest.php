@@ -27,4 +27,19 @@ class CsrfProtectionTest extends TestCase
         $this->put('/work-orders/1/mechanic', [])->assertStatus(419);
         $this->patch('/mechanics/1/activation', [])->assertStatus(419);
     }
+
+    public function test_catalog_inventory_and_work_order_line_mutations_require_csrf(): void
+    {
+        $this->app->detectEnvironment(fn () => 'local');
+        foreach (['/services', '/spare-parts', '/spare-parts/1/movements', '/spare-parts/1/usages/1/returns',
+            '/work-orders/1/services', '/work-orders/1/services/1/cancel', '/work-orders/1/parts', '/work-orders/1/parts/1/cancel', '/work-orders/1/parts/1/use', '/work-orders/1/parts/1/returns'] as $url) {
+            $this->post($url)->assertStatus(419);
+        }
+        $this->put('/services/1')->assertStatus(419);
+        $this->put('/spare-parts/1')->assertStatus(419);
+        $this->patch('/services/1/activation')->assertStatus(419);
+        $this->patch('/spare-parts/1/activation')->assertStatus(419);
+        $this->put('/work-orders/1/services/1')->assertStatus(419);
+        $this->put('/work-orders/1/parts/1')->assertStatus(419);
+    }
 }

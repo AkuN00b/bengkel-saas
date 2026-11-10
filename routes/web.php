@@ -4,11 +4,14 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MechanicController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\WorkOrderController;
+use App\Http\Controllers\WorkOrderItemController;
 use App\Http\Controllers\WorkshopSelectionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +42,26 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::post('/workshops/active', [WorkshopSelectionController::class, 'store'])->name('workshops.activate');
     Route::get('/dashboard', DashboardController::class)->middleware('active.workshop')->name('dashboard');
     Route::middleware('active.workshop')->group(function (): void {
+        foreach (['services', 'spare-parts'] as $catalogPrefix) {
+            Route::get('/'.$catalogPrefix, [CatalogController::class, 'index'])->name($catalogPrefix.'.index');
+            Route::get('/'.$catalogPrefix.'/create', [CatalogController::class, 'create'])->name($catalogPrefix.'.create');
+            Route::post('/'.$catalogPrefix, [CatalogController::class, 'store'])->name($catalogPrefix.'.store');
+            Route::get('/'.$catalogPrefix.'/{catalog}', [CatalogController::class, 'show'])->whereNumber('catalog')->name($catalogPrefix.'.show');
+            Route::get('/'.$catalogPrefix.'/{catalog}/edit', [CatalogController::class, 'edit'])->whereNumber('catalog')->name($catalogPrefix.'.edit');
+            Route::put('/'.$catalogPrefix.'/{catalog}', [CatalogController::class, 'update'])->whereNumber('catalog')->name($catalogPrefix.'.update');
+            Route::patch('/'.$catalogPrefix.'/{catalog}/activation', [CatalogController::class, 'activation'])->whereNumber('catalog')->name($catalogPrefix.'.activation');
+        }
+        Route::post('/spare-parts/{catalog}/movements', [StockController::class, 'store'])->whereNumber('catalog')->name('spare-parts.movements');
+        Route::post('/spare-parts/{catalog}/usages/{movement}/returns', [StockController::class, 'returns'])->whereNumber(['catalog', 'movement'])->name('spare-parts.returns');
+        foreach (['services', 'parts'] as $itemPrefix) {
+            Route::get('/work-orders/{work_order}/'.$itemPrefix.'/create', [WorkOrderItemController::class, 'create'])->whereNumber('work_order')->name('work-orders.'.$itemPrefix.'.create');
+            Route::post('/work-orders/{work_order}/'.$itemPrefix, [WorkOrderItemController::class, 'store'])->whereNumber('work_order')->name('work-orders.'.$itemPrefix.'.store');
+            Route::get('/work-orders/{work_order}/'.$itemPrefix.'/{line}/edit', [WorkOrderItemController::class, 'edit'])->whereNumber(['work_order', 'line'])->name('work-orders.'.$itemPrefix.'.edit');
+            Route::put('/work-orders/{work_order}/'.$itemPrefix.'/{line}', [WorkOrderItemController::class, 'update'])->whereNumber(['work_order', 'line'])->name('work-orders.'.$itemPrefix.'.update');
+            Route::post('/work-orders/{work_order}/'.$itemPrefix.'/{line}/cancel', [WorkOrderItemController::class, 'cancel'])->whereNumber(['work_order', 'line'])->name('work-orders.'.$itemPrefix.'.cancel');
+        }
+        Route::post('/work-orders/{work_order}/parts/{line}/use', [WorkOrderItemController::class, 'usePart'])->whereNumber(['work_order', 'line'])->name('work-orders.parts.use');
+        Route::post('/work-orders/{work_order}/parts/{line}/returns', [WorkOrderItemController::class, 'returnPart'])->whereNumber(['work_order', 'line'])->name('work-orders.parts.return');
         Route::get('/mechanics', [MechanicController::class, 'index'])->name('mechanics.index');
         Route::post('/mechanics', [MechanicController::class, 'store'])->name('mechanics.store');
         Route::post('/mechanics/{mechanic}/resend', [MechanicController::class, 'resend'])->whereNumber('mechanic')->middleware('throttle:password-requests')->name('mechanics.resend');

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderEvent;
+use App\Models\WorkOrderSparePart;
 use App\Models\Workshop;
 use App\Models\WorkshopMembership;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -96,6 +97,12 @@ class WorkOrders
                 Gate::forUser($actor)->authorize($action === 'cancel' ? 'cancel' : ($action === 'open' ? 'update' : 'process'), [$order, $workshop]);
                 $from = $order->status;
                 if ($action === 'cancel') {
+                    $planned = WorkOrderSparePart::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->where('status', 'planned');
+                    $cancelledPlans = (clone $planned)->count();
+                    $planned->update(['status' => 'cancelled', 'updated_at' => now('UTC')]);
+                    if ($cancelledPlans > 0) {
+                        WorkOrderItems::event($order, $actor, 'plans_cancelled', ['count' => $cancelledPlans]);
+                    }
                     $order->status = WorkOrderStatus::Cancelled;
                     $order->cancelled_at = now('UTC');
                     $order->cancellation_reason = $data['cancellation_reason'];
@@ -106,6 +113,9 @@ class WorkOrders
                     $order->status = WorkOrderStatus::InProgress;
                     $order->started_at = now('UTC');
                 } elseif ($action === 'complete' && $from === WorkOrderStatus::InProgress) {
+                    if (WorkOrderSparePart::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->where('status', 'planned')->exists()) {
+                        throw ValidationException::withMessages(['parts' => 'Masih ada spare part Rencana. Minta owner/kasir mengonfirmasi pemakaian atau membatalkan rencana sebelum menyelesaikan WO.']);
+                    }
                     $this->mechanic($workshop, $order->assigned_mechanic_id);
                     $order->status = WorkOrderStatus::Completed;
                     $order->completed_at = now('UTC');

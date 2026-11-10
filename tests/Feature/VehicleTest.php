@@ -111,6 +111,8 @@ class VehicleTest extends TestCase
         $customer = Customer::factory()->create();
         Vehicle::factory()->create(['workshop_id' => $customer->workshop_id, 'customer_id' => $customer->id]);
         $orders = require database_path('migrations/2026_11_10_110000_create_work_orders.php');
+        $inventory = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
+        $inventory->down();
         $orders->down();
         $migration = require database_path('migrations/2026_11_10_000000_create_vehicles_table.php');
         $migration->down();
@@ -119,6 +121,7 @@ class VehicleTest extends TestCase
         $this->assertDatabaseHas('workshops', ['id' => $customer->workshop_id]);
         $migration->up();
         $orders->up();
+        $inventory->up();
         $this->assertTrue(Schema::hasTable('vehicles'));
         $this->assertTrue(Vehicle::factory()->create(['workshop_id' => $customer->workshop_id])->exists);
     }

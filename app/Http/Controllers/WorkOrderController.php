@@ -6,6 +6,8 @@ use App\Actions\WorkOrders;
 use App\Enums\WorkOrderStatus;
 use App\Http\Requests\WorkOrderRequest;
 use App\Models\WorkOrder;
+use App\Models\WorkOrderService;
+use App\Models\WorkOrderSparePart;
 use App\Models\WorkshopMembership;
 use App\Support\PlateNumber;
 use Illuminate\Support\Facades\Gate;
@@ -61,6 +63,10 @@ class WorkOrderController extends Controller
         }
 
         return view('work-orders.show', ['activeWorkshop' => $workshop, 'order' => $order->load(['vehicle', 'customer']),
+            'serviceLines' => WorkOrderService::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->orderBy('id')->paginate(10, ['*'], 'services_page')->withQueryString(),
+            'partLines' => WorkOrderSparePart::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->with('catalog')
+                ->withSum(['movements as returned_quantity' => fn ($q) => $q->where('type', 'work_order_return')], 'quantity')
+                ->orderBy('id')->paginate(10, ['*'], 'parts_page')->withQueryString(),
             'mechanics' => $mechanics, 'events' => $order->events()->with('actor:id,name')->orderByDesc('id')->paginate(10, ['*'], 'events_page')->withQueryString()]);
     }
 

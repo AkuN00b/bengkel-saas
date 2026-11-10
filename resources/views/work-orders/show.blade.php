@@ -46,9 +46,12 @@
             @if (!$order->status->isActive())<p class="text-sm text-slate-600">WO ini sudah final. Gunakan WO baru untuk pekerjaan lanjutan.</p>@endif
         </section>
     </div>
+    @include('work-orders._items')
     <section class="mt-8"><h2 class="text-xl font-bold">Riwayat pekerjaan</h2><ol class="mt-4 space-y-3">
         @foreach ($events as $event)<li class="rounded-xl border border-slate-200 bg-white p-4 text-sm">
-            <p class="font-semibold">{{ match($event->type) { 'created' => 'WO dibuat', 'status_changed' => 'Status berubah', 'mechanic_assigned' => 'Penugasan mekanik', 'details_changed' => 'Detail diperbarui', default => 'Perubahan WO' } }}</p>
+            <p class="font-semibold">{{ match($event->type) { 'created' => 'WO dibuat', 'status_changed' => 'Status berubah', 'mechanic_assigned' => 'Penugasan mekanik', 'details_changed' => 'Detail diperbarui', 'service_changed'=>'Jasa diperbarui', 'part_changed'=>'Rencana/harga barang diperbarui', 'work_order_usage'=>'Pemakaian barang dicatat', 'work_order_return'=>'Retur barang dicatat', 'plans_cancelled'=>'Sisa rencana barang dibatalkan', default => 'Perubahan WO' } }}</p>
+            @if (isset($event->details['name']))<p class="mt-1 break-words">{{ $event->details['name'] }}</p>@endif
+            @if (isset($event->details['before']['unit_price'], $event->details['after']['unit_price']) && $event->details['before']['unit_price'] !== $event->details['after']['unit_price'])<p class="mt-1 text-sm">Harga Rp {{ \App\Support\Rupiah::format($event->details['before']['unit_price']) }} → Rp {{ \App\Support\Rupiah::format($event->details['after']['unit_price']) }}</p>@endif
             @if ($event->type === 'status_changed')<p class="mt-1">{{ \App\Enums\WorkOrderStatus::from($event->details['from'])->label() }} → {{ \App\Enums\WorkOrderStatus::from($event->details['to'])->label() }}</p>@endif
             @if ($event->type === 'mechanic_assigned')<p class="mt-1 break-words">{{ $event->details['name'] ?? 'Penugasan dilepas' }}</p>@endif
             <p class="mt-2 break-words text-slate-500">{{ $event->actor->name }} · {{ $event->created_at->timezone($activeWorkshop->timezone)->format('d/m/Y H:i') }}</p>
