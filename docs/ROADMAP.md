@@ -13,13 +13,13 @@ It is a planning document, not authorization to implement every listed task auto
 
 Only implement the task explicitly requested.
 
-### Current checkpoint / Posisi saat ini — 2026-11-09
+### Current checkpoint / Posisi saat ini — 2026-11-10
 
 | Steps / Langkah | Status | Detail |
 | --- | --- | --- |
 | F01–F08 — Foundation | Complete for implemented scope; laptop results tracked separately / Selesai untuk scope yang tersedia; hasil laptop dicatat terpisah | [Foundation review / Review Foundation](FOUNDATION_REVIEW.md); tag `f08-foundation-hardening-v1` |
-| C01 — Customer Management | Implemented; cloud validation passes, laptop checks pending / Diimplementasikan; validasi cloud lolos, tes laptop belum dikonfirmasi | [Sprint 1 progress / Progres Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md); target `c01-customer-management-v1` |
-| C02–C03 — Vehicle + UX | Planned; not implemented / Direncanakan; belum diimplementasikan | [Sprint 1 implementation plan / Rencana implementasi Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md) |
+| C01–C03 — Customers + Vehicles / Pelanggan + Kendaraan | Implemented, local automated checks passed / Diimplementasikan, tes otomatis lokal lolos | [Sprint 1 progress / Progres Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md); tags `c02-vehicle-management-v1`, `c03-customer-vehicle-ux-v1` |
+| W01–W03 + mechanic accounts / Akun mekanik | Sprint 2 package implemented; acceptance tracked separately / Paket Sprint 2 diimplementasikan; penerimaan dicatat terpisah | [Sprint 2](SPRINT_2_WORK_ORDERS.md); release tag `sprint-2-work-orders-v1`; [testing](MANUAL_TESTING.md#sprint-2--wo-dan-mekanik) |
 
 **EN:** This roadmap remains the source of phase order and scope. The linked Sprint 1 document expands C01–C03 into implementation steps, testing criteria, and decisions to settle before coding. Recording the plan does not authorize implementing the features.
 
@@ -426,6 +426,10 @@ Optimize for mobile repeat-visit workflow.
 STOP. Sprint 1 ends.
 
 ## 16. Sprint 2 — Work Order + Mechanic
+
+**ID — Scope paket disetujui:** W01–W03 dikerjakan sekaligus beserta akun mekanik minimal. Implementasi mencakup nomor per bengkel, satu WO aktif per kendaraan, snapshot, riwayat append-only, pemeriksaan versi, lifecycle final, serta penonaktifan membership. Detail keputusan dan hasil ada di [Sprint 2](SPRINT_2_WORK_ORDERS.md). STOP per subtask di bawah digantikan izin paket ini; tetap berhenti sebelum Sprint 3.
+
+**EN — Approved package:** W01–W03 are implemented together with minimal mechanic onboarding, tenant-local numbering, one active WO per vehicle, snapshots, append-only history, versions, final lifecycle states, and membership deactivation. See [Sprint 2](SPRINT_2_WORK_ORDERS.md). This package approval supersedes the individual STOP boundaries below; execution still stops before Sprint 3.
 
 ### W01 — Work Order Foundation
 

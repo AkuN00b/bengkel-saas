@@ -1,14 +1,22 @@
 # BengkelOS
 
-**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation F01–F08 and Sprint 1 C01–C03 are implemented: workshop-scoped customers, vehicles, and plate lookup.
+**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, Sprint 1 customers/vehicles, and Sprint 2 W01–W03 work orders with mechanic onboarding are implemented.
 
-**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation F01–F08 dan Sprint 1 C01–C03 tersedia: pelanggan, kendaraan, dan pencarian pelat sesuai bengkel.
+**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, Sprint 1 pelanggan/kendaraan, serta Sprint 2 W01–W03 perintah kerja dan akun mekanik sudah tersedia.
 
 ## Stack
 
 PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PHPUnit 12.
 
 ## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
+
+**ID — Sprint 2:** Cari kendaraan → buat WO → Antre → tugaskan mekanik → Dikerjakan → Selesai/batal. Owner mengelola akun mekanik dan pembatalan; kasir mengelola WO aktif; mekanik memproses tugas sendiri. Selesai pekerjaan belum berarti lunas. Ikuti [keputusan Sprint 2](docs/SPRINT_2_WORK_ORDERS.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-2--wo-dan-mekanik). Migration baru mempertahankan data lama. Penerimaan manual user dan SMTP asli tetap terpisah dari tes otomatis.
+
+**EN — Sprint 2:** Find vehicle → create WO → queue → assign → start → complete/cancel. Owners manage mechanic accounts and cancellations; cashiers manage active WOs; mechanics process their own assignments. Completion does not imply payment. See [Sprint 2 decisions](docs/SPRINT_2_WORK_ORDERS.md) and the [latest checklist](docs/MANUAL_TESTING.md#sprint-2--wo-dan-mekanik). New migrations preserve existing data. Manual acceptance and real SMTP delivery remain separate from automation.
+
+**ID — Validasi Sprint 2:** 335 tes / 1.813 assertion, 3 tes JavaScript, Pint, Composer validation, kompilasi Blade, build, dan browser desktop/HP lolos. Total 12 migration Ran. Tag: `sprint-2-work-orders-v1`.
+
+**EN — Sprint 2 validation:** 335 tests / 1,813 assertions, 3 JavaScript tests, Pint, Composer validation, Blade compilation, build, and desktop/mobile browser checks passed. All 12 migrations ran. Tag: `sprint-2-work-orders-v1`.
 
 **ID:** Untuk urutan tes mandiri setelah merge F05, mulai dari [checklist ringkas laptop](docs/MANUAL_TESTING.md#0-start-here-after-f05-merge--mulai-dari-sini-setelah-merge-f05): persiapan, registrasi owner/trial, login/logout, email reset nyata, dan pencatatan hasil.
 

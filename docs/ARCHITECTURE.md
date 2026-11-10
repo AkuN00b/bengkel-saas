@@ -142,6 +142,10 @@ If membership is revoked or the workshop is invalid:
 
 Workshop switching must verify membership before updating the session.
 
+**ID — Sprint 2:** Membership valid juga harus `workshop_user.is_active = true`. Relasi biasa, resolver, pemilihan bengkel, dan pemeriksaan role memfilter keaktifan dari database. Penonaktifan hanya memengaruhi bengkel terkait. Akun mekanik baru dengan `needs_password_setup` belum dapat login atau ditugaskan; flag dibersihkan hanya setelah password broker menerima token sah.
+
+**EN — Sprint 2:** Valid membership also requires `workshop_user.is_active = true`. Ordinary relationships, context resolution, workshop selection, and role checks read active membership from the database. Deactivation is workshop-local. New mechanics with `needs_password_setup` cannot log in or be assigned; only successful broker password setup clears the flag.
+
 ### F06 implementation / Implementasi F06
 
 **EN:** `ResolveActiveWorkshop` runs after authentication/session-hash verification on the dashboard. It discards any existing request attribute, verifies a positive session ID through the user's database relationship, and binds only the verified Workshop to the current request as `activeWorkshop`. If no selection exists, it checks at most two memberships and auto-activates exactly one. Invalid/revoked context is cleared, with no fallback to another tenant in that request. HTML requests go to the selection page; JSON receives 403. Zero memberships do not provision data or grant access.
@@ -283,6 +287,10 @@ Normal flow:
 Status transitions must be controlled business operations.
 
 `completed` is not equivalent to `paid`.
+
+**ID — Sprint 2 diimplementasikan:** `WorkOrders` menangani operasi bisnis atomik dalam monolit, dengan Form Requests dan Policies pada resource `/work-orders` serta endpoint khusus transisi/penugasan. Semua penulisan mengunci workshop lalu record terkait dan memeriksa versi. Nomor, WO, dan event append-only disimpan atomik; constraint PostgreSQL melindungi tenant, nomor, serta satu WO aktif per kendaraan. Snapshot penerimaan/penugasan mempertahankan arti riwayat. Final tidak dapat diedit/dibuka kembali. Owner mengelola akun mekanik melalui `/mechanics`; email setup dikirim setelah transaksi akun berhasil. Lihat [keputusan Sprint 2](SPRINT_2_WORK_ORDERS.md).
+
+**EN — Sprint 2 implemented:** `WorkOrders` coordinates atomic business operations within the monolith, with Form Requests and Policies on `/work-orders` and dedicated transition/assignment endpoints. Writes lock the workshop before related records and check versions. Number allocation, WO updates, and append-only events commit together; PostgreSQL enforces tenant references, numbering, and one active WO per vehicle. Receipt/assignment snapshots preserve historical meaning. Final records cannot be edited or reopened. Owners manage mechanic accounts at `/mechanics`; setup mail is sent after the account transaction commits. See [Sprint 2 decisions](SPRINT_2_WORK_ORDERS.md).
 
 ## 20. Customer & Vehicle Architecture / Arsitektur Customer & Vehicle
 

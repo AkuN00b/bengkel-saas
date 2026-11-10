@@ -2,9 +2,73 @@
 
 > Reviewed / Ditinjau: 2026-11-10
 
-**ID — Versi terbaru C02/C03:** Kendaraan dan alur pencarian pelat selesai diimplementasikan pada 10 November. Mulai dari [checklist C02/C03](#c02c03-laptop-follow-up--pemeriksaan-laptop-c02c03). Persiapan lokal, 10 migration, suite penuh, dan browser otomatis sudah diverifikasi di sana. Centang historis dari versi sebelumnya tetap dipertahankan; tes user dan SMTP nyata tidak dianggap otomatis lolos.
+**ID — Versi terbaru Sprint 2:** W01–W03 dan akun mekanik sudah tersedia. Mulai dari [checklist WO dan mekanik](#sprint-2--wo-dan-mekanik). Hasil otomatis, browser sintetis, SMTP asli, dan penerimaan manual user dicatat terpisah. Bagian C02/C03 serta foundation di bawah merupakan catatan historis.
 
-**EN — Latest C02/C03 version:** Vehicles and plate lookup were implemented on November 10. Start with the [C02/C03 checklist](#c02c03-laptop-follow-up--pemeriksaan-laptop-c02c03). Local preparation, 10 migrations, the full suite, and automated browser tests are verified there. Earlier historical checks are preserved; user and real SMTP checks are not inferred to pass.
+**EN — Latest Sprint 2 version:** W01–W03 and mechanic onboarding are available. Start with the [WO and mechanic checklist](#sprint-2--wo-dan-mekanik). Automation, synthetic browser checks, real SMTP, and user acceptance are tracked separately. C02/C03 and foundation entries below remain historical.
+
+## Sprint 2 — WO dan Mekanik
+
+**ID:** Jalankan Herd dan PostgreSQL untuk membuka aplikasi. Build frontend yang sudah tersedia tidak memerlukan `npm run dev`. Setelah menerima versi baru di laptop lain, gunakan perintah berikut dari folder project di PowerShell. Tidak perlu `migrate:fresh`, seed ulang data aplikasi, atau membuat akun mekanik melalui pgAdmin.
+
+**EN:** Run Herd and PostgreSQL to open the app. An existing production frontend build does not require `npm run dev`. On another laptop after receiving this release, use these commands from the project directory in PowerShell. Do not reset migrations or reseed application data; mechanic accounts are created through the UI.
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+git show --no-patch --oneline sprint-2-work-orders-v1
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+### Automated local verification / Verifikasi otomatis lokal
+
+- [x] Dua migration Sprint 2 Ran; 12 migration total di database aplikasi. Jumlah record lama sebelum/sesudah upgrade sama: users 4, workshops 2, memberships 2, plans 3, subscriptions 2, customers 0, vehicles 0. / Two Sprint 2 migrations ran, 12 total; existing record counts were unchanged.
+- [x] Constraint tenant, nomor unik, satu kendaraan aktif, lifecycle, event append-only, serta rollback/upgrade diverifikasi pada PostgreSQL testing. / Tenant constraints, numbering, active-vehicle uniqueness, lifecycle, append-only events, and rollback/upgrade verified on test PostgreSQL.
+- [x] Suite penuh akhir **335 tes / 1.813 assertion** lolos, termasuk regresi foundation/C01–C03, akses role, token setup, SMTP gagal/kirim ulang, log-mailer guard, CSRF, form stale, snapshot, dan concurrency dengan proses PHP/koneksi PostgreSQL terpisah. / Final full suite passed: **335 tests / 1,813 assertions**, including regressions, roles, setup tokens, SMTP failure/retry, log-mailer guard, CSRF, stale forms, snapshots, and independent-process PostgreSQL concurrency.
+- [x] **3 tes JavaScript**, Pint seluruh project, Composer validation strict, kompilasi Blade, dan build Vite lolos. / **3 JavaScript tests**, project-wide Pint, strict Composer validation, Blade compilation, and Vite build passed.
+- [x] Browser Edge otomatis desktop **1280×900** dan HP **390×844** pada server terpisah `127.0.0.1:8011`: owner Draft/edit/terima/penugasan/batal, mekanik mulai/selesai, kasir buat/tugaskan/mulai/selesai, pembuatan sandi mekanik, tambah akun/kirim ulang/aktivasi, pagination, IDOR, versi stale, pergantian bengkel, dan menu HP lolos. Tidak ada error JavaScript atau overflow horizontal. / Automated Edge desktop/mobile flows passed for all three roles, onboarding, activation, pagination, IDOR, concurrency conflicts, workshop switches, and mobile navigation; no JavaScript errors or horizontal overflow.
+- [x] Herd menyajikan BengkelOS melalui Nginx dengan HTTP 200 pada `http://bengkel-saas.test`. / Herd serves the actual BengkelOS page through Nginx with HTTP 200.
+
+**ID:** Angka di atas hanya bukti pemeriksaan 10 November, bukan data contoh yang ditambahkan ke akun aplikasi. Database otomatis bernama `bengkel_saas_testing`; data aplikasi tidak di-reset. Rincian implementasi ada di [Sprint 2](SPRINT_2_WORK_ORDERS.md).
+
+**EN:** These counts record November 10 verification and are not sample data added to application accounts. Automation uses `bengkel_saas_testing`; application data was not reset. See [Sprint 2](SPRINT_2_WORK_ORDERS.md) for implementation details.
+
+### User acceptance and real SMTP / Penerimaan user dan SMTP asli
+
+**ID:** Semua kotak di bagian ini sengaja kosong sampai lu mencoba dan mengonfirmasi hasilnya. Gunakan data uji yang mudah dikenali dan email yang lu kuasai. Untuk perbandingan role kasir, gunakan akun uji kasir yang sudah tersedia; Sprint 2 hanya menyediakan pembuatan akun mekanik. Tes role kasir otomatis memakai akun sintetis di database testing.
+
+**EN:** These boxes remain empty until the user performs and confirms the checks. Use recognizable test records and email accounts you control. Cashier acceptance requires an existing test cashier; Sprint 2 only adds mechanic account creation. Automated cashier checks use synthetic users in the test database.
+
+- [ ] Owner: buka **Mekanik → Tambah mekanik**, isi nama dan email yang belum terdaftar. Akun tampil **Menunggu pembuatan sandi**; email masuk inbox asli. / Create a new mechanic; verify pending status and real-inbox delivery.
+- [ ] Buka tautan email, buat sandi, lalu login sebagai mekanik. Link lama tidak dapat dipakai ulang. Sebelum sandi dibuat, akun tidak bisa login atau ditugaskan. / Complete setup, log in, and confirm single use and pending-account restrictions.
+- [ ] Coba email yang sudah terdaftar; akun tidak ditautkan atau diduplikasi. Kirim ulang tautan dibatasi sementara. / Existing email is rejected without linking; resend is throttled.
+- [ ] Owner/kasir: cari kendaraan, buka detail lalu **Buat WO**. Pelanggan awal mengikuti kendaraan; bisa diganti atau dilepas sebelum diterima. / Start from a vehicle and check default/changeable/optional customer.
+- [ ] **Simpan draft**, ubah kendaraan/pelanggan dan keluhan/catatan, lalu **Terima pekerjaan**. Setelah Antre, kendaraan/pelanggan tidak bisa diganti; catatan masih bisa diperbaiki. / Save/edit a draft, receive it, and verify the edit boundary.
+- [ ] Coba buat WO kedua untuk kendaraan yang masih aktif; ditolak. Detail kendaraan menyediakan **Buka WO aktif**. / Duplicate active work is blocked and vehicle details link to it.
+- [ ] Mulai WO tanpa mekanik; ditolak dengan pesan jelas. Tugaskan mekanik aktif yang sudah membuat sandi; **Mulai pekerjaan** berhasil. / Starting requires a ready, active, assigned mechanic.
+- [ ] Mekanik: daftar hanya menampilkan tugas sendiri; bisa mulai/menyelesaikan, tanpa tombol edit detail, penugasan, batal, atau menu pengelolaan Mekanik. / Mechanics see/process only their assignments and have no management actions.
+- [ ] Owner/kasir: ganti mekanik saat Dikerjakan; mekanik lama kehilangan akses WO tersebut dan mekanik baru dapat melanjutkan. Tidak dapat melepas mekanik tanpa pengganti saat Dikerjakan. / Reassign in-progress work and verify access switches.
+- [ ] Owner: penonaktifan mekanik dengan WO aktif ditolak. Setelah dialihkan/dibatalkan, nonaktifkan; akses bengkel ini terputus, riwayat tetap ada. Aktifkan lagi untuk memulihkan akses. / Deactivation requires resolving active assignments and preserves history.
+- [ ] Selesaikan WO. Semua tindakan ubah/penugasan/batal hilang; pekerjaan lanjutan memakai WO baru. Selesai tidak menampilkan status lunas. / Completed work is final; follow-up uses a new WO and implies no payment.
+- [ ] Owner: batalkan Draft/Antre/Dikerjakan dengan alasan. Alasan wajib dan hasil final. Kasir/mekanik tidak boleh membatalkan. / Verify owner-only cancellation and mandatory reason.
+- [ ] Ubah master kendaraan/pelanggan/mekanik sesudah penerimaan/penugasan; snapshot penerimaan dan riwayat penugasan lama tetap benar. / Master edits do not rewrite receipt/assignment snapshots.
+- [ ] Buka WO dalam dua tab, simpan perubahan di satu tab, lalu kirim form lama: konflik jelas tanpa menimpa. Ganti bengkel di tab lain: form sebelumnya ditolak dan menyediakan tautan muat ulang. / Verify stale-version and switched-workshop conflicts.
+- [ ] Daftar: filter aktif/semua/status final, pencarian nomor/pelat, pagination daftar serta riwayat berjalan. Tanggal tampil sesuai timezone bengkel. / Check filters, search, pagination, and workshop-timezone dates.
+- [ ] HP/desktop: form, tombol, menu, pencarian pelanggan, dan riwayat nyaman dipakai tanpa melebar. / Check real-device usability and horizontal overflow.
+- [ ] SMTP asli: coba tautan kedaluwarsa (>60 menit), kirim ulang, serta reset sandi akun lama. Jangan kirim sandi, token, atau isi `.env` ke chat/Git. / Verify expiry, resend, and existing-account resets with real SMTP.
+
+**ID:** Selesai paket ini, berhenti sebelum Sprint 3. Tidak ada jasa, spare part, stok, invoice, pembayaran, komisi, atau laporan operasional dalam rilis ini.
+
+**EN:** Stop after this package, before Sprint 3. This release does not include services, parts, stock, invoices, payments, commissions, or operational reports.
+
+**ID — Catatan historis C02/C03:** Kendaraan dan alur pencarian pelat selesai diimplementasikan pada 10 November. [Checklist C02/C03](#c02c03-laptop-follow-up--pemeriksaan-laptop-c02c03) mencatat persiapan lokal, 10 migration, suite penuh, dan browser otomatis versi tersebut. Centang historis dipertahankan; tes user dan SMTP nyata tidak dianggap otomatis lolos.
+
+**EN — Historical C02/C03 record:** Vehicles and plate lookup were implemented on November 10. The [C02/C03 checklist](#c02c03-laptop-follow-up--pemeriksaan-laptop-c02c03) records local preparation, 10 migrations, the full suite, and browser checks for that version. Historical checks are preserved; user and real SMTP checks are not inferred to pass.
 
 **ID — Verifikasi lokal C01, 10 November:** Codex memeriksa `3fa9bfb` beserta perbaikan koneksi UTC dan tes constraint PostgreSQL 18. Dependency, 9 migration Ran, build, 221 tes / 1.073 assertion, Pint, validasi/audit Composer, kompilasi Blade, dan browser Edge otomatis desktop/HP lolos. Detail ada di [bagian C01](#c01-laptop-follow-up--pemeriksaan-laptop-c01). Catatan lama di bawah tetap historis. Browser otomatis memakai server terpisah `127.0.0.1:8011` dan database `bengkel_saas_testing`, bukan data akun aplikasi. SMTP nyata tidak diuji ulang.
 
