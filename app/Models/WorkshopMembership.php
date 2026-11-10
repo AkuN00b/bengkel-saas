@@ -21,7 +21,7 @@ class WorkshopMembership extends Pivot
 
     protected function casts(): array
     {
-        return ['role' => WorkshopRole::class];
+        return ['role' => WorkshopRole::class, 'is_active' => 'boolean', 'version' => 'integer'];
     }
 
     /** @return BelongsTo<User, $this> */

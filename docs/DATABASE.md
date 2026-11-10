@@ -441,7 +441,11 @@ Work Order cancellation does not automatically restore used stock.
 
 ## 23. Work Orders
 
-Conceptual fields:
+**ID — Sprint 2, 2026-11-10:** Diimplementasikan bersama [W01–W03 dan akun mekanik](SPRINT_2_WORK_ORDERS.md). Dua migration menambah `users.needs_password_setup` (default false), `workshop_user.is_active` (default true), `workshop_user.version` (default 1), serta `workshops.next_work_order_number` (default 1). Default mempertahankan akses akun lama. Relasi membership biasa mengabaikan membership nonaktif; daftar pengelolaan owner dapat melihatnya secara eksplisit.
+
+**EN — Sprint 2, 2026-11-10:** Implemented with [W01–W03 and mechanic accounts](SPRINT_2_WORK_ORDERS.md). Two migrations add `users.needs_password_setup` (default false), `workshop_user.is_active` (default true), `workshop_user.version` (default 1), and `workshops.next_work_order_number` (default 1). Defaults preserve existing access. Ordinary membership relations ignore inactive memberships; the owner management list explicitly includes them.
+
+Implemented fields / Field yang diimplementasikan:
 
     work_orders
     -----------
@@ -454,6 +458,12 @@ Conceptual fields:
     status
     complaint NULLABLE
     notes NULLABLE
+    plate_number_snapshot NULLABLE
+    customer_name_snapshot NULLABLE
+    customer_phone_snapshot NULLABLE
+    mechanic_name_snapshot NULLABLE
+    cancellation_reason NULLABLE
+    version DEFAULT 1
     opened_at NULLABLE
     started_at NULLABLE
     completed_at NULLABLE
@@ -476,6 +486,26 @@ Approved states:
 - completed
 - cancelled
 
+**ID:** FK gabungan `(workshop_id, vehicle_id)` dan `(workshop_id, customer_id)` membatasi referensi sesuai tenant. Referensi mekanik/aktor memakai FK user dengan penghapusan dibatasi agar riwayat dipertahankan. Unique `(workshop_id, number)` dan partial unique `(workshop_id, vehicle_id)` untuk Draft/Antre/Dikerjakan ditegakkan PostgreSQL. Index daftar `(workshop_id, status, id)`, penugasan `(workshop_id, assigned_mechanic_id, status)`, dan pelanggan `(workshop_id, customer_id)` mengikuti query aplikasi. Constraint memeriksa versi positif serta konsistensi status/timestamp.
+
+**EN:** Composite vehicle/customer FKs enforce tenant references. Mechanic/actor user FKs restrict deletion to preserve history. PostgreSQL enforces unique workshop numbers and a partial unique vehicle/workshop index for draft/open/in-progress WOs. List, assignment, and customer indexes follow application queries. Checks enforce positive versions and lifecycle timestamp consistency.
+
+### Work order events / Riwayat WO
+
+    work_order_events
+    -----------------
+    id
+    workshop_id
+    work_order_id
+    actor_id
+    type
+    details JSONB
+    created_at TIMESTAMPTZ
+
+**ID:** FK gabungan ke WO memastikan tenant riwayat konsisten. Event pembuatan, status, penugasan, dan perubahan detail ditulis atomik bersama WO. Trigger PostgreSQL menolak UPDATE/DELETE event. Tidak ada endpoint ubah/hapus riwayat. Index `(work_order_id, id)` mendukung riwayat berhalaman. Timestamp lifecycle dan riwayat UTC, ditampilkan memakai timezone bengkel.
+
+**EN:** A composite WO FK keeps event tenancy consistent. Creation, status, assignment, and detail events are written atomically with the WO. PostgreSQL triggers reject event updates/deletions; no mutation endpoints exist. `(work_order_id, id)` supports paginated history. Lifecycle/event timestamps use UTC and display in workshop timezones.
+
 ## 24. Work Order Number / Nomor WO
 
 Database ID and human-readable Work Order number are separate.
@@ -484,7 +514,9 @@ Potential tenant-local constraint:
 
     UNIQUE(workshop_id, number)
 
-Keep numbering simple.
+**ID:** Counter workshop dikunci sebelum alokasi nomor `WO-000001`, bertambah tanpa reset tanggal. Nomor, WO, dan event disimpan dalam satu transaksi. WO final tetap disimpan; nomor tidak dipakai ulang. Urutan lock operasi WO dan aktivasi mekanik selalu workshop terlebih dahulu, kemudian record terkait. Mutasi memakai versi untuk menolak form kedaluwarsa.
+
+**EN:** The workshop counter is locked before allocating `WO-000001` numbers, with no date resets. Number allocation, WO, and events share a transaction. Final WOs remain stored and their numbers are never reused. WO and mechanic activation mutations lock the workshop before related records and use versions to reject stale forms.
 
 ## 25. Work Order State Integrity / Integritas Status WO
 

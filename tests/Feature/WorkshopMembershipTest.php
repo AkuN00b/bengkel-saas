@@ -190,6 +190,8 @@ class WorkshopMembershipTest extends TestCase
     {
         $membership = WorkshopMembership::factory()->create();
         $adminMigration = require database_path('migrations/2026_10_31_000002_add_is_super_admin_to_users_table.php');
+        $accounts = require database_path('migrations/2026_11_10_100000_add_mechanic_account_state.php');
+        $accounts->down();
         $pivotMigration = require database_path('migrations/2026_10_31_000001_create_workshop_user_table.php');
         $adminMigration->down();
         $pivotMigration->down();
@@ -198,6 +200,7 @@ class WorkshopMembershipTest extends TestCase
 
         $pivotMigration->up();
         $adminMigration->up();
+        $accounts->up();
         $this->assertFalse(User::findOrFail($membership->user_id)->isSuperAdmin());
         $this->assertDatabaseCount('workshop_user', 0);
         $this->assertTrue(WorkshopMembership::factory()->create()->exists);

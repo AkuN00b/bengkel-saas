@@ -6,6 +6,10 @@
         Ringkasan
     </a>
     @if ($activeWorkshop)
+        <a href="{{ route('work-orders.index') }}" @if (request()->routeIs('work-orders.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('work-orders.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Perintah Kerja</a>
+        @can('viewAny', [\App\Models\WorkshopMembership::class, $activeWorkshop])
+            <a href="{{ route('mechanics.index') }}" @if (request()->routeIs('mechanics.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('mechanics.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Mekanik</a>
+        @endcan
         <a href="{{ route('customers.index') }}" @if (request()->routeIs('customers.*')) aria-current="page" @endif
            @class(['flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition', 'bg-emerald-400 text-slate-950' => request()->routeIs('customers.*'), 'text-slate-300 hover:bg-white/10 hover:text-white' => ! request()->routeIs('customers.*')])>
             <svg aria-hidden="true" class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg>
