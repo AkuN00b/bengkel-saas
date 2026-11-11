@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MechanicController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\VehicleController;
@@ -42,6 +43,17 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::post('/workshops/active', [WorkshopSelectionController::class, 'store'])->name('workshops.activate');
     Route::get('/dashboard', DashboardController::class)->middleware('active.workshop')->name('dashboard');
     Route::middleware('active.workshop')->group(function (): void {
+        Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+        Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+        Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->whereNumber('invoice')->name('invoices.show');
+        Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->whereNumber('invoice')->name('invoices.update');
+        Route::get('/invoices/{invoice}/print', [InvoiceController::class, 'print'])->whereNumber('invoice')->name('invoices.print');
+        foreach (['refresh', 'issue', 'void', 'pay'] as $invoiceAction) {
+            Route::post('/invoices/{invoice}/'.$invoiceAction, [InvoiceController::class, $invoiceAction])->whereNumber('invoice')->name('invoices.'.$invoiceAction);
+        }
+        Route::put('/invoices/{invoice}/items/{item}/price', [InvoiceController::class, 'price'])->whereNumber(['invoice', 'item'])->name('invoices.price');
+        Route::post('/invoices/{invoice}/payments/{payment}/reverse', [InvoiceController::class, 'reverse'])->whereNumber(['invoice', 'payment'])->name('invoices.reverse');
         foreach (['services', 'spare-parts'] as $catalogPrefix) {
             Route::get('/'.$catalogPrefix, [CatalogController::class, 'index'])->name($catalogPrefix.'.index');
             Route::get('/'.$catalogPrefix.'/create', [CatalogController::class, 'create'])->name($catalogPrefix.'.create');

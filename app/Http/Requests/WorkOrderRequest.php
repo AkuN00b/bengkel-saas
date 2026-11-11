@@ -26,7 +26,8 @@ class WorkOrderRequest extends FormRequest
                 'vehicle_id' => $reference('vehicles'), 'page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
                 'events_page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
                 'services_page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
-                'parts_page' => ['nullable', 'integer', 'min:1', 'max:1000000']];
+                'parts_page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
+                'invoices_page' => ['nullable', 'integer', 'min:1', 'max:1000000']];
         }
         $rules = ['workshop_context' => ['required', 'integer', Rule::in([$workshop->id])]];
         if (! $this->routeIs('work-orders.store')) {

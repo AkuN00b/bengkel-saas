@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\WorkOrders;
 use App\Enums\WorkOrderStatus;
 use App\Http\Requests\WorkOrderRequest;
+use App\Models\Invoice;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderService;
 use App\Models\WorkOrderSparePart;
@@ -63,6 +64,7 @@ class WorkOrderController extends Controller
         }
 
         return view('work-orders.show', ['activeWorkshop' => $workshop, 'order' => $order->load(['vehicle', 'customer']),
+            'invoices' => Gate::allows('viewAny', [Invoice::class, $workshop]) ? Invoice::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->latest('id')->paginate(10, ['*'], 'invoices_page')->withQueryString() : null,
             'serviceLines' => WorkOrderService::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->orderBy('id')->paginate(10, ['*'], 'services_page')->withQueryString(),
             'partLines' => WorkOrderSparePart::where('workshop_id', $workshop->id)->where('work_order_id', $order->id)->with('catalog')
                 ->withSum(['movements as returned_quantity' => fn ($q) => $q->where('type', 'work_order_return')], 'quantity')

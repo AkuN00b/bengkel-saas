@@ -36,7 +36,7 @@ class ApplicationShellTest extends TestCase
             ->assertSee($membership->workshop->name)->assertSee('Pemilik')->assertSee('Trial aktif')
             ->assertViewHas('trialDays', 13)->assertViewHas('subscription', fn ($value) => $value->is($subscription))
             ->assertSee(route('workshops.select'), false)->assertSee(route('logout'), false)
-            ->assertDontSee('href="#"', false)->assertSee(route('customers.index'), false)->assertDontSee('/invoices');
+            ->assertDontSee('href="#"', false)->assertSee(route('customers.index'), false)->assertSee(route('invoices.index'), false);
         $this->assertSame(SubscriptionStatus::Trialing, $subscription->fresh()->status);
     }
 

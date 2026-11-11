@@ -42,4 +42,14 @@ class CsrfProtectionTest extends TestCase
         $this->put('/work-orders/1/services/1')->assertStatus(419);
         $this->put('/work-orders/1/parts/1')->assertStatus(419);
     }
+
+    public function test_all_billing_mutations_require_csrf(): void
+    {
+        $this->app->detectEnvironment(fn () => 'local');
+        foreach (['/invoices', '/invoices/1/refresh', '/invoices/1/issue', '/invoices/1/void', '/invoices/1/pay', '/invoices/1/payments/1/reverse'] as $url) {
+            $this->post($url)->assertStatus(419);
+        }
+        $this->put('/invoices/1')->assertStatus(419);
+        $this->put('/invoices/1/items/1/price')->assertStatus(419);
+    }
 }
