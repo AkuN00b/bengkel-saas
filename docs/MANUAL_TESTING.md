@@ -2,9 +2,73 @@
 
 > Reviewed / Ditinjau: 2026-11-11
 
-**ID — Versi terbaru Sprint 4:** B01–B03 invoice dan pembayaran sudah tersedia. Mulai dari [checklist Sprint 4](#sprint-4--invoice-dan-pembayaran). Manual Sprint 2/3/4 tetap belum dikonfirmasi; centang otomatis di bawah hanya hasil pemeriksaan Codex.
+**ID — Versi terbaru Sprint 5:** Dashboard D01 dan laporan D02 tersedia. Mulai dari checklist ini. Manual Sprint 2–5 tetap belum dikonfirmasi; hasil otomatis bukan centang penerimaan user. Bagian Sprint 2–4 di bawah adalah arsip pemeriksaan rilis sebelumnya.
 
-**EN — Latest Sprint 4 version:** B01–B03 invoices/payments are available. Start with the [Sprint 4 checklist](#sprint-4--invoice-dan-pembayaran). Sprint 2/3/4 manual acceptance is unconfirmed; automated checks only record Codex verification.
+**EN — Latest Sprint 5 version:** D01 dashboards and D02 reports are available. Start here. Sprint 2–5 human acceptance remains unconfirmed; automated evidence does not check human-acceptance boxes. Older sprint sections preserve previous release evidence.
+
+## Sprint 5 — Dashboard dan Laporan
+
+**ID:** Nyalakan Herd dan PostgreSQL, buka `http://bengkel-saas.test`, lalu login sesuai role. Build sudah tersedia; tidak perlu npm run dev. Di laptop lain setelah menerima rilis, jalankan dari folder project:
+
+**EN:** Run Herd/PostgreSQL and log in with the appropriate role. Compiled assets do not require a development server. On another laptop after receiving this release, run from the project folder:
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+git show --no-patch --oneline sprint-5-dashboard-reports-v1
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+**ID:** Jangan jalankan migrate:fresh/reset/rollback/seed ulang pada database aplikasi. Hanya satu migration indeks baru; tidak ada tabel transaksi baru. Semua angka memakai catatan nyata, sehingga bengkel tanpa transaksi menampilkan nol.
+
+**EN:** Never reset, roll back, or reseed application data. This release adds one index migration and no transaction tables. Empty workshops correctly show zero rather than sample figures.
+
+### Automated Sprint 5 evidence / Bukti otomatis Sprint 5
+
+- [x] **419 tes / 2.732 assertion** pada suite penuh lolos, termasuk role/tenant/ID, membership dicabut/nonaktif, semua cutoff historis, koreksi lintas hari, snapshot master/retur, input tanggal, agregat di atas PHP_INT_MAX, dan perlindungan formula CSV. / Full suite passed **419 tests / 2,732 assertions**, including security, financial/time, exact-money, and snapshot regression cases.
+- [x] Proses PHP terpisah membuktikan REPEATABLE READ READ ONLY: pembacaan kedua tetap sama saat pembayaran/koreksi committed oleh proses lain; penulisan di transaksi laporan ditolak dan transaksi operasional tetap berjalan. / Independent-process tests verified consistent read-only snapshots during concurrent committed payment/reversal writes.
+- [x] Ekspor **205 WO** melewati batch 200 tanpa terpotong; pagination dan query history 5 vs 15 record tidak menambah query per baris. Migration indeks turun-naik mempertahankan record di database testing; EXPLAIN membuktikan kelayakan kelima indeks. / Streaming, pagination, N+1 checks, index round trips, and ordered-index eligibility passed on the disposable testing database.
+- [x] **3 tes JavaScript**, Pint seluruh project, Composer validation strict, kompilasi Blade, dan build Vite lolos. / **3 JavaScript tests**, whole-project Pint, strict Composer validation, Blade compilation, and Vite build passed.
+- [x] Edge desktop **1280×900** dan HP **390×844**: dashboard ketiga role, seluruh laporan, input cutoff/kronologi, CSV, A4/PDF, riwayat kendaraan, ID tenant, konteks bengkel lama, akses kasir, dan tugas mekanik lolos. Tidak ada page error JavaScript atau overflow halaman. / All-role desktop/mobile browser checks and CSV/A4/PDF passed without page errors or horizontal page overflow.
+- [x] Migration lokal baru Ran, total **15 migration**; semua jumlah record aplikasi sebelum/sesudah tetap sama. Tidak ada reset/seed database aplikasi. Herd/Nginx menyajikan BengkelOS HTTP 200. / All 15 local migrations ran with pre-existing counts unchanged, no application reseeding/reset, and the Herd/Nginx app responding successfully.
+
+**ID:** Browser memakai server terpisah `127.0.0.1:8011`, akun sintetis, `bengkel_saas_testing`, dan mail array. CSV/PDF uji berisi data sintetis. Server uji dihentikan dan file kredensial sementara dihapus. Hasil ini tidak membuktikan printer fisik, SMTP nyata, atau penerimaan manual user.
+
+**EN:** Browser verification used an isolated server, synthetic accounts/test database, and array mail. Test CSV/PDF files contain synthetic data. The test server was stopped and temporary credential file removed. Physical printing, real SMTP, and human acceptance remain separate.
+
+### User acceptance Sprint 5 / Penerimaan user Sprint 5
+
+**ID:** Kotak berikut sengaja kosong sampai lu mencoba dan mengonfirmasi. Gunakan akun/data uji yang mudah dikenali. Pembayaran/koreksi adalah pencatatan aplikasi, bukan transfer uang. Untuk skenario lintas hari, gunakan catatan pada hari berbeda; tidak ada form untuk memundurkan timestamp server.
+
+**EN:** Leave these unchecked until human confirmation. Use recognizable test accounts/data. Payment entries and corrections record transactions rather than moving money. Cross-day scenarios require records on different days; server timestamps cannot be backdated through the UI.
+
+- [ ] Owner: Dashboard menampilkan Draft/Antre/Dikerjakan, Selesai hari ini, pembayaran/koreksi/bersih, nilai invoice terbit/batal/bersih, jumlah dan sisa belum lunas, stok menipis, tren tujuh hari, serta tiga daftar lima record. Tautan kartu membuka filter yang sesuai. / Check all owner figures, lists, and links against actual records.
+- [ ] Kasir: hanya ringkasan operasional/jumlah belum lunas, tanpa agregat Rupiah. Invoice lama tetap dapat dibuka. Membuka URL laporan/CSV/cetak secara langsung ditolak. / Check cashier operational access and financial report denial.
+- [ ] Mekanik: hitungan dan riwayat hanya tugas sendiri; tidak melihat stok/invoice/pembayaran. Mencoba URL laporan atau ekspor riwayat ditolak. / Check mechanic assignment scope and denied financial/export access.
+- [ ] Bengkel kosong menampilkan nol/petunjuk. Perbarui memuat data terbaru tanpa polling. Informasi akun/trial masih ada di bawah. / Check empty states, explicit refresh, and retained account details.
+- [ ] Laporan pembayaran: cocokkan tunai/transfer/Lainnya, pembayaran yang dikoreksi tetap masuk tanggal asal, koreksi masuk tanggal koreksi. Nilai bersih negatif dijelaskan sebagai koreksi pencatatan, bukan refund. / Reconcile original/correction dates, methods, and negative net receipts.
+- [ ] Nilai invoice: cocokkan jasa/spare part/total terbit, batal, dan bersih. Draft/batal draft tidak dihitung; pembayaran sebagian tidak dibagi secara perkiraan. Retur setelah terbit tidak mengubah invoice. / Reconcile snapshot invoice values, drafts, installments, and later returns.
+- [ ] Piutang: pilih Sekarang, Akhir hari, dan waktu sampai detik; waktu masa depan ditolak. Cocokkan total daftar dengan rincian pada cutoff yang sama. / Check cutoff controls, future rejection, and summary/detail reconciliation.
+- [ ] Telusuri invoice: sebelum terbit tidak ada kejadian; setelah terbit ada sisa; pembayaran mengurangi; koreksi menambah kembali; pembatalan meniadakan piutang. Kejadian sesudah cutoff tidak ditampilkan. / Verify the historical lifecycle, including invoices currently voided.
+- [ ] Piutang CSV/cetak tetap memakai waktu pilihan dan menyertakan timezone/waktu dibuat. Periksa nominal dan file di aplikasi pembaca CSV yang lu pakai. / Verify export cutoff metadata and amounts with your CSV reader.
+- [ ] Cetak A4/simpan PDF: ringkasan seluruh filter, rincian hanya halaman aktif, dan keterangannya terlihat. Coba printer fisik bila tersedia. / Verify page scope, PDF, and physical printing where available.
+- [ ] Riwayat servis: filter status/tanggal dibuat/selesai/mekanik/pelat/nomor WO berjalan. Dari detail kendaraan/pelanggan, Semua waktu tetap berhalaman. Perubahan pelat atau pemilik kendaraan tidak memutus riwayat WO pelanggan lama. / Check history filters, stable identities, pagination, and historical customer ownership.
+- [ ] Ganti bengkel, lalu buka filter dari tab lama: pesan muat ulang muncul. Data bengkel lain tidak dapat dibaca lewat ID atau URL yang diubah. / Check stale tenant context and manipulated IDs.
+- [ ] HP/desktop nyaman: angka terbaca, tabel dapat digeser di dalam area tabel, halaman tidak melebar, navigasi dan tombol tetap mudah dipakai. / Check real-device usability and local table scrolling.
+
+**ID:** Setelah Sprint 5, berhenti sebelum milestone Alpha: validasi alur dengan bengkel nyata dan perbaikan operasional. Definisi angka dan batas fitur: [Sprint 5](SPRINT_5_DASHBOARD_REPORTS.md).
+
+**EN:** Stop before Alpha real-workshop validation and operational fixes. See [Sprint 5](SPRINT_5_DASHBOARD_REPORTS.md) for definitions and scope.
+
+**ID — Arsip Sprint 4:** B01–B03 invoice dan pembayaran sudah tersedia. [Checklist Sprint 4](#sprint-4--invoice-dan-pembayaran) tetap disimpan. Manual Sprint 2/3/4 tetap belum dikonfirmasi; centang otomatis di bawah hanya hasil pemeriksaan Codex.
+
+**EN — Sprint 4 archive:** B01–B03 invoices/payments are available. The [Sprint 4 checklist](#sprint-4--invoice-dan-pembayaran) preserves prior evidence. Sprint 2/3/4 manual acceptance is unconfirmed; automated checks only record Codex verification.
 
 ## Sprint 4 — Invoice dan Pembayaran
 

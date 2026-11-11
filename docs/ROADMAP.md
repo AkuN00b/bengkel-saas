@@ -15,6 +15,10 @@ Only implement the task explicitly requested.
 
 ### Current checkpoint / Posisi saat ini — 2026-11-11
 
+**ID:** D01–D02 Sprint 5 tersedia: dashboard sesuai role, laporan pembayaran/koreksi, nilai invoice, piutang per detik, riwayat servis, CSV, dan cetak A4/PDF browser. [Definisi dan hasil Sprint 5](SPRINT_5_DASHBOARD_REPORTS.md), [checklist manual](MANUAL_TESTING.md#sprint-5--dashboard-dan-laporan). Manual Sprint 2–5 belum dikonfirmasi. Tahap berikutnya **Alpha: validasi bengkel nyata dan perbaikan operasional**, bukan implementasi fitur otomatis.
+
+**EN:** Sprint 5 D01–D02 provides role dashboards, payment/correction and invoice-value reports, second-precision historical receivables, service history, CSV, and browser A4/PDF printing. See the linked definitions and checklist. Sprint 2–5 manual acceptance remains unconfirmed. The next milestone is **Alpha real-workshop validation and operational fixes**, requiring a separate instruction.
+
 | Steps / Langkah | Status | Detail |
 | --- | --- | --- |
 | F01–F08 — Foundation | Complete for implemented scope; laptop results tracked separately / Selesai untuk scope yang tersedia; hasil laptop dicatat terpisah | [Foundation review / Review Foundation](FOUNDATION_REVIEW.md); tag `f08-foundation-hardening-v1` |
@@ -22,6 +26,7 @@ Only implement the task explicitly requested.
 | W01–W03 + mechanic accounts / Akun mekanik | Sprint 2 package implemented; acceptance tracked separately / Paket Sprint 2 diimplementasikan; penerimaan dicatat terpisah | [Sprint 2](SPRINT_2_WORK_ORDERS.md); release tag `sprint-2-work-orders-v1`; [testing](MANUAL_TESTING.md#sprint-2--wo-dan-mekanik) |
 | I01–I05 — Services, parts, inventory / Jasa, spare part, stok | Sprint 3 package implemented; manual acceptance pending / Paket Sprint 3 diimplementasikan; penerimaan manual belum dilakukan | [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md); tag `sprint-3-services-inventory-v1`; [testing](MANUAL_TESTING.md#sprint-3--jasa-spare-part-dan-stok) |
 | B01–B03 — Invoices + Payments / Invoice + Pembayaran | Sprint 4 implemented, local automation passed; user acceptance pending / Sprint 4 diimplementasikan, otomasi lokal lolos; penerimaan user belum dilakukan | [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md); tag `sprint-4-invoices-payments-v1`; [testing](MANUAL_TESTING.md#sprint-4--invoice-dan-pembayaran) |
+| D01–D02 — Dashboard + Reports / Dashboard + Laporan | Sprint 5 implemented; 419 tests passed; manual acceptance pending / Sprint 5 tersedia; 419 tes lolos; penerimaan manual belum dikonfirmasi | [Sprint 5](SPRINT_5_DASHBOARD_REPORTS.md); tag `sprint-5-dashboard-reports-v1`; [testing](MANUAL_TESTING.md#sprint-5--dashboard-dan-laporan) |
 
 **EN:** This roadmap remains the source of phase order and scope. The linked Sprint 1 document expands C01–C03 into implementation steps, testing criteria, and decisions to settle before coding. Recording the plan does not authorize implementing the features.
 

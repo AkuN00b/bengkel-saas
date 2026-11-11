@@ -5,6 +5,12 @@
 > Architecture Style: Modular Monolith  
 > Tenant Model: Shared Database, Shared Schema, Tenant-Owned Rows
 
+### Sprint 5 read reporting / Pembacaan laporan Sprint 5
+
+**ID:** `ReportRequest` dan `ReportPolicy` membatasi input/akses; `Queries/Reporting` dan `Queries/Dashboard` membaca data bengkel aktif. `ReportSnapshot` memakai PostgreSQL REPEATABLE READ READ ONLY tanpa lock transaksi operasional. Blade dirender dengan hasil yang sudah dibaca; CSV bertahap tetap berada dalam snapshot yang sama. Agregat numeric dikirim sebagai string desimal tepat, tanpa float/overflow integer PHP. Tidak ada cache/polling, repository generik, tabel ledger baru, atau dependency tambahan.
+
+**EN:** Requests/policies enforce input and access while reporting query classes scope reads to the active workshop. Read-only repeatable snapshots keep summaries, detail, and streamed CSV consistent without locking operational transactions. Exact SQL numeric totals remain decimal strings; no floating-point conversion, new ledger, cache/polling, generic repository, or dependency is introduced. See [Sprint 5 definitions and validation](SPRINT_5_DASHBOARD_REPORTS.md).
+
 ## 1. Architecture Goal / Tujuan Arsitektur
 
 **EN:** Build a secure, understandable SaaS architecture that supports BengkelOS without premature distributed-system complexity.

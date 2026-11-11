@@ -7,6 +7,12 @@
 > Primary Key: BIGINT Auto-Increment  
 > Tenant Model: Shared Database, Shared Schema, Tenant-Owned Rows
 
+### Sprint 5 reporting indexes / Indeks laporan Sprint 5 — 2026-11-11
+
+**ID:** Migration `2026_11_11_010000_add_reporting_indexes` menambah `(workshop_id, paid_at, id)` pada payments, `(workshop_id, created_at, id)` pada payment_reversals, indeks parsial invoice berdasarkan issued_at/voided_at, serta `(workshop_id, vehicle_id, id)` untuk riwayat WO. Tidak ada tabel transaksi atau ledger baru. Rincian predikat, EXPLAIN, dan definisi piutang historis ada di [dokumen laporan](SPRINT_5_DASHBOARD_REPORTS.md). Seluruh 15 migration lokal Ran; record lama dipertahankan.
+
+**EN:** One new migration adds tenant/time indexes for payments/reversals, partial invoice issue/void indexes, and the stable vehicle WO-history index. No transaction tables/ledgers are added. See the [report specification](SPRINT_5_DASHBOARD_REPORTS.md) for predicates, EXPLAIN validation, and historical balance rules. All 15 local migrations ran with existing records preserved.
+
 ## 1. Database Goals / Tujuan Database
 
 Priorities:
