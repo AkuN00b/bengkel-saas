@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MechanicController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\WorkOrderController;
@@ -43,6 +44,16 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::post('/workshops/active', [WorkshopSelectionController::class, 'store'])->name('workshops.activate');
     Route::get('/dashboard', DashboardController::class)->middleware('active.workshop')->name('dashboard');
     Route::middleware('active.workshop')->group(function (): void {
+        foreach (['payments', 'invoice-values', 'receivables'] as $report) {
+            Route::get('/reports/'.$report, [ReportController::class, 'index'])->defaults('report', $report)->name('reports.'.$report.'.index');
+            Route::get('/reports/'.$report.'/export', [ReportController::class, 'export'])->defaults('report', $report)->name('reports.'.$report.'.export');
+            Route::get('/reports/'.$report.'/print', [ReportController::class, 'index'])->defaults('report', $report)->name('reports.'.$report.'.print');
+        }
+        Route::get('/reports/receivables/{invoice}', [ReportController::class, 'show'])->whereNumber('invoice')->name('reports.receivables.show');
+        Route::get('/reports/receivables/{invoice}/print', [ReportController::class, 'show'])->whereNumber('invoice')->name('reports.receivables.trace.print');
+        Route::get('/service-history', [ReportController::class, 'index'])->name('service-history.index');
+        Route::get('/service-history/export', [ReportController::class, 'export'])->name('service-history.export');
+        Route::get('/service-history/print', [ReportController::class, 'index'])->name('service-history.print');
         Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
         Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
         Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');

@@ -41,6 +41,8 @@ class InvoiceController extends Controller
                 $query->whereRaw($paid.' = invoices.total');
             } elseif ($state === 'unpaid') {
                 $query->where('total', '>', 0)->whereRaw($paid.' = 0');
+            } elseif ($state === 'outstanding') {
+                $query->whereRaw($paid.' < invoices.total');
             } else {
                 $query->whereRaw($paid.' > 0 AND '.$paid.' < invoices.total');
             }

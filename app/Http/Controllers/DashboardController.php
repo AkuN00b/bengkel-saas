@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\SubscriptionStatus;
+use App\Policies\ReportPolicy;
+use App\Queries\Dashboard;
+use App\Support\ReportSnapshot;
 use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,7 +14,13 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): View
     {
+        return app(ReportSnapshot::class)->run(fn () => $this->read($request));
+    }
+
+    private function read(Request $request): View
+    {
         $workshop = $request->attributes->get('activeWorkshop');
+        abort_unless((new ReportPolicy)->history($request->user(), $workshop), 403);
         $subscription = $workshop->subscriptions()->with('plan')->orderByDesc('starts_at')->orderByDesc('id')->first();
         $now = now();
         $trialDays = null;
@@ -52,6 +61,7 @@ class DashboardController extends Controller
             'statusLabel' => $statusLabel, 'trialDays' => $trialDays,
             'trialDeadline' => $deadline?->timezone($timezone)->format('d/m/Y H:i'),
             'displayTimezone' => $timezone,
+            'operations' => app(Dashboard::class)->read($workshop, $request->user(), $timezone),
         ]);
     }
 }

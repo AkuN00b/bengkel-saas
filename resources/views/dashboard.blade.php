@@ -2,9 +2,10 @@
     <div class="mb-8">
         <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Ruang kerja Anda</p>
         <h1 class="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Selamat datang, <span class="break-words">{{ auth()->user()->name }}</span>.</h1>
-        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-slate-500">Anda sudah masuk ke BengkelOS. Mulai dari informasi bengkel dan akses akun Anda.</p>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-slate-500">Kondisi operasional bengkel Anda. Pekerjaan selesai belum berarti lunas.</p>
     </div>
     <div class="mb-6">@include('vehicles._lookup')</div>
+    @include('reports._dashboard', ['d'=>$operations])
     <div class="grid gap-5 md:grid-cols-2">
         <section class="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8" aria-labelledby="workshop-heading">
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Bengkel Anda</p>

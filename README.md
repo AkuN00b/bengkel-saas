@@ -1,14 +1,20 @@
 # BengkelOS
 
-**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, customers/vehicles, work orders/mechanics, inventory, and Sprint 4 B01–B03 invoices/payments are implemented.
+**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, customers/vehicles, work orders/mechanics, inventory, invoices/payments, and Sprint 5 dashboards/reports are implemented.
 
-**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, pelanggan/kendaraan, perintah kerja/mekanik, stok, serta Sprint 4 B01–B03 invoice/pembayaran sudah tersedia.
+**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, pelanggan/kendaraan, perintah kerja/mekanik, stok, invoice/pembayaran, serta dashboard/laporan Sprint 5 sudah tersedia.
 
 ## Stack
 
 PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PHPUnit 12.
 
 ## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
+
+**ID / EN — Validasi Sprint 5 / Sprint 5 validation:** **419 tests / 2.732 assertions**, 3 JavaScript tests, Pint, Composer strict, Blade, Vite, all-role desktop/mobile browser, CSV and A4/PDF checks passed. Tag: `sprint-5-dashboard-reports-v1`.
+
+**ID — Sprint 5:** D01–D02 dashboard owner/kasir/mekanik, laporan pembayaran/koreksi dan nilai invoice, piutang historis sampai detik, penelusuran invoice, riwayat servis, CSV, serta cetak A4/PDF browser tersedia. Keuangan dan ekspor/cetak laporan khusus owner. Lihat [definisi angka Sprint 5](docs/SPRINT_5_DASHBOARD_REPORTS.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-5--dashboard-dan-laporan). Manual Sprint 2–5 belum dikonfirmasi. Total **15 migration Ran**, data lama tetap. Tahap berikutnya Alpha: validasi bengkel nyata dan perbaikan operasional; belum dijalankan.
+
+**EN — Sprint 5:** Role dashboards, payment/correction and snapshot invoice-value reports, exact-time historical receivables/invoice tracing, service history, CSV, and browser A4/PDF printing are available. Financial reports and every report export/print action are owner-only. See the linked definitions and latest checklist. **15 migrations ran** with existing data retained. Human Sprint 2–5 acceptance is unconfirmed; Alpha field validation/operational fixes have not started. Older sprint entries below are historical checkpoints.
 
 **ID — Sprint 4:** Draft invoice dari WO, penyesuaian harga beralasan, penerbitan setelah Selesai, pembayaran bertahap, koreksi owner, penggantian invoice, serta cetak A4/PDF browser tersedia. Jumlah barang memakai pemakaian bersih saat sumber disalin; retur sesudah terbit tidak otomatis mengubah tagihan. Lihat [Sprint 4](docs/SPRINT_4_INVOICES_PAYMENTS.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-4--invoice-dan-pembayaran). Manual Sprint 2/3/4 tetap belum dikonfirmasi.
 
