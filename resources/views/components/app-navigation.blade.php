@@ -6,6 +6,10 @@
         Ringkasan
     </a>
     @if ($activeWorkshop)
+        @if(auth()->user()->hasWorkshopRole($activeWorkshop,\App\Enums\WorkshopRole::Owner))
+            <a href="{{ route('reports.payments.index') }}" class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('reports.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Laporan</a>
+        @endif
+        <a href="{{ route('service-history.index') }}" class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('service-history.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Riwayat servis</a>
         @can('viewAny',[\App\Models\Invoice::class,$activeWorkshop])<a href="{{ route('invoices.index') }}" @if(request()->routeIs('invoices.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs('invoices.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">Invoice</a>@endcan
         @can('viewAny', [\App\Models\Service::class, $activeWorkshop])
             @foreach (['services'=>'Jasa','spare-parts'=>'Spare Part'] as $catalogRoute=>$catalogLabel)<a href="{{ route($catalogRoute.'.index') }}" @if(request()->routeIs($catalogRoute.'.*')) aria-current="page" @endif class="flex min-h-12 items-center rounded-xl px-4 py-3 text-sm font-medium {{ request()->routeIs($catalogRoute.'.*') ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">{{ $catalogLabel }}</a>@endforeach

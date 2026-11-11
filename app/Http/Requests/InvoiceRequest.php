@@ -20,8 +20,8 @@ class InvoiceRequest extends FormRequest
         $workshop = $this->attributes->get('activeWorkshop');
         $orderRule = ['bail', 'nullable', 'integer', 'min:1', 'max:'.PHP_INT_MAX, Rule::exists('work_orders', 'id')->where('workshop_id', $workshop->id)];
         if ($this->isMethod('GET')) {
-            return ['q' => ['nullable', 'string', 'max:100', 'not_regex:/\x00/'], 'status' => ['nullable', Rule::in(['all', 'draft', 'issued', 'void'])],
-                'payment' => ['nullable', Rule::in(['all', 'unpaid', 'partial', 'paid'])], 'work_order_id' => $orderRule,
+            return ['workshop_context' => ['nullable', 'integer', Rule::in([$workshop->id])], 'q' => ['nullable', 'string', 'max:100', 'not_regex:/\x00/'], 'status' => ['nullable', Rule::in(['all', 'draft', 'issued', 'void'])],
+                'payment' => ['nullable', Rule::in(['all', 'unpaid', 'partial', 'paid', 'outstanding'])], 'work_order_id' => $orderRule,
                 'page' => ['nullable', 'integer', 'min:1', 'max:1000000'], 'items_page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
                 'payments_page' => ['nullable', 'integer', 'min:1', 'max:1000000'], 'events_page' => ['nullable', 'integer', 'min:1', 'max:1000000']];
         }

@@ -1,4 +1,5 @@
 <x-app-layout title="Detail kendaraan" :active-workshop="$activeWorkshop">
+    <a class="auth-link block min-h-11" href="{{ route('service-history.index',['vehicle_id'=>$vehicle->id,'preset'=>'all','workshop_context'=>$activeWorkshop->id]) }}">Riwayat servis kendaraan — semua waktu</a>
     <a href="{{ route('vehicles.index') }}" class="auth-link inline-flex min-h-11 items-center text-sm">← Kembali ke kendaraan</a>
     <div class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <h1 class="break-words text-3xl font-bold">{{ $vehicle->plate_number }}</h1>
