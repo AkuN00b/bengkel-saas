@@ -1,14 +1,20 @@
 # BengkelOS
 
-**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, customers/vehicles, work orders/mechanics, and Sprint 3 I01–I05 services/parts/inventory are implemented.
+**EN:** A mobile-friendly workshop SaaS built as one Laravel application. Foundation, customers/vehicles, work orders/mechanics, inventory, and Sprint 4 B01–B03 invoices/payments are implemented.
 
-**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, pelanggan/kendaraan, perintah kerja/mekanik, serta Sprint 3 I01–I05 jasa/spare part/stok sudah tersedia.
+**ID:** SaaS bengkel yang nyaman digunakan dari HP dalam satu aplikasi Laravel. Foundation, pelanggan/kendaraan, perintah kerja/mekanik, stok, serta Sprint 4 B01–B03 invoice/pembayaran sudah tersedia.
 
 ## Stack
 
 PHP 8.4+, Laravel 13, Blade, Tailwind CSS 4, Alpine.js 3, Vite 8, PostgreSQL, PHPUnit 12.
 
 ## Current stage and laptop checks / Tahap sekarang dan pemeriksaan laptop
+
+**ID — Sprint 4:** Draft invoice dari WO, penyesuaian harga beralasan, penerbitan setelah Selesai, pembayaran bertahap, koreksi owner, penggantian invoice, serta cetak A4/PDF browser tersedia. Jumlah barang memakai pemakaian bersih saat sumber disalin; retur sesudah terbit tidak otomatis mengubah tagihan. Lihat [Sprint 4](docs/SPRINT_4_INVOICES_PAYMENTS.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-4--invoice-dan-pembayaran). Manual Sprint 2/3/4 tetap belum dikonfirmasi.
+
+**EN — Sprint 4:** Drafts from WOs, reasoned price overrides, completed-work issuance, installments, owner corrections/replacements, and A4/browser-PDF printing are available. Quantities use net consumption at source capture; later returns do not rewrite issued bills. See [Sprint 4](docs/SPRINT_4_INVOICES_PAYMENTS.md) and [latest checklist](docs/MANUAL_TESTING.md#sprint-4--invoice-dan-pembayaran). Manual acceptance remains unconfirmed.
+
+**ID / EN — Validasi / Validation:** 382 tests / 2.467 assertions, 3 JavaScript tests, Pint, Composer validation, Blade, Vite build, desktop/mobile browser and A4/PDF checks passed. 14 migrations Ran. Tag: `sprint-4-invoices-payments-v1`.
 
 **ID — Sprint 3:** Katalog jasa/spare part, baris WO, restock, koreksi owner, konfirmasi pemakaian saat Dikerjakan, dan retur parsial sudah tersedia. Harga WO dapat disesuaikan tanpa mengubah katalog. Stok tidak negatif dan transaksi duplikat tidak menggandakan ledger. Retur hanya mengubah stok; belum ada invoice/pembayaran. Lihat [Sprint 3](docs/SPRINT_3_SERVICES_INVENTORY.md) dan [checklist terbaru](docs/MANUAL_TESTING.md#sprint-3--jasa-spare-part-dan-stok). Penerimaan manual Sprint 2/3 tetap terpisah dari hasil otomatis.
 

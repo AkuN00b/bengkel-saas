@@ -1,6 +1,67 @@
 # BengkelOS — Manual Testing / Pengujian Mandiri
 
-> Reviewed / Ditinjau: 2026-11-10
+> Reviewed / Ditinjau: 2026-11-11
+
+**ID — Versi terbaru Sprint 4:** B01–B03 invoice dan pembayaran sudah tersedia. Mulai dari [checklist Sprint 4](#sprint-4--invoice-dan-pembayaran). Manual Sprint 2/3/4 tetap belum dikonfirmasi; centang otomatis di bawah hanya hasil pemeriksaan Codex.
+
+**EN — Latest Sprint 4 version:** B01–B03 invoices/payments are available. Start with the [Sprint 4 checklist](#sprint-4--invoice-dan-pembayaran). Sprint 2/3/4 manual acceptance is unconfirmed; automated checks only record Codex verification.
+
+## Sprint 4 — Invoice dan Pembayaran
+
+**ID:** Nyalakan Herd dan PostgreSQL, buka `http://bengkel-saas.test`. Tidak perlu npm run dev jika build sudah tersedia. Di laptop lain setelah menerima rilis, jalankan dari folder project di PowerShell; jangan migrate:fresh, reset, rollback, atau seed ulang database aplikasi.
+
+**EN:** Run Herd/PostgreSQL and open the local app. Compiled assets do not require npm run dev. On another laptop after receiving the release, run these commands from the project directory; never reset/roll back/reseed application data.
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git fetch origin --tags
+git show --no-patch --oneline sprint-4-invoices-payments-v1
+composer install
+npm.cmd ci
+php artisan config:clear
+php artisan migrate
+php artisan migrate:status
+npm.cmd run build
+```
+
+### Automated local verification / Verifikasi otomatis lokal
+
+- [x] Migration Sprint 4 Ran, total 14 migration. Jumlah record lama tetap: users 4, workshops 2, memberships 2, plans 3, subscriptions 2, serta customers/vehicles/WO/events/catalogs/lines/movements 0. Tidak ada seed/reset data aplikasi. / One new migration ran, 14 total; all pre-existing row counts were preserved without application reseeding/resetting.
+- [x] Suite penuh **382 tes / 2.467 assertion** lolos, termasuk regresi, source fingerprint/retur, snapshot, role/tenant, pembayaran/koreksi, constraint/triggers, rollback, serta proses PHP bersamaan untuk issue/pay/reverse/void/retur. / Full suite passed **382 tests / 2,467 assertions**, including financial/security/database and independent-process concurrency checks.
+- [x] **3 tes JavaScript**, Pint seluruh project, Composer validation strict, kompilasi Blade, dan build Vite lolos. / **3 JavaScript tests**, project-wide Pint, strict Composer validation, Blade compilation, and Vite build passed.
+- [x] Browser Edge desktop **1280×900** dan HP **390×844** lolos: draft jumlah bersih, harga beralasan, stale source/refresh, issue, pembayaran campuran sampai lunas, reversal owner, void/reissue, retur setelah terbit, role/IDOR, konflik versi/bengkel, pagination, navigasi mobile, cetak A4 dan file PDF browser. Tanpa error JavaScript/overflow horizontal. / All-role desktop/mobile and A4/PDF browser checks passed without JS errors or horizontal overflow.
+- [x] Herd/Nginx kembali menyajikan BengkelOS HTTP 200 pada `bengkel-saas.test`. IIS W3SVC dihentikan sementara setelah aktif kembali; startup type tidak diubah. / Herd/Nginx serves BengkelOS HTTP 200 after temporarily stopping reactivated IIS; service startup settings were unchanged.
+
+**ID:** Browser memakai server `127.0.0.1:8011`, akun sintetis, database `bengkel_saas_testing`, dan mail array. PDF uji berisi data sintetis. Tidak membuktikan printer fisik, SMTP, atau penerimaan user sudah lolos.
+
+**EN:** Browser automation used a separate server, synthetic accounts/test database, and array mail. Generated PDFs contain synthetic data. This does not confirm physical printers, real SMTP, or user acceptance.
+
+### User acceptance / Penerimaan user
+
+**ID:** Semua kotak ini sengaja kosong sampai lu mencoba dan mengonfirmasi. Gunakan data uji yang mudah dikenali; angka pembayaran adalah pencatatan, bukan transfer uang oleh aplikasi.
+
+**EN:** These boxes remain empty until user confirmation. Use recognizable test records; payment entry records money rather than transferring it.
+
+- [ ] Owner/kasir: dari detail WO Antre/Dikerjakan buat draft. Hanya jasa aktif dan barang Dipakai bersih setelah retur yang disalin; Rencana/batal/retur penuh tidak ditagih. / Check draft source eligibility and net quantities.
+- [ ] Ubah harga draft dengan alasan; WO dan katalog tetap sama. Catatan draft bisa diubah. / Verify reasoned overrides and note edits without changing sources.
+- [ ] Ubah WO atau catat retur setelah draft dibuat. Penerbitan ditolak sampai Perbarui dari WO; konfirmasi menghapus penyesuaian harga lama dan menyusun ulang rincian. / Check stale-source detection and explicit refresh.
+- [ ] Invoice hanya dapat terbit setelah WO Selesai; WO Dibatalkan tidak ditagihkan. Draft tanpa baris ditolak; invoice sah total nol Lunas—tanpa pembayaran. / Verify issuance and zero/empty rules.
+- [ ] Terbitkan: nomor INV unik per bengkel, snapshot identitas/rincian terkunci. Mengubah master tidak mengubah invoice terbit. / Check numbering and frozen snapshots.
+- [ ] Catat pembayaran sebagian tunai, lanjut transfer atau Lainnya sampai lunas. Metode Lainnya wajib keterangan, nominal tidak boleh nol/negatif/lebih dari sisa. / Check installments, mixed methods, validation, and balance.
+- [ ] Kasir tidak melihat tindakan void/reversal; mekanik tidak mengakses daftar/detail/cetak invoice, namun tetap melihat item WO tugas sendiri. / Check financial role boundaries.
+- [ ] Owner membatalkan salah catat pembayaran dengan alasan; record lama masih terlihat, sisa tagihan dihitung ulang, dan pembayaran benar dicatat baru. Ini bukan refund uang. / Check record correction and preserved originals.
+- [ ] Invoice dengan pembayaran valid tidak dapat dibatalkan. Invoice tanpa pembayaran valid dapat di-void owner, lalu dibuat pengganti dengan nomor baru dan tautan ke invoice lama. / Verify void/reissue boundaries and history.
+- [ ] Pembatalan WO membatalkan draft invoice secara atomik tanpa mengubah riwayat stok yang sudah terpakai. / Check linked draft voiding on WO cancellation.
+- [ ] Retur sesudah invoice terbit hanya mengubah stok; jumlah/harga/total invoice tidak otomatis berkurang. / Verify post-issue returns do not rewrite billing.
+- [ ] Klik ulang/kirim ulang pembayaran yang sama tidak menambah catatan ganda. Form lama setelah perubahan atau pergantian bengkel ditolak dengan konflik jelas. / Check idempotency and stale/context conflicts.
+- [ ] Pencarian nomor/WO/pelat/pelanggan, filter status dokumen/pembayaran, serta pagination rincian/payment/event berjalan. / Check searching, filters, and pagination.
+- [ ] Cetak A4 atau simpan PDF browser: identitas, rincian, total, pembayaran valid dan sisa benar; Draft/Batal mempunyai penanda. Uji printer fisik bila tersedia. / Check real print/PDF output and document marks.
+- [ ] HP/desktop nyaman, tidak melebar; angka Rupiah tepat dan waktu mengikuti timezone bengkel. / Check real-device usability, exact currency display, and timezone.
+
+**ID:** Stop sebelum Sprint 5. Detail keputusan dan hasil: [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md).
+
+**EN:** Stop before Sprint 5. See [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md) for decisions/results.
 
 **ID — Versi terbaru Sprint 3:** I01–I05 jasa, spare part, dan stok sudah tersedia. Mulai dari [checklist Sprint 3](#sprint-3--jasa-spare-part-dan-stok). Penerimaan manual Sprint 2 dan Sprint 3 tetap belum dikonfirmasi; hasil otomatis bukan pengganti centang user.
 
