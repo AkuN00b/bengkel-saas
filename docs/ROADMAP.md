@@ -13,7 +13,7 @@ It is a planning document, not authorization to implement every listed task auto
 
 Only implement the task explicitly requested.
 
-### Current checkpoint / Posisi saat ini — 2026-11-10
+### Current checkpoint / Posisi saat ini — 2026-11-11
 
 | Steps / Langkah | Status | Detail |
 | --- | --- | --- |
@@ -21,6 +21,7 @@ Only implement the task explicitly requested.
 | C01–C03 — Customers + Vehicles / Pelanggan + Kendaraan | Implemented, local automated checks passed / Diimplementasikan, tes otomatis lokal lolos | [Sprint 1 progress / Progres Sprint 1](SPRINT_1_CUSTOMER_VEHICLE.md); tags `c02-vehicle-management-v1`, `c03-customer-vehicle-ux-v1` |
 | W01–W03 + mechanic accounts / Akun mekanik | Sprint 2 package implemented; acceptance tracked separately / Paket Sprint 2 diimplementasikan; penerimaan dicatat terpisah | [Sprint 2](SPRINT_2_WORK_ORDERS.md); release tag `sprint-2-work-orders-v1`; [testing](MANUAL_TESTING.md#sprint-2--wo-dan-mekanik) |
 | I01–I05 — Services, parts, inventory / Jasa, spare part, stok | Sprint 3 package implemented; manual acceptance pending / Paket Sprint 3 diimplementasikan; penerimaan manual belum dilakukan | [Sprint 3](SPRINT_3_SERVICES_INVENTORY.md); tag `sprint-3-services-inventory-v1`; [testing](MANUAL_TESTING.md#sprint-3--jasa-spare-part-dan-stok) |
+| B01–B03 — Invoices + Payments / Invoice + Pembayaran | Sprint 4 implemented, local automation passed; user acceptance pending / Sprint 4 diimplementasikan, otomasi lokal lolos; penerimaan user belum dilakukan | [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md); tag `sprint-4-invoices-payments-v1`; [testing](MANUAL_TESTING.md#sprint-4--invoice-dan-pembayaran) |
 
 **EN:** This roadmap remains the source of phase order and scope. The linked Sprint 1 document expands C01–C03 into implementation steps, testing criteria, and decisions to settle before coding. Recording the plan does not authorize implementing the features.
 
@@ -572,6 +573,10 @@ Cancellation does not silently restore consumed stock.
 STOP. Sprint 3 ends.
 
 ## 18. Sprint 4 — Invoice + Payment
+
+**ID — Paket disetujui 2026-11-11:** B01–B03 dilaksanakan sekaligus, menggantikan STOP per subtask. Draft dari WO Antre/Dikerjakan/Selesai, terbit hanya Selesai; sumber memakai jasa aktif dan barang dipakai bersih setelah retur. Harga draft fleksibel dengan alasan; refresh eksplisit menghapus penyesuaian. Owner/kasir menerbitkan/mencatat pembayaran; void invoice dan reversal catatan khusus owner. Tanpa DP, kembalian, refund uang, diskon/pajak terpisah. Cetak A4/PDF browser. Detail dan hasil di [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md). Berhenti sebelum Sprint 5; manual Sprint 2/3 tetap belum dikonfirmasi.
+
+**EN — Approved package, 2026-11-11:** B01–B03 ship together, superseding individual STOPs below. Drafts use queued/in-progress/completed WOs; only completed WOs may issue. Sources include active services and net usage after returns. Draft price adjustments require reasons; explicit refresh clears them. Owners/cashiers issue/collect; voids/reversals are owner-only. No advances, change, money refunds, or separate taxes/discounts. A4/browser PDF is supported. See [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md). Stop before Sprint 5; earlier manual acceptance stays unconfirmed.
 
 ### B01 — Invoice Draft
 

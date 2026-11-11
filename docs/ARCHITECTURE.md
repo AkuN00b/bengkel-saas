@@ -349,6 +349,10 @@ V1 may use controlled void + reissue for material correction.
 
 ## 23. Payment Architecture / Arsitektur Pembayaran
 
+**ID — Sprint 4 diimplementasikan:** Billing mengoordinasikan create/refresh/price/issue/void/pay/reverse; InvoiceSource menyalin dan mem-fingerprint sumber WO beserta ledger retur. Lock workshop → WO → invoice → record terkait menyelaraskan penerbitan dengan retur inventory. Draft stale ditolak saat issue, termasuk retur final tanpa versi WO berubah. Snapshot final dan ledger append-only dilindungi PostgreSQL, pembayaran berlebih dicegah lagi di database. Reversal adalah koreksi catatan, bukan refund uang. UI/cetak tetap auth/tenant-scoped; tidak ada generator PDF/dependency baru atau dashboard Sprint 5. Lihat [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md).
+
+**EN — Sprint 4 implemented:** Billing coordinates draft/refresh/price/issue/void/pay/reverse operations; InvoiceSource copies/fingerprints WO and return-ledger sources. Workshop → WO → invoice → related-record locks align issue and inventory returns. Stale drafts cannot issue, including final returns without WO version changes. PostgreSQL protects final snapshots/history and guards overpayments. Reversals correct records rather than refund money. Web/print remains authenticated and tenant-scoped, without PDF packages or Sprint 5 dashboards. See [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md).
+
 Relationship:
 
     Invoice 1 → 0..N Payments

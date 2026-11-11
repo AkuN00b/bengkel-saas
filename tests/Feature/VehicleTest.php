@@ -112,6 +112,8 @@ class VehicleTest extends TestCase
         Vehicle::factory()->create(['workshop_id' => $customer->workshop_id, 'customer_id' => $customer->id]);
         $orders = require database_path('migrations/2026_11_10_110000_create_work_orders.php');
         $inventory = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
+        $billing = require database_path('migrations/2026_11_11_000000_create_invoices_and_payments.php');
+        $billing->down();
         $inventory->down();
         $orders->down();
         $migration = require database_path('migrations/2026_11_10_000000_create_vehicles_table.php');
@@ -122,6 +124,7 @@ class VehicleTest extends TestCase
         $migration->up();
         $orders->up();
         $inventory->up();
+        $billing->up();
         $this->assertTrue(Schema::hasTable('vehicles'));
         $this->assertTrue(Vehicle::factory()->create(['workshop_id' => $customer->workshop_id])->exists);
     }

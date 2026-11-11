@@ -47,6 +47,7 @@
         </section>
     </div>
     @include('work-orders._items')
+    @if($invoices !== null)<section class="mt-7"><h2 class="text-xl font-bold">Invoice WO</h2>@foreach($invoices as $document)<a class="auth-link mt-2 flex min-h-11 items-center" href="{{ route('invoices.show',$document) }}">{{ $document->label() }} · {{ $document->statusLabel() }}</a>@endforeach<div class="mt-3">{{ $invoices->links() }}</div>@if(in_array($order->status->value,['open','in_progress','completed'],true))<a class="auth-link mt-3 inline-flex min-h-11 items-center" href="{{ route('invoices.create',['work_order_id'=>$order->id]) }}">Buka / buat invoice WO</a>@endif</section>@endif
     <section class="mt-8"><h2 class="text-xl font-bold">Riwayat pekerjaan</h2><ol class="mt-4 space-y-3">
         @foreach ($events as $event)<li class="rounded-xl border border-slate-200 bg-white p-4 text-sm">
             <p class="font-semibold">{{ match($event->type) { 'created' => 'WO dibuat', 'status_changed' => 'Status berubah', 'mechanic_assigned' => 'Penugasan mekanik', 'details_changed' => 'Detail diperbarui', 'service_changed'=>'Jasa diperbarui', 'part_changed'=>'Rencana/harga barang diperbarui', 'work_order_usage'=>'Pemakaian barang dicatat', 'work_order_return'=>'Retur barang dicatat', 'plans_cancelled'=>'Sisa rencana barang dibatalkan', default => 'Perubahan WO' } }}</p>

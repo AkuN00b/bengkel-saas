@@ -106,6 +106,7 @@ class WorkOrders
                     $order->status = WorkOrderStatus::Cancelled;
                     $order->cancelled_at = now('UTC');
                     $order->cancellation_reason = $data['cancellation_reason'];
+                    app(Billing::class)->cancelDraftForWorkOrder($order, $actor);
                 } elseif ($action === 'open' && $from === WorkOrderStatus::Draft) {
                     $this->receive($order, $this->vehicle($workshop, $order->vehicle_id), $this->customer($workshop, $order->customer_id));
                 } elseif ($action === 'start' && $from === WorkOrderStatus::Open) {

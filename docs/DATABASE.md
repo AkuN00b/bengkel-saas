@@ -608,6 +608,14 @@ Do not implement complex mechanic scheduling or multi-mechanic allocation withou
 
 ## 29. Invoices
 
+**ID — Sprint 4:** Migration `2026_11_11_000000_create_invoices_and_payments` menambah lima tabel billing dan workshop.next_invoice_number tanpa mengubah migration lama. Invoices menyimpan workshop_id, work_order_id, replaces_invoice_id opsional, number nullable sampai terbit, status, total BIGINT, versi, fingerprint sumber, snapshot WO/pelat/pelanggan/bengkel/kontak, catatan, issued/void actor dan UTC. Partial unique menjaga satu draft/issued per WO, unique nomor per tenant. Referensi pengganti wajib tenant/WO yang sama. Tidak ada discount_total: total adalah penjumlahan snapshot tanpa diskon/pajak terpisah. Field konseptual di bawah bukan daftar kolom final.
+
+**EN — Sprint 4:** One migration adds five billing tables and a workshop counter, preserving previous migrations. Invoices store scoped WO/predecessor references, nullable pre-issue numbers, status, BIGINT total, version, source fingerprint, document/contact snapshots, notes, issue/void actors and UTC times. Partial uniqueness permits one draft/issued invoice per WO, with tenant-unique official numbers and same-WO predecessors. No separate discount/tax columns are implemented. Conceptual fields below are not the final column list.
+
+**ID:** Trigger menolak DELETE dokumen, mutasi dokumen void, perubahan snapshot invoice terbit, issue untuk WO belum Selesai/total item tidak cocok, serta void jika ada pembayaran valid. Versi/timestamp operasional tetap dapat bertambah untuk transaksi pembayaran. Alokasi nomor hanya saat issue dengan lock workshop, tanpa reset/reuse. Detail keputusan: [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md).
+
+**EN:** Triggers prevent invoice deletion, void-document edits, issued snapshot rewrites, issuance from unfinished WOs/inconsistent totals, and voiding valid payments. Versions/timestamps may advance for payment operations. Number allocation occurs only at issue under workshop locks, without resets/reuse. See [Sprint 4](SPRINT_4_INVOICES_PAYMENTS.md).
+
 Conceptual fields:
 
     invoices
@@ -637,6 +645,10 @@ Potential constraint:
 Payment condition is separate from invoice document state.
 
 ## 30. Invoice Items
+
+**ID — Implementasi:** invoice_items menyimpan invoice/workshop/WO, item_type service/spare_part, FK sumber bertipe work_order_service_id atau work_order_spare_part_id (tepat satu), name/description/unit snapshots, quantity INTEGER, unit_price/subtotal BIGINT, price_reason opsional, dan UTC. FK gabungan mengikat sumber ke WO invoice yang sama. Constraint menguji kuantitas/harga/subtotal. Trigger hanya mengizinkan INSERT/UPDATE/DELETE saat parent Draft; refresh draft direkam before/after pada invoice_events. Tidak ada item bebas.
+
+**EN — Implemented:** Invoice items have typed service/part WO-line FKs (exactly one), scoped invoice/WO references, name/description/unit snapshots, integer quantities/prices/subtotals, optional override reasons, and UTC timestamps. Composite FKs match the invoice WO. Checks enforce arithmetic. Triggers allow line mutations only while the parent is draft; refresh before/after data is retained in events. Arbitrary lines are unavailable.
 
 Conceptual fields:
 
@@ -676,6 +688,14 @@ Use sufficiently large integer types.
 If fractional/multi-currency requirements appear later, review the design explicitly.
 
 ## 32. Payments
+
+**ID — Implementasi:** payments append-only berisi workshop_id, invoice_id, amount BIGINT positif, method cash/bank_transfer/other, reference/note opsional (note wajib untuk other), created_by, paid_at UTC server. payment_reversals append-only mengikat tepat satu pembatalan penuh per payment, beserta tenant/invoice, actor, reason, created_at. Tidak ada edit, hard delete, partial reversal, backdate, atau record refund uang.
+
+**EN — Implemented:** Append-only payments store scoped invoice references, positive BIGINT amounts, cash/bank_transfer/other methods, optional references/notes (other requires a note), creator, and server UTC time. Append-only reversals permit one full record reversal per payment, retaining invoice/tenant, actor, reason, and time. Editing, hard deletion, partial reversals, backdating, and money-refund records are unavailable.
+
+**ID:** Trigger insert mengunci invoice dan memeriksa status Terbit/sisa tagihan, sehingga pembayaran berlebih tetap ditolak di database. Status/sisa dihitung dari pembayaran tanpa reversal. invoice_events append-only menyimpan actor, type, details JSONB, operation_key UUID unik per tenant, fingerprint request, dan UTC. Replay tetap memeriksa otorisasi; kunci yang sama dengan target/payload/pelaku berbeda ditolak. Index mendukung daftar tenant/status serta item/payment/event berhalaman.
+
+**EN:** Insert triggers lock invoices and enforce issued state/outstanding balances, preventing database overpayment. Status/balance derives from non-reversed payments. Append-only events store actor, type, JSONB details, tenant-unique operation keys, request fingerprints, and UTC. Replays reauthorize and reject changed actors/targets/payloads. Indexes support scoped lists and paginated lines/payments/events.
 
 Conceptual fields:
 
