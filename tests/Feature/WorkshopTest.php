@@ -104,6 +104,8 @@ class WorkshopTest extends TestCase
         $orders = require database_path('migrations/2026_11_10_110000_create_work_orders.php');
         $inventory = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
         $billing = require database_path('migrations/2026_11_11_000000_create_invoices_and_payments.php');
+        $reports = require database_path('migrations/2026_11_11_010000_add_reporting_indexes.php');
+        $reports->down();
         $billing->down();
         $inventory->down();
         $accounts = require database_path('migrations/2026_11_10_100000_add_mechanic_account_state.php');
@@ -131,6 +133,7 @@ class WorkshopTest extends TestCase
         $orders->up();
         $inventory->up();
         $billing->up();
+        $reports->up();
         $this->assertTrue(Schema::hasTable('workshops'));
         $this->assertTrue(Workshop::factory()->create()->exists);
     }

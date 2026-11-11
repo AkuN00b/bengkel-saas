@@ -80,10 +80,13 @@ class BillingDatabaseTest extends TestCase
         $part = $this->part($owner);
         $this->restock($owner, $part);
         $migration = require database_path('migrations/2026_11_11_000000_create_invoices_and_payments.php');
+        $reports = require database_path('migrations/2026_11_11_010000_add_reporting_indexes.php');
+        $reports->down();
         $migration->down();
         $this->assertFalse(Schema::hasTable('invoices'));
         $this->assertSame($before, $order->fresh()->getAttributes());
         $migration->up();
+        $reports->up();
         $this->assertSame(1, $owner->workshop->fresh()->next_invoice_number);
         $this->assertSame(5, $part->fresh()->current_stock);
         $this->assertSame($before, $order->fresh()->getAttributes());

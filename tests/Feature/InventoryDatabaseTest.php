@@ -75,12 +75,15 @@ class InventoryDatabaseTest extends TestCase
         $before = $order->fresh()->getAttributes();
         $migration = require database_path('migrations/2026_11_10_120000_create_services_and_inventory.php');
         $billing = require database_path('migrations/2026_11_11_000000_create_invoices_and_payments.php');
+        $reports = require database_path('migrations/2026_11_11_010000_add_reporting_indexes.php');
+        $reports->down();
         $billing->down();
         $migration->down();
         $this->assertFalse(Schema::hasTable('inventory_movements'));
         $this->assertDatabaseHas('work_orders', ['id' => $order->id, 'number' => $order->number]);
         $migration->up();
         $billing->up();
+        $reports->up();
         $this->assertSame($before, $order->fresh()->getAttributes());
         $this->assertDatabaseHas('users', ['id' => $owner->user_id]);
         $part = $this->part($owner);
